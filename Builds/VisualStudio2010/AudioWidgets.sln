@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{247AC031-0EF9-B03D-D190-076E440866DC}") = "AudioWidgets", "AudioWidgets.vcxproj", "{074C495D-8B0B-CD45-7CA2-6FF0933C6DCC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{074C495D-8B0B-CD45-7CA2-6FF0933C6DCC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{074C495D-8B0B-CD45-7CA2-6FF0933C6DCC}.Debug|Win32.Build.0 = Debug|Win32
+		{074C495D-8B0B-CD45-7CA2-6FF0933C6DCC}.Release|Win32.ActiveCfg = Release|Win32
+		{074C495D-8B0B-CD45-7CA2-6FF0933C6DCC}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,11 @@
+Audio Widgets TODO list
+------------------------
+
+This project will serve as a front end interface to generate control data 
+for audio related projects. Audio Widgets will generate the control data 
+used for synthesis. For example, envelopes to control cutoff/resonance.
+
+Widgets to add:
+[] Wrapper component with inputs and outputs shown
+[] ADSR envelopes
+[] LFO 

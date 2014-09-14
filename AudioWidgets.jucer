@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="Q1i7m3" name="AudioWidgets" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.stevesoft.AudioWidgets" includeBinaryInAppConfig="1"
+              jucerVersion="3.1.0">
+  <MAINGROUP id="ztJ27y" name="AudioWidgets">
+    <GROUP id="{56089715-280E-CCAC-951C-982575B86B34}" name="Tests"/>
+    <GROUP id="{94A04FA8-3058-EEBB-E0CD-A529F5E8B354}" name="Misc">
+      <FILE id="t07yWz" name="TODOlist.txt" compile="0" resource="1" file="TODOlist.txt"/>
+    </GROUP>
+    <GROUP id="{A8E72126-27BC-3EA5-58BE-824B5598C7FF}" name="Source">
+      <GROUP id="{62F962CD-7CEB-7498-2D6A-DCBB5D6602D8}" name="View">
+        <FILE id="KE31V2" name="WidgetWrapper.cpp" compile="1" resource="0"
+              file="Source/WidgetWrapper.cpp"/>
+        <FILE id="CMSuiI" name="WidgetWrapper.h" compile="0" resource="0" file="Source/WidgetWrapper.h"/>
+        <GROUP id="{EC0D44D6-2232-958E-36B4-9EBC3792C05B}" name="Widgets"/>
+      </GROUP>
+      <GROUP id="{42B9F758-4FBB-460D-5D45-B08B9B402240}" name="Controller">
+        <FILE id="P8aLns" name="AppController.cpp" compile="1" resource="0"
+              file="Source/AppController.cpp"/>
+        <FILE id="BwWVgz" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
+      </GROUP>
+      <GROUP id="{383CF3A4-0D78-50F4-A65B-6C124ECE27EE}" name="Model">
+        <FILE id="HmS0Di" name="Connection.h" compile="0" resource="0" file="Source/Connection.h"/>
+        <FILE id="sceyEl" name="NodeModel.cpp" compile="1" resource="0" file="Source/NodeModel.cpp"/>
+        <FILE id="IRp2UZ" name="NodeModel.h" compile="0" resource="0" file="Source/NodeModel.h"/>
+        <FILE id="E4bS2k" name="GraphModel.cpp" compile="1" resource="0" file="Source/GraphModel.cpp"/>
+        <FILE id="Euc18j" name="GraphModel.h" compile="0" resource="0" file="Source/GraphModel.h"/>
+      </GROUP>
+      <FILE id="lAxbhi" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="FBjAiR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="t72363" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <VS2010 targetFolder="Builds/VisualStudio2010">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="AudioWidgets"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="AudioWidgets"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../GitHub/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2010>
+    <VS2013 targetFolder="Builds/VisualStudio2013">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="AudioWidgets"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="AudioWidgets"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../GitHub/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../GitHub/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2013>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_video" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>
