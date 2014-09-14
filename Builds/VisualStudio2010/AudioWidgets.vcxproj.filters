@@ -23,9 +23,6 @@
     <Filter Include="AudioWidgets\Source\Controller">
       <UniqueIdentifier>{76976376-1D87-61FF-C0B9-3AAF2755385A}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AudioWidgets\Source\Model">
-      <UniqueIdentifier>{0F5142D3-B5BA-316E-715F-6C6AFDEAA65A}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Juce Modules">
       <UniqueIdentifier>{422C46B7-0467-2DB0-BF3C-16DFCAFD69AC}</UniqueIdentifier>
     </Filter>
@@ -318,12 +315,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\AppController.cpp">
       <Filter>AudioWidgets\Source\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\NodeModel.cpp">
-      <Filter>AudioWidgets\Source\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\GraphModel.cpp">
-      <Filter>AudioWidgets\Source\Model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>AudioWidgets\Source</Filter>
@@ -1535,15 +1526,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\AppController.h">
       <Filter>AudioWidgets\Source\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Connection.h">
-      <Filter>AudioWidgets\Source\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\NodeModel.h">
-      <Filter>AudioWidgets\Source\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GraphModel.h">
-      <Filter>AudioWidgets\Source\Model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>AudioWidgets\Source</Filter>

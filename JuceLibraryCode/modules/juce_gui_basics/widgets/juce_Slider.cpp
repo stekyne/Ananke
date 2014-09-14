@@ -464,9 +464,9 @@ public:
                               const bool stopAtEnd)
     {
         // make sure the values are sensible..
-        jassert (rotaryStart >= 0 && rotaryEnd >= 0);
-        jassert (rotaryStart < float_Pi * 4.0f && rotaryEnd < float_Pi * 4.0f);
-        jassert (rotaryStart < rotaryEnd);
+        jassert (startAngleRadians >= 0 && endAngleRadians >= 0);
+        jassert (startAngleRadians < float_Pi * 4.0f && endAngleRadians < float_Pi * 4.0f);
+        jassert (startAngleRadians < endAngleRadians);
 
         rotaryStart = startAngleRadians;
         rotaryEnd = endAngleRadians;
@@ -566,6 +566,7 @@ public:
 
             valueBox->setWantsKeyboardFocus (false);
             valueBox->setText (previousTextBoxContent, dontSendNotification);
+            valueBox->setTooltip (owner.getTooltip());
 
             if (valueBox->isEditable() != editableText) // (avoid overriding the single/double click flags unless we have to)
                 valueBox->setEditable (editableText && owner.isEnabled());
@@ -576,10 +577,6 @@ public:
             {
                 valueBox->addMouseListener (&owner, false);
                 valueBox->setMouseCursor (MouseCursor::ParentCursor);
-            }
-            else
-            {
-                valueBox->setTooltip (owner.getTooltip());
             }
         }
         else

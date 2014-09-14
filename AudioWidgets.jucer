@@ -20,13 +20,6 @@
               file="Source/AppController.cpp"/>
         <FILE id="BwWVgz" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
       </GROUP>
-      <GROUP id="{383CF3A4-0D78-50F4-A65B-6C124ECE27EE}" name="Model">
-        <FILE id="HmS0Di" name="Connection.h" compile="0" resource="0" file="Source/Connection.h"/>
-        <FILE id="sceyEl" name="NodeModel.cpp" compile="1" resource="0" file="Source/NodeModel.cpp"/>
-        <FILE id="IRp2UZ" name="NodeModel.h" compile="0" resource="0" file="Source/NodeModel.h"/>
-        <FILE id="E4bS2k" name="GraphModel.cpp" compile="1" resource="0" file="Source/GraphModel.cpp"/>
-        <FILE id="Euc18j" name="GraphModel.h" compile="0" resource="0" file="Source/GraphModel.h"/>
-      </GROUP>
       <FILE id="lAxbhi" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
       <FILE id="FBjAiR" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

@@ -127,8 +127,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\WidgetWrapper.cpp"/>
     <ClCompile Include="..\..\Source\AppController.cpp"/>
-    <ClCompile Include="..\..\Source\NodeModel.cpp"/>
-    <ClCompile Include="..\..\Source\GraphModel.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.cpp">
@@ -1229,9 +1227,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\WidgetWrapper.h"/>
     <ClInclude Include="..\..\Source\AppController.h"/>
-    <ClInclude Include="..\..\Source\Connection.h"/>
-    <ClInclude Include="..\..\Source\NodeModel.h"/>
-    <ClInclude Include="..\..\Source\GraphModel.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_audio_basics\buffers\juce_AudioSampleBuffer.h"/>
