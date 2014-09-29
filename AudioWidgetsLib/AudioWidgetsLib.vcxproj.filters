@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\NodeTypes">
+      <UniqueIdentifier>{de0f3c3c-01d1-4292-999f-08df97b98e4a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Connection.h">
@@ -31,6 +34,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\AudioBufferManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeTypes\GainNode.h">
+      <Filter>Header Files\NodeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeTypes\LowPass.h">
+      <Filter>Header Files\NodeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeTypes\SawOsc.h">
+      <Filter>Header Files\NodeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Nodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

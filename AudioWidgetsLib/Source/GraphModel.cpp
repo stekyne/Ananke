@@ -1,10 +1,14 @@
-#include "GraphModel.h"
 #include <stack>
 #include <iostream>
 #include <list>
+#include <iterator>
+
+#include "GraphModel.h"
 
 GraphModel::GraphModel ()
-    : audioBufferManager (settings.blockSize)
+    :   settings (44100.f, 50),
+        audioBufferManager (50)
+    
 {
 }
 
@@ -14,19 +18,20 @@ GraphModel::~GraphModel ()
         delete graphOps[i];
 }
 
-bool GraphModel::addNode (const NodeModel& newNode)
+bool GraphModel::addNode (NodeModel* const newNode)
 {
-    nodes[newNode.getID ()] = newNode;
+    nodes[newNode->getID ()] = newNode;
     return true;
 }
 
-bool GraphModel::removeNode (const NodeModel& node)
+bool GraphModel::removeNode (const NodeModel* const node)
 {
-    auto iter = nodes.cbegin ();
+    auto& iter = nodes.cbegin ();
 
     while (iter != nodes.end ())
     {
-        if (iter->second.getID () == node.getID ())
+        auto itrNode = iter->second;
+        if (itrNode->getID () == node->getID ())
         {
             nodes.erase (iter);
             break;
@@ -44,13 +49,33 @@ int GraphModel::nodeCount () const
 
 bool GraphModel::addConnection (const Connection& newConnection)
 {
-    auto iter = nodes.begin ();
+    auto& iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
-        if (iter->second.getID () == newConnection.sourceNode)
+        auto itrNode = iter->second;
+        if (itrNode->getID () == newConnection.sourceNode)
         {
-            iter->second.addDependentNode (newConnection.destNode);
+            itrNode->addDependentNode (newConnection.destNode);
+            break;
+        }
+        ++iter;
+    }
+
+    return true;
+}
+
+bool GraphModel::addConnection (const NodeModel* const srcNode, 
+                                const NodeModel* const destNode)
+{
+    auto& iter = nodes.begin ();
+
+    while (iter != nodes.end ())
+    {
+        auto itrNode = iter->second;
+        if (itrNode->getID () == srcNode->getID ())
+        {
+            itrNode->addDependentNode (destNode->getID ());
             break;
         }
         ++iter;
@@ -61,13 +86,14 @@ bool GraphModel::addConnection (const Connection& newConnection)
 
 bool GraphModel::removeConnection (const Connection& connection)
 {
-    auto iter = nodes.begin ();
+    auto& iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
-        if (iter->second.getID () == connection.sourceNode)
+        auto itrNode = iter->second;
+        if (itrNode->getID () == connection.sourceNode)
         {
-            iter->second.removeDependentNode (connection.destNode);
+            itrNode->removeDependentNode (connection.destNode);
             break;
         }
         ++iter;
@@ -79,11 +105,11 @@ bool GraphModel::removeConnection (const Connection& connection)
 int GraphModel::connectionCount () const
 {
     int connectionCount = 0;
-    auto iter = nodes.begin ();
+    auto& iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
-        connectionCount += iter->second.dependentNodeCount ();
+        connectionCount += iter->second->dependentNodeCount ();
         ++iter;
     }
 
@@ -103,23 +129,24 @@ void GraphModel::buildGraph ()
 
     for (auto& node : nodes)
     {
-        visited[node.second.getID ().getNumber ()] = false;
+        visited[node.second->getID ().getNumber ()] = false;
     }
 
     // Call the recursive helper function to store Topological Sort
     // starting from all vertices one by one
     for (auto& node : nodes)
     {
-        if (visited[node.second.getID ().getNumber ()] == false)
-            topologicalSortUtil (NodeModel::Empty, node.second, visited);
+        if (visited[node.second->getID ().getNumber ()] == false)
+            topologicalSortUtil (NodeModel::Empty, *node.second, visited);
     }
 }
 
-void GraphModel::processGraph ()
+void GraphModel::processGraph (const AudioBuffer<float>& audioIn,
+                               AudioBuffer<float>& audioOut)
 {
-    for (auto& op : graphOps)
+    for (int i = graphOps.size (); --i >= 0;)
     {
-        op->perform ();
+        graphOps[i]->perform ();
     }
 }
 
@@ -131,32 +158,37 @@ void GraphModel::topologicalSortUtil (const NodeModel& parentNode,
 
     // Mark the current node as visited.
     visited[currentNodeID] = true;
+    
+    // Associate this node's output with a buffer
+    auto freeBuffer = audioBufferManager.getFreeBuffer ();
+    audioBufferManager.associatedBufferWithNode (freeBuffer, currentNodeID);
 
     // Recur for all the nodes adjacent to this node
     for (auto& adjacentNode : currentNode.getDependentNodes ())
     {
         if (!visited[adjacentNode.getNumber ()])
         {
-            topologicalSortUtil (currentNode, nodes[adjacentNode.getNumber ()],
+            topologicalSortUtil (currentNode, *nodes[adjacentNode.getNumber ()],
                                  visited);
         }
     }
-
     
     // If parent mode is 'empty' it means there is no incoming node
     if (parentNode == NodeModel::Empty)
     {
-        graphOps.push_back (new ProcessNodeOp (AudioBufferManager::AudioBufferID::Empty, 
-            audioBufferManager.getFreeBuffer (), settings.blockSize, const_cast<NodeModel&>(currentNode),
+        graphOps.push_back (new ProcessNodeOp (AudioBufferID::Empty, 
+            freeBuffer, settings.blockSize, const_cast<NodeModel&>(currentNode),
             audioBufferManager));
     }
     else
     {
+        const auto parentBufferID = 
+            audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ().getNumber ());
+
         // This node depends on the parent node to be processed first, we need to get the buffer that 
         // contains the output of the parent node and use it as the input of this node
-        graphOps.push_back (new ProcessNodeOp (AudioBufferManager::AudioBufferID::Empty,
-            audioBufferManager.getFreeBuffer (), settings.blockSize, const_cast<NodeModel&>(currentNode),
-            audioBufferManager));
+        graphOps.push_back (new ProcessNodeOp (parentBufferID, freeBuffer,
+            settings.blockSize, const_cast<NodeModel&>(currentNode), audioBufferManager));
     }
 }
 
@@ -167,7 +199,7 @@ void GraphModel::setSettings (Settings settings)
     //TODO implement change listener
 }
 
-GraphModel::Settings GraphModel::getSettings () const
+Settings GraphModel::getSettings () const
 {
     return settings;
 }

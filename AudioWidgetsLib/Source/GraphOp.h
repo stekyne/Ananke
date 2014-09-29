@@ -16,23 +16,24 @@ struct GraphOp
 class ProcessNodeOp : public GraphOp
 {
 public:
-    ProcessNodeOp (const AudioBufferManager::AudioBufferID audioIn,
-                   const AudioBufferManager::AudioBufferID audioOut,
-                   const unsigned int numSamples, NodeModel& node,
-                   AudioBufferManager audioBufferManager)
-                   : audioIn (audioIn), audioOut (audioOut),
-                   numSamples (numSamples), node (node),
-                   audioBufferManager (audioBufferManager)
+    ProcessNodeOp (const AudioBufferID audioIn,
+                   const AudioBufferID audioOut,
+                   const unsigned int numSamples, 
+                   NodeModel& node,
+                   AudioBufferManager<>& audioBufferManager)
+        : audioIn (audioIn), audioOut (audioOut),
+          numSamples (numSamples), node (node),
+          audioBufferManager (audioBufferManager)
     {
         assert (numSamples != 0);
     }
 
     virtual void perform ()
     {
-        if (audioIn == AudioBufferManager::AudioBufferID::Empty)
+        if (audioIn == AudioBufferID::Empty)
         {
             auto& outputBuffer = audioBufferManager.getBufferFromID (audioOut);
-            node.process (outputBuffer.get (), numSamples);
+            node.process (nullptr, outputBuffer.get (), numSamples);
         }
         else
         {
@@ -43,10 +44,9 @@ public:
     }
 
 private:
-    AudioBufferManager& audioBufferManager;
+    AudioBufferManager<>& audioBufferManager;
     NodeModel& node;
-    const AudioBufferManager::AudioBufferID audioIn;
-    const AudioBufferManager::AudioBufferID audioOut;
+    const AudioBufferID audioIn, audioOut;
     const unsigned int numSamples;
 };
 

@@ -5,30 +5,24 @@
 
 #include <cassert>
 
-template <typename T>
+template <typename SampleType = float>
 class AudioBuffer
 {
 public:
-    AudioBuffer ()
-    {
-    }
+    AudioBuffer () = delete;
+    // TODO move constructor?
 
     AudioBuffer (const unsigned int numSamples)
         : numSamples (numSamples)
     {
-        buffer = new T[numSamples];
-        memset (buffer, 0, sizeof (T) * numSamples);
+        buffer = new SampleType[numSamples];
+        memset (buffer, 0, sizeof (SampleType) * numSamples);
     }
 
     AudioBuffer (const unsigned int numSamples, const int id)
         : AudioBuffer (numSamples)
     {
         this->id = id;
-    }
-
-    AudioBuffer (const AudioBuffer& other)
-    {
-
     }
     
     ~AudioBuffer () 
@@ -46,21 +40,48 @@ public:
         return numSamples;
     }
 
+    void setID (unsigned int id)
+    {
+        this->id = id;
+    }
+
     int getID () const
     {
         return id;
     }
 
-    T& operator[] (const unsigned int index)
+    SampleType& operator[] (const unsigned int index)
     {
         assert (index >= 0 && index < numSamples);
         return buffer[index];
     }
 
+    const SampleType& operator[] (const unsigned int index) const
+    {
+        assert (index >= 0 && index < numSamples);
+        return buffer[index];
+    }
+
+    void setBufferFree ()
+    {
+        isBufferFree = true;
+    }
+
+    bool isFree () const 
+    { 
+        return isBufferFree; 
+    }
+
+    unsigned getBufferSize () const
+    {
+        return numSamples;
+    }
+
 private:
     unsigned int numSamples {0};
     int id {-1};
-    T* buffer {nullptr};
+    SampleType* buffer {nullptr};
+    bool isBufferFree {false};
 };
 
 #endif

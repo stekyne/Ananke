@@ -8,22 +8,38 @@
 #include <list>
 #include <map>
 
+#include "AudioBuffer.h"
 #include "AudioBufferManager.h"
 #include "Connection.h"
 #include "GraphOp.h"
 #include "NodeModel.h"
 
+struct Settings
+{
+    float sampleRate {44100};
+    int blockSize {256};
+
+    Settings (float sampleRate, int blockSize)
+        : sampleRate (sampleRate),
+        blockSize (blockSize)
+    {
+    }
+};
+
 class GraphModel
 {
 public:
     GraphModel ();
+    GraphModel (Settings settings);
     ~GraphModel ();
 
-    bool addNode (const NodeModel& newNode);
-    bool removeNode (const NodeModel& node);
+    bool addNode (NodeModel* const newNode);
+    bool removeNode (const NodeModel* const node);
     int nodeCount () const;
 
     bool addConnection (const Connection& newConnection);
+    bool addConnection (const NodeModel* const srcNode, 
+                        const NodeModel* const destNode);
     bool removeConnection (const Connection& connection);
     int connectionCount () const;
 
@@ -33,13 +49,8 @@ public:
     void buildGraph ();
 
     // Execute the graph of nodes to generate output
-    void processGraph ();
-
-    struct Settings
-    {
-        float sampleRate {44100};
-        int blockSize {256};
-    };
+    void processGraph (const AudioBuffer<float>& audioIn,
+                       AudioBuffer<float>& audioOut);
 
     void setSettings (Settings settings);
     Settings getSettings () const;
@@ -50,9 +61,9 @@ private:
                               std::map<int, bool>& visited);
 
 private:
-    std::map<NodeModel::ID, NodeModel> nodes;
+    std::map<NodeID, NodeModel*> nodes;
     std::vector<GraphOp*> graphOps;
-    AudioBufferManager audioBufferManager;
+    AudioBufferManager<float> audioBufferManager;
     Settings settings;
 };
 

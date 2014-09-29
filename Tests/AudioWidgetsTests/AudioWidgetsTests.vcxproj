@@ -90,6 +90,7 @@
     <ClCompile Include="Source\testAudioBuffer.cpp" />
     <ClCompile Include="Source\testAudioBufferManager.cpp" />
     <ClCompile Include="Source\testGraphModel.cpp" />
+    <ClCompile Include="Source\testNodes.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

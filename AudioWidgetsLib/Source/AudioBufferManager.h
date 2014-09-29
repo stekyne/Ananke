@@ -7,57 +7,125 @@
 #include <memory>
 #include "AudioBuffer.h"
 
+struct AudioBufferID
+{
+    AudioBufferID (const int id)
+        : id (id)
+    {
+    }
+
+    int getID () const { return id; }
+
+    friend bool operator< (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    {
+        return lhs.getID () < rhs.getID ();
+    }
+
+    friend bool operator== (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    {
+        return lhs.id == rhs.id;
+    }
+
+    friend bool operator!= (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    const static AudioBufferID Empty;
+
+private:
+    int id {-1};
+};
+
+template <typename SampleType = float>
 class AudioBufferManager
 {
 public:
-    struct AudioBufferID
+    AudioBufferManager () {}
+    explicit AudioBufferManager (unsigned int blockSize) : blockSize (blockSize) {}
+    ~AudioBufferManager () {}
+
+    // Set the number of samples per block allocated
+    void setBlockSize (unsigned int blockSize)
     {
-        bool isFree {false};
+        this->blockSize = blockSize;
+        // TODO reallocate blocks
+    }
 
-        AudioBufferID (const int id, const bool isFree)
-            : id (id), isFree (isFree)
+    // Get an unused pre-allocated buffer ID
+    const AudioBufferID getFreeBuffer ()
+    {
+        for (auto& elem : buffers)
         {
+            if (elem.second->isFree () == true)
+                return elem.first;
         }
 
-        int getID () const { return id; }
+        // No free buffers so allocate more
+        return createBuffer ();
+    }
 
-        friend bool operator< (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    // Mark a currently in use buffer as free to use
+    void markBufferAsFree (AudioBufferID buffer)
+    {
+        for (auto& elem : buffers)
         {
-            return lhs.getID () < rhs.getID ();
+            if (elem.first == buffer)
+            {
+                elem.second->setBufferFree ();
+                ++numberFreeBuffers;
+                return;
+            }
+        }
+    }
+
+    // Associate buffer with a particular node
+    void associatedBufferWithNode (AudioBufferID buffer, int nodeID)
+    {
+        for (auto& elem : buffers)
+        {
+            if (elem.first == buffer)
+            {
+                elem.second->setID (nodeID);
+                return;
+            }
+        }
+    }
+
+    // Return a buffer from the presented ID
+    std::shared_ptr<AudioBuffer<SampleType>> getBufferFromID (AudioBufferID bufferId)
+    {
+        assert (buffers.size () != 0);
+        return buffers[bufferId];
+    }
+
+    // Find the buffer that is associated with a particular node ID
+    const AudioBufferID getAssociatedBufferForNodeId (const int id)
+    {
+        for (auto& elem : buffers)
+        {
+            if (elem.second->getID () == id)
+            {
+                return elem.first;
+            }
         }
 
-        friend bool operator== (const AudioBufferID& lhs, const AudioBufferID& rhs)
-        {
-            return lhs.id == rhs.id;
-        }
-
-        friend bool operator!= (const AudioBufferID& lhs, const AudioBufferID& rhs)
-        {
-            return !(lhs == rhs);
-        }
-
-        const static AudioBufferID Empty;
-
-    private:
-        int id {-1};
-    };
-
-public:
-    AudioBufferManager ();
-    explicit AudioBufferManager (unsigned int blockSize);
-    ~AudioBufferManager ();
-
-    void setBlockSize (unsigned int blockSize);
-    const AudioBufferID getFreeBuffer ();
-    void markBufferAsFree (AudioBufferID buffer);
-    std::shared_ptr<AudioBuffer<float>> getBufferFromID (AudioBufferID bufferId);
+        return AudioBufferID::Empty;
+    }
 
     int getBufferCount () const { return numberBuffers; }
     int getFreeBufferCount () const { return numberFreeBuffers; }
 
 private:
-    AudioBufferID createBuffer ();
-    std::map<AudioBufferID, std::shared_ptr<AudioBuffer<float>>> buffers;
+    AudioBufferID createBuffer ()
+    {
+        AudioBufferID newBuffer (++ids);
+        buffers[newBuffer] = std::make_shared<AudioBuffer<float>> (blockSize, newBuffer.getID ());
+        ++numberBuffers;
+        return newBuffer;
+    }
+
+    std::map<AudioBufferID, std::shared_ptr<AudioBuffer<SampleType>>> buffers;
     unsigned int ids {0}, blockSize {0};
     unsigned int numberBuffers {0}, numberFreeBuffers {0};
 };
