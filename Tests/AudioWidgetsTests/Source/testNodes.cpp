@@ -42,6 +42,7 @@ namespace AudioWidgetsTests
         TEST_METHOD (SawOSC_Test)
         {
             SawOSCNode sawOscNode;
+            sawOscNode.setFrequency (440.f);
 
             AudioBuffer<float> audioOut (50);
 

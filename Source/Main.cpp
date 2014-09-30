@@ -22,7 +22,7 @@ public:
     const String getApplicationVersion() override    { return ProjectInfo::versionString; }
     bool moreThanOneInstanceAllowed() override       { return true; }
 
-    void initialise (const String& commandLine) override
+    void initialise (const String& /*commandLine*/) override
     {
         appController = std::make_shared<AppController> ();
         mainWindow = new MainWindow (appController);
@@ -39,7 +39,7 @@ public:
         quit();
     }
 
-    void anotherInstanceStarted (const String& commandLine) override
+    void anotherInstanceStarted (const String& /*commandLine*/) override
     {
     }
 

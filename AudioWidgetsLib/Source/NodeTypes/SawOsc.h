@@ -23,14 +23,34 @@ public:
         NodeModel::process (audioIn, audioOut, numSamples);
         assert (audioIn == nullptr);
 
+        auto& outBuf = *audioOut;
+
+        float sr = 44100.f;
+        increm = freq / sr;
+
         for (unsigned int i = 0; i < numSamples; ++i)
         {
+            phasor += increm;
 
+            if (phasor > 1.f)
+                phasor = -1.f;
+
+            outBuf[i] = phasor;
         }
     }
 
+    void setFrequency (float freq)
+    {
+        this->freq = freq;
+    }
+
+    float getFrequency () const
+    {
+        return freq;
+    }
+
 private:
-    float phasor {0.f}, freq {440.f};
+    float phasor{ 0.f }, freq{ 440.f }, increm{ 0.f };
 };
 
 #endif
