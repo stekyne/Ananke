@@ -6,16 +6,16 @@
 #include "GraphModel.h"
 
 GraphModel::GraphModel ()
-    :   settings (44100.f, 50),
+    :   settings {44100.f, 50},
         audioBufferManager (50)
-    
 {
 }
 
 GraphModel::~GraphModel ()
 {
     for (unsigned int i = 0; i < graphOps.size (); ++i)
-        delete graphOps[i];
+        if (graphOps[i] != nullptr)
+            delete graphOps[i];
 }
 
 bool GraphModel::addNode (NodeModel* const newNode)
@@ -26,7 +26,7 @@ bool GraphModel::addNode (NodeModel* const newNode)
 
 bool GraphModel::removeNode (const NodeModel* const node)
 {
-    auto& iter = nodes.cbegin ();
+    auto iter = nodes.cbegin ();
 
     while (iter != nodes.end ())
     {
@@ -47,9 +47,14 @@ int GraphModel::nodeCount () const
     return nodes.size ();
 }
 
+const std::map<NodeID, NodeModel*>& GraphModel::getNodes () const
+{
+    return nodes;
+}
+
 bool GraphModel::addConnection (const Connection& newConnection)
 {
-    auto& iter = nodes.begin ();
+    auto iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
@@ -68,7 +73,7 @@ bool GraphModel::addConnection (const Connection& newConnection)
 bool GraphModel::addConnection (const NodeModel* const srcNode, 
                                 const NodeModel* const destNode)
 {
-    auto& iter = nodes.begin ();
+    auto iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
@@ -86,7 +91,7 @@ bool GraphModel::addConnection (const NodeModel* const srcNode,
 
 bool GraphModel::removeConnection (const Connection& connection)
 {
-    auto& iter = nodes.begin ();
+    auto iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
@@ -105,7 +110,7 @@ bool GraphModel::removeConnection (const Connection& connection)
 int GraphModel::connectionCount () const
 {
     int connectionCount = 0;
-    auto& iter = nodes.begin ();
+    auto iter = nodes.begin ();
 
     while (iter != nodes.end ())
     {
@@ -114,6 +119,16 @@ int GraphModel::connectionCount () const
     }
 
     return connectionCount;
+}
+
+bool GraphModel::connectionExists (const Connection& testConnection) const
+{
+    return false;
+}
+
+const NodeModel& GraphModel::getNodeForID (int id)
+{
+    return *nodes[id];
 }
 
 void GraphModel::clearGraph ()

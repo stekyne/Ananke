@@ -13,8 +13,8 @@ struct Connection
             destNode (_destNode)
     {}
     
-    const NodeID sourceNode {0};
-    const NodeID destNode {0};
+    NodeID sourceNode {0};
+    NodeID destNode {0};
 };
 
 #endif

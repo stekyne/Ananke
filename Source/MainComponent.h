@@ -6,6 +6,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <memory>
 
+#include "GraphComponent.h"
+
 class AppController;
 
 class MainContentComponent   : public Component
@@ -18,7 +20,8 @@ public:
     void resized ();
 
 private:
-    std::shared_ptr <AppController> appController;
+    std::shared_ptr<AppController> appController;
+    GraphComponent graph;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

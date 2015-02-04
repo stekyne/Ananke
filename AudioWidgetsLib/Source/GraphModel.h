@@ -20,8 +20,8 @@ struct Settings
     int blockSize {256};
 
     Settings (float sampleRate, int blockSize)
-        : sampleRate (sampleRate),
-        blockSize (blockSize)
+        :   sampleRate (sampleRate),
+            blockSize (blockSize)
     {
     }
 };
@@ -36,12 +36,16 @@ public:
     bool addNode (NodeModel* const newNode);
     bool removeNode (const NodeModel* const node);
     int nodeCount () const;
+    const std::map<NodeID, NodeModel*>& getNodes () const;
 
     bool addConnection (const Connection& newConnection);
     bool addConnection (const NodeModel* const srcNode, 
                         const NodeModel* const destNode);
     bool removeConnection (const Connection& connection);
     int connectionCount () const;
+    bool connectionExists (const Connection& testConnection) const;
+
+    const NodeModel& getNodeForID (int id);
 
     void clearGraph ();
 

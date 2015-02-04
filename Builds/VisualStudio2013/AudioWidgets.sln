@@ -3,9 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioWidgets", "AudioWidgets.vcxproj", "{074C495D-8B0B-CD45-7CA2-6FF0933C6DCC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{672CC55F-1441-4F82-A8A6-07989472E3E6} = {672CC55F-1441-4F82-A8A6-07989472E3E6}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioWidgetsLib", "..\..\AudioWidgetsLib\AudioWidgetsLib.vcxproj", "{672CC55F-1441-4F82-A8A6-07989472E3E6}"
 EndProject

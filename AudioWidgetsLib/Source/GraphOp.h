@@ -28,17 +28,19 @@ public:
         assert (numSamples != 0);
     }
 
+    ProcessNodeOp& operator= (const ProcessNodeOp&) = delete;
+
     virtual void perform ()
     {
         if (audioIn == AudioBufferID::Empty)
         {
-            auto& outputBuffer = audioBufferManager.getBufferFromID (audioOut);
+            auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
             node.process (nullptr, outputBuffer.get (), numSamples);
         }
         else
         {
-            auto& inputBuffer = audioBufferManager.getBufferFromID (audioIn);
-            auto& outputBuffer = audioBufferManager.getBufferFromID (audioOut);
+            auto inputBuffer = audioBufferManager.getBufferFromID (audioIn);
+            auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
             node.process (inputBuffer.get (), outputBuffer.get (), numSamples);
         }
     }

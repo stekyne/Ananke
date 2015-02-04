@@ -125,10 +125,35 @@ public:
         return dependentNodes;
     }
 
+    const char* const getName () const
+    {
+        return "Node";
+    }
+
+    unsigned int getNumInputChannels () const
+    {
+        return 0;
+    }
+
+    unsigned int getNumOutputChannels () const
+    {
+        return 0;
+    }
+
+    bool acceptsMidi () const
+    {
+        return true;
+    }
+
+    bool producesMidi () const
+    {
+        return false;
+    }
+
     inline const NodeID& getID () const { return id; }
 
     // TODO use the CRTP method instead of a virual call
-    virtual void process (const AudioBuffer<float>* const audioIn,
+    virtual void process (const AudioBuffer<float>* const /*audioIn*/,
                           AudioBuffer<float>* const audioOut,
                           const unsigned int numSamples)
     {
@@ -139,9 +164,11 @@ public:
                 audioOut->getBufferSize () <= numSamples);
     }
 
+    // An empty instance of this class
     const static NodeModel Empty;
 
 private:
+    // TODO remove knowledge of dependent nodes from this class, use matrix externally instead
     std::vector<NodeID> dependentNodes;
     NodeID id;
 };
