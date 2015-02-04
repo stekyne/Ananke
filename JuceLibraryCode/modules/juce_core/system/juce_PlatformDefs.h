@@ -95,19 +95,33 @@
 #endif
 
 //==============================================================================
+#if JUCE_MSVC && ! DOXYGEN
+ #define MACRO_WITH_FORCED_SEMICOLON(x) \
+   __pragma(warning(push)) \
+   __pragma(warning(disable:4127)) \
+   do { x } while (false) \
+   __pragma(warning(pop))
+#else
+ /** This is the good old C++ trick for creating a macro that forces the user to put
+    a semicolon after it when they use it.
+ */
+ #define MACRO_WITH_FORCED_SEMICOLON(x) do { x } while (false)
+#endif
+
+//==============================================================================
 #if JUCE_DEBUG || DOXYGEN
   /** Writes a string to the standard error stream.
       This is only compiled in a debug build.
       @see Logger::outputDebugString
   */
-  #define DBG(dbgtext)              { juce::String tempDbgBuf; tempDbgBuf << dbgtext; juce::Logger::outputDebugString (tempDbgBuf); }
+  #define DBG(dbgtext)              MACRO_WITH_FORCED_SEMICOLON (juce::String tempDbgBuf; tempDbgBuf << dbgtext; juce::Logger::outputDebugString (tempDbgBuf);)
 
   //==============================================================================
   /** This will always cause an assertion failure.
       It is only compiled in a debug build, (unless JUCE_LOG_ASSERTIONS is enabled for your build).
       @see jassert
   */
-  #define jassertfalse              { juce_LogCurrentAssertion; if (juce::juce_isRunningUnderDebugger()) juce_breakDebugger; JUCE_ANALYZER_NORETURN }
+  #define jassertfalse              MACRO_WITH_FORCED_SEMICOLON (juce_LogCurrentAssertion; if (juce::juce_isRunningUnderDebugger()) juce_breakDebugger; JUCE_ANALYZER_NORETURN)
 
   //==============================================================================
   /** Platform-independent assertion macro.
@@ -117,19 +131,19 @@
       correct behaviour of your program!
       @see jassertfalse
   */
-  #define jassert(expression)       { if (! (expression)) jassertfalse; }
+  #define jassert(expression)       MACRO_WITH_FORCED_SEMICOLON (if (! (expression)) jassertfalse;)
 
 #else
   //==============================================================================
   // If debugging is disabled, these dummy debug and assertion macros are used..
 
   #define DBG(dbgtext)
-  #define jassertfalse              { juce_LogCurrentAssertion }
+  #define jassertfalse              MACRO_WITH_FORCED_SEMICOLON (juce_LogCurrentAssertion)
 
   #if JUCE_LOG_ASSERTIONS
-   #define jassert(expression)      { if (! (expression)) jassertfalse; }
+   #define jassert(expression)      MACRO_WITH_FORCED_SEMICOLON (if (! (expression)) jassertfalse;)
   #else
-   #define jassert(a)               {}
+   #define jassert(a)               MACRO_WITH_FORCED_SEMICOLON ( ; )
   #endif
 
 #endif
@@ -139,7 +153,7 @@
 namespace juce
 {
     template <bool b> struct JuceStaticAssert;
-    template <> struct JuceStaticAssert <true> { static void dummy() {} };
+    template <>       struct JuceStaticAssert<true> { static void dummy() {} };
 }
 #endif
 
@@ -337,6 +351,10 @@ namespace juce
  #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 407 && ! defined (JUCE_DELETED_FUNCTION)
   #define JUCE_DELETED_FUNCTION = delete
  #endif
+
+ #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 406 && ! defined (JUCE_COMPILER_SUPPORTS_LAMBDAS)
+  #define JUCE_COMPILER_SUPPORTS_LAMBDAS 1
+ #endif
 #endif
 
 #if JUCE_CLANG && defined (__has_feature)
@@ -356,6 +374,13 @@ namespace juce
   #define JUCE_DELETED_FUNCTION = delete
  #endif
 
+ #if __has_feature (cxx_lambdas) \
+      && ((JUCE_MAC && defined (MAC_OS_X_VERSION_10_8) && MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_8) \
+           || (JUCE_IOS && defined (__IPHONE_7_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0) \
+           || ! (JUCE_MAC || JUCE_IOS))
+  #define JUCE_COMPILER_SUPPORTS_LAMBDAS 1
+ #endif
+
  #ifndef JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL
   #define JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL 1
  #endif
@@ -372,6 +397,7 @@ namespace juce
 
 #if defined (_MSC_VER) && _MSC_VER >= 1700
  #define JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL 1
+ #define JUCE_COMPILER_SUPPORTS_LAMBDAS 1
 #endif
 
 #ifndef JUCE_DELETED_FUNCTION
