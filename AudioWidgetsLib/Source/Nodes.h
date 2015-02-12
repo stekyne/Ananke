@@ -7,4 +7,16 @@
 #include "NodeTypes\LowPass.h"
 #include "NodeTypes\SawOsc.h"
 
+static int nodeIDcount = 1;
+
+namespace DSP
+{
+
+template <typename NodeType>
+static NodeModel* const createNode ()
+{
+    return new NodeType (nodeIDcount++);
+}
+
+}
 #endif

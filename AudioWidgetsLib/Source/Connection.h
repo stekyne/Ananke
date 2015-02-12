@@ -7,10 +7,14 @@
 
 struct Connection
 {
-    Connection (const NodeID _sourceNode,
-                const NodeID _destNode)
-        :   sourceNode (_sourceNode),
-            destNode (_destNode)
+    Connection (const int sourceNode, const int destNode)
+        :   sourceNode (sourceNode),
+            destNode (destNode)
+    {}
+
+    Connection (const NodeModel& node1, const NodeModel& node2)
+        :   sourceNode (node1.getID ()),
+            destNode (node2.getID ())
     {}
     
     NodeID sourceNode {0};

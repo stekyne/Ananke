@@ -6,6 +6,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "WidgetWrapper.h"
 #include "../AudioWidgetsLib/Source/GraphModel.h"
+#include "../AudioWidgetsLib/Source/Nodes.h"
 
 class AppController
 {
@@ -13,13 +14,15 @@ public:
     AppController ();
     ~AppController ();
 
-    // Used to load the last opened project on initial launch
     void loadWidgets ();
 
     std::shared_ptr<GraphModel> const getGraphModel () const
     {
         return graphModel;
     }
+
+private:
+    void loadTestData ();
 
 private:
     //juce::ValueTree valueTree;

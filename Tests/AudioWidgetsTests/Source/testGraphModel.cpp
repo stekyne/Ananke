@@ -49,7 +49,7 @@ namespace AudioWidgetsTests
             graph.addNode (node1);
             graph.addNode (node2);
             Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
-            graph.addConnection (Connection (node1->getID (), node2->getID ()));
+            graph.addConnection (Connection (*node1, *node2));
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
         }
 
@@ -74,7 +74,7 @@ namespace AudioWidgetsTests
             auto node2 = new NodeModel (2);
             graph.addNode (node1);
             graph.addNode (node2);
-            Connection connection (node1->getID (), node2->getID ());
+            Connection connection (*node1, *node2);
             Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
             graph.addConnection (connection);
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
@@ -86,16 +86,22 @@ namespace AudioWidgetsTests
         {
             GraphModel graph;
 
-            graph.addNode (new NodeModel (1));
-            graph.addNode (new NodeModel (2));
-            graph.addNode (new NodeModel (3));
-            graph.addNode (new NodeModel (4));
-            graph.addNode (new NodeModel (5));
+            auto node1 = DSP::createNode<NodeModel> ();
+            auto node2 = DSP::createNode<NodeModel> ();
+            auto node3 = DSP::createNode<NodeModel> ();
+            auto node4 = DSP::createNode<NodeModel> ();
+            auto node5 = DSP::createNode<NodeModel> ();
 
-            graph.addConnection (Connection (1, 2));
-            graph.addConnection (Connection (3, 4));
-            graph.addConnection (Connection (5, 1));
-            graph.addConnection (Connection (2, 3));
+            graph.addNode (node1);
+            graph.addNode (node2);
+            graph.addNode (node3);
+            graph.addNode (node4);
+            graph.addNode (node5);
+
+            graph.addConnection (Connection (*node1, *node2));
+            graph.addConnection (Connection (*node3, *node4));
+            graph.addConnection (Connection (*node5, *node1));
+            graph.addConnection (Connection (*node2, *node3));
 
             graph.buildGraph ();
         }

@@ -31,7 +31,7 @@ class GraphModel
 {
 private:
     using NodeMap = std::map<const NodeID, NodeModel*>;
-    
+
 public:
     GraphModel ();
     GraphModel (Settings settings);
@@ -65,6 +65,24 @@ public:
     void setSettings (Settings settings);
     Settings getSettings () const;
 
+    struct Listener;
+    void addListener (Listener* const newListener);
+    void removeListener (const Listener* listener);
+
+public:
+    struct Listener
+    {
+        Listener () = delete;
+        Listener (const Listener&) = delete;
+        Listener& operator= (const Listener&) = delete;
+        virtual ~Listener () {}
+
+        virtual void newNodeAdded () = 0;
+        virtual void nodeRemoved () = 0;
+        virtual void newConnectionAdded () = 0;
+        virtual void connectionRemoved () = 0;
+    };
+
 private:
     void topologicalSortUtil (const NodeModel& parentNode,
                               const NodeModel& currentNode,
@@ -73,6 +91,7 @@ private:
 private:
     NodeMap nodes;
     std::vector<GraphOp*> graphOps;
+    std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager;
     Settings settings;
 };

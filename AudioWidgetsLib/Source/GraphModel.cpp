@@ -11,11 +11,21 @@ GraphModel::GraphModel ()
 {
 }
 
+GraphModel::GraphModel (Settings settings)
+    :   settings (settings),
+        audioBufferManager (settings.blockSize)
+{
+}
+
 GraphModel::~GraphModel ()
 {
     for (unsigned int i = 0; i < graphOps.size (); ++i)
         if (graphOps[i] != nullptr)
             delete graphOps[i];
+
+    for (auto& node : nodes)
+        if (node.second != nullptr)
+            delete node.second;
 }
 
 bool GraphModel::addNode (NodeModel* const newNode)
@@ -208,4 +218,26 @@ void GraphModel::setSettings (Settings settings)
 Settings GraphModel::getSettings () const
 {
     return settings;
+}
+
+void GraphModel::addListener (Listener* const newListener)
+{
+    assert (newListener != nullptr);
+
+    auto result = 
+        std::find (std::begin (listeners), std::end (listeners), newListener);
+
+    if (result != std::end(listeners))
+        listeners.push_back (newListener);
+}
+
+void GraphModel::removeListener (const Listener* listener)
+{
+    assert (listener != nullptr);
+
+    auto result =
+        std::find (std::begin (listeners), std::end (listeners), listener);
+    
+    if (result != std::end (listeners))
+        listeners.erase (result);
 }
