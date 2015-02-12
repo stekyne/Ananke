@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-template <typename SampleType = float>
+template <typename SampleType>
 class AudioBuffer
 {
 public:

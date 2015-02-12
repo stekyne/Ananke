@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include "AudioBuffer.h"
+#include "..\DSP.h"
 
 struct AudioBufferID
 {
@@ -37,7 +38,6 @@ private:
     int id {-1};
 };
 
-template <typename SampleType = float>
 class AudioBufferManager
 {
 public:
@@ -93,9 +93,13 @@ public:
     }
 
     // Return a buffer from the presented ID
-    std::shared_ptr<AudioBuffer<SampleType>> getBufferFromID (AudioBufferID bufferId)
+    std::shared_ptr<AudioBuffer<DSP::SampleType>> getBufferFromID (AudioBufferID bufferId)
     {
         assert (buffers.size () != 0);
+        
+        if (bufferId == AudioBufferID::Empty)
+            return nullptr;
+
         return buffers[bufferId];
     }
 
@@ -120,12 +124,13 @@ private:
     AudioBufferID createBuffer ()
     {
         AudioBufferID newBuffer (++ids);
-        buffers[newBuffer] = std::make_shared<AudioBuffer<float>> (blockSize, newBuffer.getID ());
+        buffers[newBuffer] = 
+            std::make_shared<AudioBuffer<DSP::SampleType>> (blockSize, newBuffer.getID ());
         ++numberBuffers;
         return newBuffer;
     }
 
-    std::map<AudioBufferID, std::shared_ptr<AudioBuffer<SampleType>>> buffers;
+    std::map<AudioBufferID, std::shared_ptr<AudioBuffer<DSP::SampleType>>> buffers;
     unsigned int ids {0}, blockSize {0};
     unsigned int numberBuffers {0}, numberFreeBuffers {0};
 };

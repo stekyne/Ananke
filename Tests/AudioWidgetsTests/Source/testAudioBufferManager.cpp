@@ -12,7 +12,7 @@ namespace AudioWidgetsTests
     public:
         TEST_METHOD (AudioBufferManager_getFreeBuffer)
         {
-            AudioBufferManager<float> audioBufferManager (50);
+            AudioBufferManager audioBufferManager (50);
 
             auto& bufferEntry = audioBufferManager.getFreeBuffer ();
             Assert::AreEqual (1, bufferEntry.getID (), L"Buffer ID did not match expected value");
@@ -25,7 +25,7 @@ namespace AudioWidgetsTests
 
         TEST_METHOD (AudioBufferManager_markBufferAsFree)
         {
-            AudioBufferManager<float> audioBufferManager (50);
+            AudioBufferManager audioBufferManager (50);
 
             auto& bufferEntry = audioBufferManager.getFreeBuffer ();
             audioBufferManager.markBufferAsFree (bufferEntry);
@@ -35,7 +35,7 @@ namespace AudioWidgetsTests
 
         TEST_METHOD (AudioBufferManager_getBufferForID)
         {
-            AudioBufferManager<float> audioBufferManager (50);
+            AudioBufferManager audioBufferManager (50);
 
             auto& bufferEntry = audioBufferManager.getFreeBuffer ();
             auto buffer = audioBufferManager.getBufferFromID (bufferEntry);

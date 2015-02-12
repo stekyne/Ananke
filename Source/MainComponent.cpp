@@ -3,7 +3,8 @@
 #include "MainComponent.h"
 #include "AppController.h"
 
-MainContentComponent::MainContentComponent (std::shared_ptr<AppController> _appController)
+MainContentComponent::MainContentComponent (
+    std::shared_ptr<AppController> _appController)
     :   appController (_appController),
         graph (appController->getGraphModel ())
 {

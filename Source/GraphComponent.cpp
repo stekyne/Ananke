@@ -240,9 +240,11 @@ void GraphComponent::updateGraph ()
         }
     }
 
-    for (auto& elem : graph->getNodes ())
+    for (auto node : graph->getNodes ())
     {
-        if (getComponentForFilter (elem.first.getNumber ()) == 0)
+        const auto id = node.first.getNumber ();
+
+        if (getComponentForFilter (id) == 0)
         {
             //Node* const node = new Node (graph, f->nodeId,
             //                             f->getProcessor ()->getName (),

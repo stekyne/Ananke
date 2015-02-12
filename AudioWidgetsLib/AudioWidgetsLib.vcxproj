@@ -65,6 +65,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DSP.h" />
+    <ClInclude Include="GraphController.h" />
     <ClInclude Include="Source\AudioBuffer.h" />
     <ClInclude Include="Source\AudioBufferManager.h" />
     <ClInclude Include="Source\Connection.h" />
@@ -78,6 +80,7 @@
     <ClInclude Include="Source\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GraphController.cpp" />
     <ClCompile Include="Source\AudioBufferManager.cpp" />
     <ClCompile Include="Source\GraphModel.cpp" />
     <ClCompile Include="Source\NodeModel.cpp" />

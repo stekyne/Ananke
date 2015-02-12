@@ -103,13 +103,13 @@ void Node::update ()
     //const AudioProcessorGraph::Node::Ptr f (graph.getNodeForId (id));
     const auto node = graph->getNodeForID (id);
 
-    numIns = node.getNumInputChannels ();
+    numIns = node->getNumInputChannels ();
 
-    if (node.acceptsMidi ())
+    if (node->acceptsMidi ())
         ++numIns;
 
-    numOuts = node.getNumOutputChannels ();
-    if (node.producesMidi ())
+    numOuts = node->getNumOutputChannels ();
+    if (node->producesMidi ())
         ++numOuts;
 
     int w = 100;
@@ -117,13 +117,13 @@ void Node::update ()
 
     w = jmax (w, (jmax (numIns, numOuts) + 1) * 20);
 
-    const int textWidth = font.getStringWidth (node.getName ());
+    const int textWidth = font.getStringWidth (node->getName ());
     w = jmax (w, 16 + jmin (textWidth, 300));
     if (textWidth > 300)
         h = 100;
 
     setSize (w, h);
-    setName (node.getName ());
+    setName (node->getName ());
 
     // TODO need to store the node position in the graph somewhere
     /*setCentreRelative (f->properties["x"],
@@ -141,28 +141,28 @@ void Node::update ()
         //midiOut = 0;
         deleteAllChildren ();
 
-        int i;
-        for (i = 0; i < node.getNumInputChannels (); ++i)
+        unsigned int i;
+        for (i = 0; i < node->getNumInputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioInput, id, i, true);
             //inputs.add( newPin );
             addAndMakeVisible (newPin);
         }
 
-        if (node.acceptsMidi ())
+        if (node->acceptsMidi ())
         {
             Pin* const midiIn = new Pin (Pin::MidiInput, id, Pin::midi_num, true);
             addAndMakeVisible (midiIn);
         }
 
-        for (i = 0; i < node.getNumOutputChannels (); ++i)
+        for (i = 0; i < node->getNumOutputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioOutput, id, i, false);
             //outputs.add( newPin );
             addAndMakeVisible (newPin);
         }
 
-        if (node.producesMidi ())
+        if (node->producesMidi ())
         {
             Pin* const midiOut = new Pin (Pin::MidiOutput, id, Pin::midi_num, false);
             addAndMakeVisible (midiOut);

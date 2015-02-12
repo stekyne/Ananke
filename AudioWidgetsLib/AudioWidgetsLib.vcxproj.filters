@@ -13,54 +13,75 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\NodeTypes">
+    <Filter Include="Source Files\Controllers">
+      <UniqueIdentifier>{77587872-55a3-4a05-9e88-0e87445dfef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{265e2191-e84c-4d1a-a4d0-645ad925980f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{1c64f9f9-03e6-4dfe-a326-b12371f0cfde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models\NodeTypes">
       <UniqueIdentifier>{de0f3c3c-01d1-4292-999f-08df97b98e4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Controllers">
+      <UniqueIdentifier>{0db928f3-8569-4282-bb62-3385249fd02c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Connection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GraphModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\NodeModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GraphOp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\AudioBuffer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="Source\AudioBufferManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NodeTypes\GainNode.h">
-      <Filter>Header Files\NodeTypes</Filter>
+    <ClInclude Include="Source\Connection.h">
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NodeTypes\LowPass.h">
-      <Filter>Header Files\NodeTypes</Filter>
+    <ClInclude Include="Source\GraphModel.h">
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Source\NodeTypes\SawOsc.h">
-      <Filter>Header Files\NodeTypes</Filter>
+    <ClInclude Include="Source\GraphOp.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeModel.h">
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="Source\Nodes.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utilities.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeTypes\SawOsc.h">
+      <Filter>Header Files\Models\NodeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeTypes\LowPass.h">
+      <Filter>Header Files\Models\NodeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NodeTypes\GainNode.h">
+      <Filter>Header Files\Models\NodeTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphController.h">
+      <Filter>Header Files\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="DSP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\GraphModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\NodeModel.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Models</Filter>
     </ClCompile>
     <ClCompile Include="Source\AudioBufferManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NodeModel.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphController.cpp">
+      <Filter>Source Files\Controllers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

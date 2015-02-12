@@ -47,9 +47,14 @@ int GraphModel::nodeCount () const
     return nodes.size ();
 }
 
-const std::map<NodeID, NodeModel*>& GraphModel::getNodes () const
+const GraphModel::NodeMap& GraphModel::getNodes () const
 {
     return nodes;
+}
+
+const NodeModel* const GraphModel::getNodeForID (int id)
+{
+    return nodes[id];
 }
 
 bool GraphModel::addConnection (const Connection& newConnection)
@@ -126,11 +131,6 @@ bool GraphModel::connectionExists (const Connection& testConnection) const
     return false;
 }
 
-const NodeModel& GraphModel::getNodeForID (int id)
-{
-    return *nodes[id];
-}
-
 void GraphModel::clearGraph ()
 {
     nodes.clear ();
@@ -156,8 +156,8 @@ void GraphModel::buildGraph ()
     }
 }
 
-void GraphModel::processGraph (const AudioBuffer<float>& audioIn,
-                               AudioBuffer<float>& audioOut)
+void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
+                               AudioBuffer<DSP::SampleType>& audioOut)
 {
     for (int i = graphOps.size (); --i >= 0;)
     {
@@ -189,22 +189,13 @@ void GraphModel::topologicalSortUtil (const NodeModel& parentNode,
     }
     
     // If parent mode is 'empty' it means there is no incoming node
-    if (parentNode == NodeModel::Empty)
-    {
-        graphOps.push_back (new ProcessNodeOp (AudioBufferID::Empty, 
-            freeBuffer, settings.blockSize, const_cast<NodeModel&>(currentNode),
-            audioBufferManager));
-    }
-    else
-    {
-        const auto parentBufferID = 
-            audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ().getNumber ());
+    const auto parentBufferID = parentNode == NodeModel::Empty ? AudioBufferID::Empty : 
+        audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ().getNumber ());
 
-        // This node depends on the parent node to be processed first, we need to get the buffer that 
-        // contains the output of the parent node and use it as the input of this node
-        graphOps.push_back (new ProcessNodeOp (parentBufferID, freeBuffer,
-            settings.blockSize, const_cast<NodeModel&>(currentNode), audioBufferManager));
-    }
+    // This node depends on the parent node to be processed first, we need to get the buffer that 
+    // contains the output of the parent node and use it as the input of this node
+    graphOps.push_back (new ProcessNodeOp (parentBufferID, freeBuffer,
+        settings.blockSize, const_cast<NodeModel&>(currentNode), audioBufferManager));
 }
 
 void GraphModel::setSettings (Settings settings)

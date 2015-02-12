@@ -13,6 +13,7 @@
 #include "Connection.h"
 #include "GraphOp.h"
 #include "NodeModel.h"
+#include "../DSP.h"
 
 struct Settings
 {
@@ -28,6 +29,9 @@ struct Settings
 
 class GraphModel
 {
+private:
+    using NodeMap = std::map<const NodeID, NodeModel*>;
+    
 public:
     GraphModel ();
     GraphModel (Settings settings);
@@ -36,25 +40,27 @@ public:
     bool addNode (NodeModel* const newNode);
     bool removeNode (const NodeModel* const node);
     int nodeCount () const;
-    const std::map<NodeID, NodeModel*>& getNodes () const;
+
+    const NodeMap& getNodes () const;
+    const NodeModel* const getNodeForID (int id);
 
     bool addConnection (const Connection& newConnection);
     bool addConnection (const NodeModel* const srcNode, 
                         const NodeModel* const destNode);
     bool removeConnection (const Connection& connection);
+ 
     int connectionCount () const;
     bool connectionExists (const Connection& testConnection) const;
 
-    const NodeModel& getNodeForID (int id);
-
+    // Clear all nodes and operations from the graph
     void clearGraph ();
 
     // Sort and build the list of operations involved in producing output
     void buildGraph ();
 
     // Execute the graph of nodes to generate output
-    void processGraph (const AudioBuffer<float>& audioIn,
-                       AudioBuffer<float>& audioOut);
+    void processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
+                       AudioBuffer<DSP::SampleType>& audioOut);
 
     void setSettings (Settings settings);
     Settings getSettings () const;
@@ -65,9 +71,9 @@ private:
                               std::map<int, bool>& visited);
 
 private:
-    std::map<NodeID, NodeModel*> nodes;
+    NodeMap nodes;
     std::vector<GraphOp*> graphOps;
-    AudioBufferManager<float> audioBufferManager;
+    AudioBufferManager audioBufferManager;
     Settings settings;
 };
 

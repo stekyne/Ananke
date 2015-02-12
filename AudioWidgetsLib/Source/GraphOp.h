@@ -20,7 +20,7 @@ public:
                    const AudioBufferID audioOut,
                    const unsigned int numSamples, 
                    NodeModel& node,
-                   AudioBufferManager<>& audioBufferManager)
+                   AudioBufferManager& audioBufferManager)
         : audioIn (audioIn), audioOut (audioOut),
           numSamples (numSamples), node (node),
           audioBufferManager (audioBufferManager)
@@ -32,21 +32,13 @@ public:
 
     virtual void perform ()
     {
-        if (audioIn == AudioBufferID::Empty)
-        {
-            auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
-            node.process (nullptr, outputBuffer.get (), numSamples);
-        }
-        else
-        {
-            auto inputBuffer = audioBufferManager.getBufferFromID (audioIn);
-            auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
-            node.process (inputBuffer.get (), outputBuffer.get (), numSamples);
-        }
+        auto inputBuffer = audioBufferManager.getBufferFromID (audioIn);
+        auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
+        node.process (inputBuffer.get (), outputBuffer.get (), numSamples);
     }
 
 private:
-    AudioBufferManager<>& audioBufferManager;
+    AudioBufferManager& audioBufferManager;
     NodeModel& node;
     const AudioBufferID audioIn, audioOut;
     const unsigned int numSamples;
