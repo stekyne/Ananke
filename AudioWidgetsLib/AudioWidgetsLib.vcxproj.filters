@@ -63,10 +63,10 @@
     <ClInclude Include="Source\NodeTypes\GainNode.h">
       <Filter>Header Files\Models\NodeTypes</Filter>
     </ClInclude>
-    <ClInclude Include="GraphController.h">
+    <ClInclude Include="Source\GraphController.h">
       <Filter>Header Files\Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="DSP.h">
+    <ClInclude Include="Source\DSP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <ClCompile Include="Source\NodeModel.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
-    <ClCompile Include="GraphController.cpp">
+    <ClCompile Include="Source\GraphController.cpp">
       <Filter>Source Files\Controllers</Filter>
     </ClCompile>
   </ItemGroup>

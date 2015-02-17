@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <tuple>
 
 #include "AudioBuffer.h"
 
@@ -58,6 +59,11 @@ class NodeModel
 public:
     NodeModel () : id (-1) {}
     explicit NodeModel (const int _id) : id (_id) {}
+    NodeModel (const int _id, float positionX, float positionY)
+        :   id (_id),
+            position (positionX, positionY) 
+    { 
+    }
     
     NodeModel (const NodeModel& other)
         :   id (other.id),
@@ -164,12 +170,25 @@ public:
                 audioOut->getBufferSize () <= numSamples);
     }
 
+    using PointType = std::tuple <float, float>;
+
+    void setPosition (PointType point)
+    {
+        position = point;
+    }
+
+    const PointType& getPosition () const
+    {
+        return position;
+    }
+
     // An empty instance of this class
     const static NodeModel Empty;
 
 private:
     // TODO remove knowledge of dependent nodes from this class, use matrix externally instead
     std::vector<NodeID> dependentNodes;
+    PointType position {0.f, 0.f};
     NodeID id;
 };
 

@@ -21,6 +21,7 @@ public:
     };
 
     //=====================================================================
+    Pin () = delete;
     explicit Pin (Type type, uint32 filterID, int index, bool isInput);
     ~Pin ();
 
@@ -42,10 +43,9 @@ public:
     static enum { midi_num = 0x1000 };
 
 private:
-    Pin ();
     friend class Node;
 
-    int	 channelNo;
+    int	channelNo;
     Type pin_type;
 
     GraphComponent* getGraph () const

@@ -69,68 +69,60 @@ const NodeModel* const GraphModel::getNodeForID (int id)
 
 bool GraphModel::addConnection (const Connection& newConnection)
 {
-    auto iter = nodes.begin ();
-
-    while (iter != nodes.end ())
+    for (auto& nodePair : nodes)
     {
-        auto itrNode = iter->second;
-        if (itrNode->getID () == newConnection.sourceNode)
+        auto node = nodePair.second;
+
+        if (node->getID () == newConnection.sourceNode)
         {
-            itrNode->addDependentNode (newConnection.destNode);
-            break;
+            node->addDependentNode (newConnection.destNode);
+            return true;
         }
-        ++iter;
     }
 
-    return true;
+    return false;
 }
 
 bool GraphModel::addConnection (const NodeModel* const srcNode, 
                                 const NodeModel* const destNode)
 {
-    auto iter = nodes.begin ();
-
-    while (iter != nodes.end ())
+    for (auto& nodePair : nodes)
     {
-        auto itrNode = iter->second;
-        if (itrNode->getID () == srcNode->getID ())
+        auto node = nodePair.second;
+
+        if (node->getID () == srcNode->getID ())
         {
-            itrNode->addDependentNode (destNode->getID ());
-            break;
+            node->addDependentNode (destNode->getID ());
+            return true;
         }
-        ++iter;
     }
 
-    return true;
+    return false;
 }
 
 bool GraphModel::removeConnection (const Connection& connection)
 {
-    auto iter = nodes.begin ();
-
-    while (iter != nodes.end ())
+    for (auto& nodePair : nodes)
     {
-        auto itrNode = iter->second;
-        if (itrNode->getID () == connection.sourceNode)
+        const auto node = nodePair.second;
+
+        if (node->getID () == connection.sourceNode)
         {
-            itrNode->removeDependentNode (connection.destNode);
-            break;
+            node->removeDependentNode (connection.destNode);
+            return true;
         }
-        ++iter;
     }
 
-    return true;
+    return false;
 }
 
 int GraphModel::connectionCount () const
 {
     int connectionCount = 0;
-    auto iter = nodes.begin ();
 
-    while (iter != nodes.end ())
+    for (auto& node : nodes)
     {
-        connectionCount += iter->second->dependentNodeCount ();
-        ++iter;
+        connectionCount += node.second->dependentNodeCount ();
     }
 
     return connectionCount;
@@ -138,6 +130,13 @@ int GraphModel::connectionCount () const
 
 bool GraphModel::connectionExists (const Connection& testConnection) const
 {
+    // TODO implement connection checking
+    return false;
+}
+
+bool GraphModel::canConnect (const Connection& testConnection) const
+{
+    // TODO implement if one node and connect to another
     return false;
 }
 
@@ -215,29 +214,40 @@ void GraphModel::setSettings (Settings settings)
     //TODO implement change listener
 }
 
-Settings GraphModel::getSettings () const
+const Settings& GraphModel::getSettings () const
 {
     return settings;
 }
 
-void GraphModel::addListener (Listener* const newListener)
+bool GraphModel::addListener (Listener* const newListener)
 {
     assert (newListener != nullptr);
 
-    auto result = 
+    const auto result = 
         std::find (std::begin (listeners), std::end (listeners), newListener);
 
-    if (result != std::end(listeners))
+    // Didn't find the listener so add it
+    if (result == std::end (listeners))
+    {
         listeners.push_back (newListener);
+        return true;
+    }
+
+    return false;
 }
 
-void GraphModel::removeListener (const Listener* listener)
+bool GraphModel::removeListener (const Listener* listener)
 {
     assert (listener != nullptr);
 
-    auto result =
+    const auto result =
         std::find (std::begin (listeners), std::end (listeners), listener);
     
     if (result != std::end (listeners))
+    {
         listeners.erase (result);
+        return true;
+    }
+
+    return false;
 }

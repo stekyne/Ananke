@@ -110,9 +110,9 @@ namespace AudioWidgetsTests
         {
             GraphModel graph;
 
-            graph.addNode (new SawOSCNode (1));
-            graph.addNode (new LowPassNode (2));
-            graph.addNode (new GainNode (3));
+            graph.addNode (new SawOSCNode (1, 0.f, 0.f));
+            graph.addNode (new LowPassNode (2, 0.f, 0.f));
+            graph.addNode (new GainNode (3, 0.f, 0.f));
 
             graph.addConnection (Connection (1, 2));
             graph.addConnection (Connection (2, 3));
@@ -122,6 +122,41 @@ namespace AudioWidgetsTests
             AudioBuffer<float> audioIn (50);
             AudioBuffer<float> audioOut (50);
             graph.processGraph (audioIn, audioOut);
+        }
+
+        TEST_METHOD (GraphModel_AddListener)
+        {
+            GraphModel graph;
+
+            struct GraphListener : public GraphModel::Listener
+            {
+                void newNodeAdded () {}
+                void nodeRemoved () {}
+                void newConnectionAdded () {}
+                void connectionRemoved () {}
+            } graphListener;
+
+            const auto result = graph.addListener (&graphListener);
+
+            Assert::AreEqual (true, result, L"Failed to add new listener");
+        }
+
+        TEST_METHOD (GraphModel_RemoveListener)
+        {
+            GraphModel graph;
+
+            struct GraphListener : public GraphModel::Listener
+            {
+                void newNodeAdded () {}
+                void nodeRemoved () {}
+                void newConnectionAdded () {}
+                void connectionRemoved () {}
+            } graphListener;
+
+            graph.addListener (&graphListener);
+            const auto result = graph.removeListener (&graphListener);
+
+            Assert::AreEqual (true, result, L"Failed to remove listener");
         }
 
     private:

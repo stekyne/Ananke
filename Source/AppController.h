@@ -16,7 +16,7 @@ public:
 
     void loadWidgets ();
 
-    std::shared_ptr<GraphModel> const getGraphModel () const
+    std::shared_ptr<GraphModel> getGraphModel () const
     {
         return graphModel;
     }

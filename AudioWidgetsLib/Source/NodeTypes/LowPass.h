@@ -9,8 +9,8 @@ class LowPassNode : public NodeModel
 {
 public:
     LowPassNode () = default;
-    LowPassNode (int id)
-        : NodeModel (id)
+    LowPassNode (int id, float positionX, float positionY)
+        : NodeModel (id, positionX, positionY)
     {
     }
 

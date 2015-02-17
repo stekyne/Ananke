@@ -13,7 +13,7 @@
 #include "Connection.h"
 #include "GraphOp.h"
 #include "NodeModel.h"
-#include "../DSP.h"
+#include "DSP.h"
 
 struct Settings
 {
@@ -51,6 +51,7 @@ public:
  
     int connectionCount () const;
     bool connectionExists (const Connection& testConnection) const;
+    bool canConnect (const Connection& testConnection) const;
 
     // Clear all nodes and operations from the graph
     void clearGraph ();
@@ -63,19 +64,19 @@ public:
                        AudioBuffer<DSP::SampleType>& audioOut);
 
     void setSettings (Settings settings);
-    Settings getSettings () const;
+    const Settings& getSettings () const;
 
     struct Listener;
-    void addListener (Listener* const newListener);
-    void removeListener (const Listener* listener);
+    bool addListener (Listener* const newListener);
+    bool removeListener (const Listener* listener);
 
 public:
     struct Listener
     {
-        Listener () = delete;
+        Listener () {}
         Listener (const Listener&) = delete;
         Listener& operator= (const Listener&) = delete;
-        virtual ~Listener () {}
+        virtual ~Listener () = default;
 
         virtual void newNodeAdded () = 0;
         virtual void nodeRemoved () = 0;

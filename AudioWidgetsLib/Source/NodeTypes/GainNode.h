@@ -9,8 +9,8 @@ class GainNode : public NodeModel
 {
 public:
     GainNode () = default;
-    GainNode (int id)
-        : NodeModel (id)
+    GainNode (int id, float positionX, float positionY)
+        : NodeModel (id, positionX, positionY)
     {
     }
 

@@ -15,7 +15,13 @@ namespace DSP
 template <typename NodeType>
 static NodeModel* const createNode ()
 {
-    return new NodeType (nodeIDcount++);
+    return new NodeType (nodeIDcount++, 0.f, 0.f);
+}
+
+template <typename NodeType>
+static NodeModel* const createNode (float positionX, float positionY)
+{
+    return new NodeType (nodeIDcount++, positionX, positionY);
 }
 
 }

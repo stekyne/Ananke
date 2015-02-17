@@ -90,6 +90,7 @@
   <ItemGroup>
     <ClCompile Include="Source\testAudioBuffer.cpp" />
     <ClCompile Include="Source\testAudioBufferManager.cpp" />
+    <ClCompile Include="Source\testGraphController.cpp" />
     <ClCompile Include="Source\testGraphModel.cpp" />
     <ClCompile Include="Source\testNodes.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -8,6 +8,7 @@
 
 class GraphModel;
 class GraphComponent;
+class Pin;
 
 class Node : public Component
 {
@@ -17,7 +18,7 @@ public:
           uint32 id_, String name_,
           int  inputNum, int  outputNum,
           bool hasMidiIn, bool hasMidiOut);
-    ~Node () = default;
+    ~Node ();
 
     void getPinPos (const int index, const bool isInput, float& x, float& y);
 
@@ -36,14 +37,14 @@ public:
 
 private:
     friend class GraphComponent;
-
     GraphComponent* getGraph () const;
 
+private:
+    ComponentDragger dragger;
+    std::vector<Pin*> inputs, outputs;
     std::shared_ptr <GraphModel> graph;
     Font font;
     int numIns, numOuts;
-
-    ComponentDragger dragger;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Node);
 };

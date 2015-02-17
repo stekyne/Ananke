@@ -9,8 +9,8 @@ class SawOSCNode : public NodeModel
 {
 public:
     SawOSCNode () = default;
-    SawOSCNode (int id)
-        : NodeModel (id)
+    SawOSCNode (int id, float positionX, float positionY)
+        : NodeModel (id, positionX, positionY)
     {
     }
 

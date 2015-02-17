@@ -16,8 +16,12 @@ Node::Node (std::shared_ptr<GraphModel> graph_,
         numOutputs (0),
         font (13.0f, Font::bold)
 {
-    /** Set size which calls resized to position pins also */
     setSize (120, 35);
+}
+
+Node::~Node ()
+{
+    deleteAllChildren ();
 }
 
 void Node::getPinPos (const int index, const bool isInput, float& x, float& y)
@@ -49,24 +53,24 @@ void Node::paint (Graphics& g)
 void Node::resized ()
 {
     /** Figure out distances between the pins based on the number of them */
-    //float x = getWidth() / (float)(inputs.size() + 1);
-    //		
-    ///** Put pins in correct location */
-    //for( int i = 0; i < inputs.size(); ++i )
-    //{
-    //	inputs[i]->setBounds( (int)((i+1 * x) - 5.0f), 0, 
-    //						  inputs[i]->getWidth(), 
-    //						  inputs[i]->getHeight() );
-    //}
+    float x = getWidth() / (float)(inputs.size() + 1);
+    		
+    /** put pins in correct location */
+    for (auto i = inputs.size (); i > 0; --i)
+    {
+    	inputs[i]->setBounds((int)((i+1 * x) - 5.0f), 0, 
+    						 inputs[i]->getWidth(), 
+    						 inputs[i]->getHeight());
+    }
 
-    //x = getWidth() / (float)(outputs.size() + 1);
+    x = getWidth() / (float)(outputs.size() + 1);
 
-    //for( int i = 0; i < outputs.size(); ++i )
-    //{
-    //	outputs[i]->setBounds( (int)((i+1 * x) - 5.0f), getHeight() - 10,
-    //							outputs[i]->getWidth(),
-    //							outputs[i]->getHeight() );
-    //}
+    for (auto i = outputs.size (); i > 0; --i)
+    {
+    	outputs[i]->setBounds((int)((i+1 * x) - 5.0f), getHeight() - 10,
+    						  outputs[i]->getWidth(),
+    						  outputs[i]->getHeight());
+    }
 
     //if( midiIn != nullptr )
     //{
@@ -91,8 +95,8 @@ void Node::resized ()
             const int total = pc->isInput ? numIns : numOuts;
             const int index = pc->index == Pin::midi_num ? (total - 1) : pc->index;
 
-            pc->setBounds (proportionOfWidth ((1 + index) / (total + 1.0f)) - 5.0f / 2,
-                           pc->isInput ? 0 : (getHeight () - 5.0f),
+            pc->setBounds (proportionOfWidth ((1 + index) / (total + 1.0f)) - 5.0f / 2.f,
+                           pc->isInput ? 0.f : (getHeight () - 5.0f),
                            5.0f, 5.0f);
         }
     }
@@ -100,7 +104,6 @@ void Node::resized ()
 
 void Node::update ()
 {
-    //const AudioProcessorGraph::Node::Ptr f (graph.getNodeForId (id));
     const auto node = graph->getNodeForID (id);
 
     numIns = node->getNumInputChannels ();
@@ -135,8 +138,8 @@ void Node::update ()
         numOutputs = numOuts;
 
         /** Clear all pins from node */
-        //inputs.clear();
-        //outputs.clear();
+        inputs.clear();
+        outputs.clear();
         //midiIn  = 0;
         //midiOut = 0;
         deleteAllChildren ();
@@ -145,7 +148,7 @@ void Node::update ()
         for (i = 0; i < node->getNumInputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioInput, id, i, true);
-            //inputs.add( newPin );
+            inputs.push_back( newPin );
             addAndMakeVisible (newPin);
         }
 
@@ -158,7 +161,7 @@ void Node::update ()
         for (i = 0; i < node->getNumOutputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioOutput, id, i, false);
-            //outputs.add( newPin );
+            outputs.push_back( newPin );
             addAndMakeVisible (newPin);
         }
 
@@ -182,7 +185,7 @@ void Node::mouseDrag (const MouseEvent& e)
 {
     dragger.dragComponent (this, e, nullptr);
 
-    const auto& node = graph->getNodeForID (id);
+    //const auto& node = graph->getNodeForID (id);
 
     // TODO need to store the position somewhere for placement in the graph
     /*node->properties.set ("x", (getX () + getWidth () / 2.0f) / (float)getParentWidth ());
@@ -191,7 +194,7 @@ void Node::mouseDrag (const MouseEvent& e)
     getGraph ()->updateGraph ();
 }
 
-void Node::mouseUp (const MouseEvent& e)
+void Node::mouseUp (const MouseEvent& /*e*/)
 {
 }
 

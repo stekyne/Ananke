@@ -120,8 +120,8 @@ void GraphComponent::dragConnector (const MouseEvent& e)
                 dstFilter = pin->filterID;
                 dstChannel = pin->index;
             }
-
-            //if (graph.canConnect (srcFilter, srcChannel, dstFilter, dstChannel))
+            
+            if (graph->canConnect (Connection (srcFilter, dstFilter)))
             {
                 x = pin->getParentComponent ()->getX () + pin->getX () + pin->getWidth () / 2;
                 y = pin->getParentComponent ()->getY () + pin->getY () + pin->getHeight () / 2;
@@ -176,7 +176,7 @@ void GraphComponent::endConnector (const MouseEvent& e)
             dstChannel = pin->index;
         }
 
-        /*if (graph->addConnection (srcFilter, srcChannel, dstFilter, dstChannel))
+        if (graph->addConnection (Connection (srcFilter, dstFilter)))
         {
             DBG ("Connection is successful: " + String (srcFilter) + " to " + String (dstFilter));
             updateGraph ();
@@ -184,7 +184,7 @@ void GraphComponent::endConnector (const MouseEvent& e)
         else
         {
             DBG ("Connection unsuccessful: " + String (srcFilter) + " to " + String (dstFilter));
-        }*/
+        }
     }
 }
 
@@ -240,26 +240,27 @@ void GraphComponent::updateGraph ()
         }
     }
 
-    for (auto node : graph->getNodes ())
+    for (auto& node : graph->getNodes ())
     {
         const auto id = node.first.getNumber ();
+        auto nodeModel = node.second;
 
         if (getComponentForFilter (id) == 0)
         {
-            //Node* const node = new Node (graph, f->nodeId,
-            //                             f->getProcessor ()->getName (),
-            //                             f->getProcessor ()->getNumInputChannels (),
-            //                             f->getProcessor ()->getNumOutputChannels (),
-            //                             f->getProcessor ()->acceptsMidi (),
-            //                             f->getProcessor ()->producesMidi ());
-            //addAndMakeVisible (node);
-            //node->update ();
+            Node* const newNode = new Node (graph, id,
+                                             nodeModel->getName (),
+                                             nodeModel->getNumInputChannels (),
+                                             nodeModel->getNumOutputChannels (),
+                                             nodeModel->acceptsMidi (),
+                                             nodeModel->producesMidi ());
+            addAndMakeVisible (newNode);
+            newNode->update ();
         }
     }
 
-    /*for (i = graph.getNumConnections (); --i >= 0;)
+    /*for (i = graph->connectionCount (); --i >= 0;)
     {
-        const AudioProcessorGraph::Connection* const c = graph.getConnection (i);
+        const AudioProcessorGraph::Connection* const c = graph->getConnection (i);
 
         if (getComponentForConnection (*c) == 0)
         {

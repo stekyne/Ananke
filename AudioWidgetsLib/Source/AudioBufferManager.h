@@ -6,7 +6,7 @@
 #include <map>
 #include <memory>
 #include "AudioBuffer.h"
-#include "..\DSP.h"
+#include "DSP.h"
 
 struct AudioBufferID
 {

@@ -21,9 +21,9 @@ void AppController::loadWidgets ()
 
 void AppController::loadTestData ()
 {
-    auto node1 = DSP::createNode<GainNode> ();
-    auto node2 = DSP::createNode<SawOSCNode> ();
-    auto node3 = DSP::createNode<LowPassNode> ();
+    auto node1 = DSP::createNode<GainNode> (20, 20);
+    auto node2 = DSP::createNode<SawOSCNode> (50, 20);
+    auto node3 = DSP::createNode<LowPassNode> (80, 20);
 
     graphModel->addNode (node1);
     graphModel->addNode (node2);
