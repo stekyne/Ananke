@@ -56,7 +56,7 @@ void Node::resized ()
     float x = getWidth() / (float)(inputs.size() + 1);
     		
     /** put pins in correct location */
-    for (auto i = inputs.size (); i > 0; --i)
+    for (auto i = 0; i < inputs.size (); ++i)
     {
     	inputs[i]->setBounds((int)((i+1 * x) - 5.0f), 0, 
     						 inputs[i]->getWidth(), 
@@ -65,14 +65,14 @@ void Node::resized ()
 
     x = getWidth() / (float)(outputs.size() + 1);
 
-    for (auto i = outputs.size (); i > 0; --i)
+    for (auto i = 0; i < outputs.size (); ++i)
     {
     	outputs[i]->setBounds((int)((i+1 * x) - 5.0f), getHeight() - 10,
     						  outputs[i]->getWidth(),
     						  outputs[i]->getHeight());
     }
 
-    //if( midiIn != nullptr )
+    //if (midiIn != nullptr)
     //{
     //	midiIn->setBounds( 0, (getHeight() / 2) - (midiIn->getHeight() / 2),
     //					   midiIn->getWidth(),
@@ -86,6 +86,7 @@ void Node::resized ()
     //					    midiOut->getWidth(),
     //					    midiOut->getHeight() );
     //}
+
     for (int i = 0; i < getNumChildComponents (); ++i)
     {
         Pin* const pc = dynamic_cast<Pin*>(getChildComponent (i));

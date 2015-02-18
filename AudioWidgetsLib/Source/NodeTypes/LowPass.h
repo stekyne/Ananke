@@ -36,6 +36,26 @@ public:
         }
     }
 
+    const char* const getName () const
+    {
+        return "LowPass";
+    }
+
+    unsigned int getNumInputChannels () const
+    {
+        return 2;
+    }
+
+    unsigned int getNumOutputChannels () const
+    {
+        return 2;
+    }
+
+    bool acceptsMidi () const
+    {
+        return false;
+    }
+
 private:
 };
 

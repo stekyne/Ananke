@@ -34,6 +34,26 @@ public:
         }
     }
 
+    const char* const getName () const
+    {
+        return "GainNode";
+    }
+
+    unsigned int getNumInputChannels () const
+    {
+        return 2;
+    }
+
+    unsigned int getNumOutputChannels () const
+    {
+        return 2;
+    }
+
+    bool acceptsMidi () const
+    {
+        return false;
+    }
+
     void setGain (float gain)
     {
         this->gain = gain;

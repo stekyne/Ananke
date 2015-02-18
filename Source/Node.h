@@ -33,8 +33,6 @@ public:
     const uint32 id;
     const String name;
 
-    int numInputs, numOutputs;
-
 private:
     friend class GraphComponent;
     GraphComponent* getGraph () const;
@@ -44,7 +42,7 @@ private:
     std::vector<Pin*> inputs, outputs;
     std::shared_ptr <GraphModel> graph;
     Font font;
-    int numIns, numOuts;
+    int numIns, numOuts, numInputs, numOutputs;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Node);
 };

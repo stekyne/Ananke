@@ -131,27 +131,27 @@ public:
         return dependentNodes;
     }
 
-    const char* const getName () const
+    virtual const char* const getName () const
     {
         return "Node";
     }
 
-    unsigned int getNumInputChannels () const
+    virtual unsigned int getNumInputChannels () const
     {
         return 0;
     }
 
-    unsigned int getNumOutputChannels () const
+    virtual unsigned int getNumOutputChannels () const
     {
         return 0;
     }
 
-    bool acceptsMidi () const
+    virtual bool acceptsMidi () const
     {
         return true;
     }
 
-    bool producesMidi () const
+    virtual bool producesMidi () const
     {
         return false;
     }
@@ -188,6 +188,7 @@ public:
 private:
     // TODO remove knowledge of dependent nodes from this class, use matrix externally instead
     std::vector<NodeID> dependentNodes;
+    // TODO move position data into NodeController, model shouldn't care about visuals
     PointType position {0.f, 0.f};
     NodeID id;
 };

@@ -37,17 +37,12 @@ public:
     void mouseUp (const MouseEvent& e);
 
     const uint32 filterID;
-    const int	 index;
-    const bool	 isInput;
+    const int index;
+    const bool isInput;
 
     static enum { midi_num = 0x1000 };
 
 private:
-    friend class Node;
-
-    int	channelNo;
-    Type pin_type;
-
     GraphComponent* getGraph () const
     {
         GraphComponent* graphComponent =
@@ -60,6 +55,12 @@ private:
 
         return graphComponent;
     }
+
+private:
+    friend class Node;
+
+    int	channelNo;
+    Type pin_type;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pin);
 };

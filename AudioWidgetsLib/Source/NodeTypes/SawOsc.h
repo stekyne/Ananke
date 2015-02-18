@@ -39,6 +39,26 @@ public:
         }
     }
 
+    const char* const getName () const
+    {
+        return "SawNode";
+    }
+
+    unsigned int getNumInputChannels () const
+    {
+        return 0;
+    }
+
+    unsigned int getNumOutputChannels () const
+    {
+        return 2;
+    }
+
+    bool acceptsMidi () const
+    {
+        return true;
+    }
+
     void setFrequency (float freq)
     {
         this->freq = freq;
