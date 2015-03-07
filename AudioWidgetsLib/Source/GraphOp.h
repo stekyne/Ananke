@@ -11,6 +11,7 @@ struct GraphOp
 {
     virtual ~GraphOp () {};
     virtual void perform () = 0;
+    virtual const char* const getName () = 0;
 };
 
 class ProcessNodeOp : public GraphOp
@@ -34,7 +35,13 @@ public:
     {
         auto inputBuffer = audioBufferManager.getBufferFromID (audioIn);
         auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
-        node.process (inputBuffer.get (), outputBuffer.get (), numSamples);
+        node.process (inputBuffer == nullptr ? nullptr : inputBuffer.get (), 
+                      outputBuffer.get (), numSamples);
+    }
+
+    const char* const getName ()
+    {
+        return node.getName ();
     }
 
 private:

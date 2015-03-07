@@ -21,6 +21,7 @@ public:
                   const unsigned int numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
+
         assert (audioIn != nullptr);
         assert (audioIn->getBufferSize () > 0 && 
                 audioIn->getBufferSize () <= numSamples);

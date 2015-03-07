@@ -15,9 +15,9 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace AudioWidgetsTests
 {		
-	TEST_CLASS (TestGraphModel)
-	{
-	public:
+    TEST_CLASS (TestGraphModel)
+    {
+    public:
         TEST_METHOD (GraphModel_AddNode)
         {
             GraphModel graph;
@@ -62,7 +62,7 @@ namespace AudioWidgetsTests
             graph.addNode (node1);
             graph.addNode (node2);
             Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
-            graph.addConnection (node1, node2);
+            graph.addConnection (*node1, *node2);
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
         }
 
@@ -104,20 +104,26 @@ namespace AudioWidgetsTests
             graph.addConnection (Connection (*node2, *node3));
 
             graph.buildGraph ();
+            Logger::WriteMessage (graph.printGraph ().c_str ());
         }
 
         TEST_METHOD (GraphModel_ProcessGraph)
         {
             GraphModel graph;
 
-            graph.addNode (new SawOSCNode (1, 0.f, 0.f));
-            graph.addNode (new LowPassNode (2, 0.f, 0.f));
-            graph.addNode (new GainNode (3, 0.f, 0.f));
+            auto node1 = DSP::createNode<SawOSCNode> ();
+            auto node2 = DSP::createNode<LowPassNode> ();
+            auto node3 = DSP::createNode<GainNode> ();
 
-            graph.addConnection (Connection (1, 2));
-            graph.addConnection (Connection (2, 3));
+            graph.addNode (node1);
+            graph.addNode (node2);
+            graph.addNode (node3);
+
+            graph.addConnection (*node1, *node2);
+            graph.addConnection (*node2, *node3);
 
             graph.buildGraph ();
+            Logger::WriteMessage (graph.printGraph ().c_str ());
 
             AudioBuffer<float> audioIn (50);
             AudioBuffer<float> audioOut (50);
@@ -134,6 +140,7 @@ namespace AudioWidgetsTests
                 void nodeRemoved () {}
                 void newConnectionAdded () {}
                 void connectionRemoved () {}
+                void graphSettingsChanged () {}
             } graphListener;
 
             const auto result = graph.addListener (&graphListener);
@@ -151,6 +158,7 @@ namespace AudioWidgetsTests
                 void nodeRemoved () {}
                 void newConnectionAdded () {}
                 void connectionRemoved () {}
+                void graphSettingsChanged () {}
             } graphListener;
 
             graph.addListener (&graphListener);
@@ -160,5 +168,5 @@ namespace AudioWidgetsTests
         }
 
     private:
-	};
+    };
 }

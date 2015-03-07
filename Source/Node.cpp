@@ -5,8 +5,8 @@
 
 Node::Node (std::shared_ptr<GraphModel> graph_,
             uint32 id_, String name_,
-            int inputNum, int outputNum,
-            bool hasMidiIn, bool hasMidiOut)
+            int /*inputNum*/, int /*outputNum*/,
+            bool /*hasMidiIn*/, bool /*hasMidiOut*/)
     :   graph (graph_),
         id (id_),
         name (name_),
@@ -56,7 +56,7 @@ void Node::resized ()
     float x = getWidth() / (float)(inputs.size() + 1);
     		
     /** put pins in correct location */
-    for (auto i = 0; i < inputs.size (); ++i)
+    for (auto i = 0; i < (int)inputs.size (); ++i)
     {
     	inputs[i]->setBounds((int)((i+1 * x) - 5.0f), 0, 
     						 inputs[i]->getWidth(), 
@@ -65,7 +65,7 @@ void Node::resized ()
 
     x = getWidth() / (float)(outputs.size() + 1);
 
-    for (auto i = 0; i < outputs.size (); ++i)
+    for (auto i = 0; i < (int)outputs.size (); ++i)
     {
     	outputs[i]->setBounds((int)((i+1 * x) - 5.0f), getHeight() - 10,
     						  outputs[i]->getWidth(),
@@ -96,9 +96,9 @@ void Node::resized ()
             const int total = pc->isInput ? numIns : numOuts;
             const int index = pc->index == Pin::midi_num ? (total - 1) : pc->index;
 
-            pc->setBounds (proportionOfWidth ((1 + index) / (total + 1.0f)) - 5.0f / 2.f,
-                           pc->isInput ? 0.f : (getHeight () - 5.0f),
-                           5.0f, 5.0f);
+            pc->setBounds ((int)(proportionOfWidth ((1 + index) / (total + 1.0f)) - 5 / 2.f),
+                           pc->isInput ? 0: (getHeight () - 5),
+                           5, 5);
         }
     }
 }

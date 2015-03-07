@@ -29,8 +29,8 @@ void AppController::loadTestData ()
     graphModel->addNode (node2);
     graphModel->addNode (node3);
 
-    graphModel->addConnection (node2, node1);
-    graphModel->addConnection (node1, node3);
+    graphModel->addConnection (*node2, *node1);
+    graphModel->addConnection (*node1, *node3);
 
     graphModel->buildGraph ();
 }

@@ -6,8 +6,9 @@
 #include "GraphModel.h"
 
 GraphModel::GraphModel ()
-    :   settings {44100.f, 50},
-        audioBufferManager (50)
+    :   settings {44100.f, 50, 50},
+        audioBufferManager (50),
+        connections (50)
 {
 }
 
@@ -30,7 +31,11 @@ GraphModel::~GraphModel ()
 
 bool GraphModel::addNode (NodeModel* const newNode)
 {
-    nodes[newNode->getID ()] = newNode;
+    newNode->setID (getFreeInternalID ());
+    nodes[newNode->getID ().getNumber ()] = newNode;
+    totalNodeCount++;
+    // TODO if the total amount of nodes is greater than the capacity
+    // We now need to reallocate more space
     return true;
 }
 
@@ -44,6 +49,8 @@ bool GraphModel::removeNode (const NodeModel* const node)
         if (itrNode->getID () == node->getID ())
         {
             nodes.erase (iter);
+            totalNodeCount--;
+            clearConnectionsForNode (node->getID ().getNumber ());
             break;
         }
         ++iter;
@@ -69,74 +76,38 @@ const NodeModel* const GraphModel::getNodeForID (int id)
 
 bool GraphModel::addConnection (const Connection& newConnection)
 {
-    for (auto& nodePair : nodes)
-    {
-        auto node = nodePair.second;
-
-        if (node->getID () == newConnection.sourceNode)
-        {
-            node->addDependentNode (newConnection.destNode);
-            return true;
-        }
-    }
-
-    return false;
+    return setConnectionTableValue (newConnection.sourceNode.getNumber (),
+                                    newConnection.destNode.getNumber (), true);
 }
 
-bool GraphModel::addConnection (const NodeModel* const srcNode, 
-                                const NodeModel* const destNode)
+bool GraphModel::addConnection (const NodeModel& sourceNode, 
+                                const NodeModel& destNode)
 {
-    for (auto& nodePair : nodes)
-    {
-        auto node = nodePair.second;
-
-        if (node->getID () == srcNode->getID ())
-        {
-            node->addDependentNode (destNode->getID ());
-            return true;
-        }
-    }
-
-    return false;
+    return setConnectionTableValue (sourceNode.getID ().getNumber (),
+                                    destNode.getID ().getNumber (), true);
 }
 
 bool GraphModel::removeConnection (const Connection& connection)
 {
-    for (auto& nodePair : nodes)
-    {
-        const auto node = nodePair.second;
-
-        if (node->getID () == connection.sourceNode)
-        {
-            node->removeDependentNode (connection.destNode);
-            return true;
-        }
-    }
-
-    return false;
+    return setConnectionTableValue (connection.sourceNode.getNumber (),
+                                    connection.destNode.getNumber (), false);
 }
 
 int GraphModel::connectionCount () const
 {
-    int connectionCount = 0;
-
-    for (auto& node : nodes)
-    {
-        connectionCount += node.second->dependentNodeCount ();
-    }
-
-    return connectionCount;
+    return activeConnections;
 }
 
 bool GraphModel::connectionExists (const Connection& testConnection) const
 {
-    // TODO implement connection checking
-    return false;
+    return getConnectionTableValue (testConnection.sourceNode.getNumber (), 
+                                    testConnection.destNode.getNumber ());
 }
 
 bool GraphModel::canConnect (const Connection& testConnection) const
 {
     // TODO implement if one node and connect to another
+    // perform a topological sort and test for loops
     return false;
 }
 
@@ -188,11 +159,11 @@ void GraphModel::topologicalSortUtil (const NodeModel& parentNode,
     audioBufferManager.associatedBufferWithNode (freeBuffer, currentNodeID);
 
     // Recur for all the nodes adjacent to this node
-    for (auto& adjacentNode : currentNode.getDependentNodes ())
+    for (auto& adjacentNode : getDependentsForNode (currentNodeID))
     {
-        if (!visited[adjacentNode.getNumber ()])
+        if (!visited[adjacentNode])
         {
-            topologicalSortUtil (currentNode, *nodes[adjacentNode.getNumber ()],
+            topologicalSortUtil (currentNode, *nodes[adjacentNode],
                                  visited);
         }
     }

@@ -60,22 +60,9 @@ public:
     NodeModel () : id (-1) {}
     explicit NodeModel (const int _id) : id (_id) {}
     NodeModel (const int _id, float positionX, float positionY)
-        :   id (_id),
-            position (positionX, positionY) 
-    { 
-    }
-    
-    NodeModel (const NodeModel& other)
-        :   id (other.id),
-            dependentNodes (other.dependentNodes)
+        : id (_id),
+        position (positionX, positionY)
     {
-    }
-
-    NodeModel& operator= (const NodeModel& other)
-    {
-        this->id = NodeID (other.getID ());
-        this->dependentNodes = other.dependentNodes;
-        return *this;
     }
 
     friend bool operator==(const NodeModel& lhs, const NodeModel& rhs)
@@ -95,41 +82,6 @@ public:
     }
 
     virtual ~NodeModel () {};
-
-    void addDependentNode (const NodeID id)
-    {
-        dependentNodes.push_back (id);
-    }
-
-    void removeDependentNode (const NodeID id)
-    {
-        auto iter = dependentNodes.cbegin ();
-
-        while (iter != dependentNodes.cend ())
-        {
-            if (iter->getNumber () == id.getNumber ())
-            {
-                dependentNodes.erase (iter);
-                break;
-            }
-            ++iter;
-        }
-    }
-
-    void clearDependentNodes ()
-    {
-        dependentNodes.clear ();
-    }
-
-    int dependentNodeCount () const
-    {
-        return dependentNodes.size ();
-    }
-
-    const std::vector<NodeID>& getDependentNodes () const
-    {
-        return dependentNodes;
-    }
 
     virtual const char* const getName () const
     {
@@ -156,7 +108,8 @@ public:
         return false;
     }
 
-    inline const NodeID& getID () const { return id; }
+    void setID (NodeID id) { this->id = id; }
+    const NodeID& getID () const { return id; }
 
     // TODO use the CRTP method instead of a virual call
     virtual void process (const AudioBuffer<float>* const /*audioIn*/,
@@ -186,8 +139,6 @@ public:
     const static NodeModel Empty;
 
 private:
-    // TODO remove knowledge of dependent nodes from this class, use matrix externally instead
-    std::vector<NodeID> dependentNodes;
     // TODO move position data into NodeController, model shouldn't care about visuals
     PointType position {0.f, 0.f};
     NodeID id;
