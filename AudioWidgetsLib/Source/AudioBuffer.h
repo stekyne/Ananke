@@ -10,8 +10,6 @@ class AudioBuffer
 {
 public:
     AudioBuffer () = delete;
-    // TODO move constructor?
-
     AudioBuffer (const unsigned int numSamples)
         : numSamples (numSamples)
     {

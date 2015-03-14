@@ -32,7 +32,7 @@ Connector::Connector (GraphModel& graph_,
     setAlwaysOnTop (true);
 }
 
-void Connector::setInput (const uint32 sourceFilterID_, const int sourceFilterChannel_)
+void Connector::setInput (const uint32 sourceFilterID_, const uint32 sourceFilterChannel_)
 {
     if (sourceFilterID != sourceFilterID_ || sourceFilterChannel != sourceFilterChannel_)
     {
@@ -42,7 +42,7 @@ void Connector::setInput (const uint32 sourceFilterID_, const int sourceFilterCh
     }
 }
 
-void Connector::setOutput (const uint32 destFilterID_, const int destFilterChannel_)
+void Connector::setOutput (const uint32 destFilterID_, const uint32 destFilterChannel_)
 {
     if (destFilterID != destFilterID_ || destFilterChannel != destFilterChannel_)
     {
@@ -196,7 +196,8 @@ void Connector::mouseDrag (const MouseEvent& e)
     {
         dragging = true;
 
-        graph.removeConnection (Connection(sourceFilterID, destFilterID));
+        graph.removeConnection (Connection(sourceFilterID, sourceFilterChannel, 
+                                            destFilterID, destFilterChannel));
 
         double distanceFromStart, distanceFromEnd;
         getDistancesFromEnds (e.x, e.y, distanceFromStart, distanceFromEnd);

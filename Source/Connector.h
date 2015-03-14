@@ -18,8 +18,8 @@ public:
                uint32 dstNode, int dstChannel);
     ~Connector () = default;
 
-    void setInput (const uint32 sourceFilterID_, const int sourceFilterChannel_);
-    void setOutput (const uint32 destFilterID_, const int destFilterChannel_);
+    void setInput (const uint32 sourceFilterID_, const uint32 sourceFilterChannel_);
+    void setOutput (const uint32 destFilterID_, const uint32 destFilterChannel_);
 
     void dragStart (int x, int y);
     void dragEnd (int x, int y);
@@ -49,7 +49,7 @@ public:
 
     /** Connection IDs and channels for this object */
     uint32	sourceFilterID, destFilterID;
-    int		sourceFilterChannel, destFilterChannel;
+    uint32	sourceFilterChannel, destFilterChannel;
 
 private:
     GraphComponent* getGraph () const

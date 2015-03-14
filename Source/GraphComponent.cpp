@@ -50,9 +50,9 @@ Connector* GraphComponent::getComponentForConnection (const Connection& connecti
             continue;
 
         if (c->sourceFilterID == connection.sourceNode &&
-            c->destFilterID == connection.destNode)
-            //&& c->sourceFilterChannel == conn.sourceChannelIndex
-            //&& c->destFilterChannel == conn.destChannelIndex)
+            c->destFilterID == connection.destNode &&
+            c->sourceFilterChannel == connection.sourceChannel &&
+            c->destFilterChannel == connection.destChannel)
         {
             return c;
         }
@@ -61,10 +61,8 @@ Connector* GraphComponent::getComponentForConnection (const Connection& connecti
     return nullptr;
 }
 
-void GraphComponent::beginConnector (const uint32	sourceFilterID,
-                                     const int		sourceFilterChannel,
-                                     const uint32	destFilterID,
-                                     const int		destFilterChannel,
+void GraphComponent::beginConnector (const uint32 sourceFilterID, const int sourceFilterChannel,
+                                     const uint32 destFilterID, const int destFilterChannel,
                                      const MouseEvent& e)
 {
     /** Delete previous connector if it exists, get a pointer to the connector
@@ -122,7 +120,7 @@ void GraphComponent::dragConnector (const MouseEvent& e)
                 dstChannel = pin->index;
             }
             
-            if (graph->canConnect (Connection (srcFilter, dstFilter)))
+            if (graph->canConnect (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
             {
                 x = pin->getParentComponent ()->getX () + pin->getX () + pin->getWidth () / 2;
                 y = pin->getParentComponent ()->getY () + pin->getY () + pin->getHeight () / 2;
@@ -177,7 +175,7 @@ void GraphComponent::endConnector (const MouseEvent& e)
             dstChannel = pin->index;
         }
 
-        if (graph->addConnection (Connection (srcFilter, dstFilter)))
+        if (graph->addConnection (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
         {
             DBG ("Connection is successful: " + String (srcFilter) + " to " + String (dstFilter));
             updateGraph ();
@@ -226,9 +224,9 @@ void GraphComponent::updateGraph ()
         if (cc != nullptr && cc != draggingConnector)
         {
             const Connection testConnection (cc->sourceFilterID,
-                                             //cc->sourceFilterChannel,
-                                             cc->destFilterID);
-                                             //cc->destFilterChannel);
+                                             cc->sourceFilterChannel,
+                                             cc->destFilterID,
+                                             cc->destFilterChannel);
 
             if (graph->connectionExists (testConnection) == false)
             {
@@ -244,16 +242,11 @@ void GraphComponent::updateGraph ()
     for (auto& node : graph->getNodes ())
     {
         const auto id = node.first;
-        auto nodeModel = node.second;
+        //auto nodeModel = node.second;
 
         if (getComponentForFilter (id) == 0)
         {
-            Node* const newNode = new Node (graph, id,
-                                            nodeModel->getName (),
-                                            nodeModel->getNumInputChannels (),
-                                            nodeModel->getNumOutputChannels (),
-                                            nodeModel->acceptsMidi (),
-                                            nodeModel->producesMidi ());
+            Node* const newNode = new Node (graph, id);
             addAndMakeVisible (newNode);
             newNode->update ();
         }
@@ -261,14 +254,14 @@ void GraphComponent::updateGraph ()
 
     for (auto& connection : graph->getConnections ())
     {
-        if (getComponentForConnection (connection) == 0)
+        if (getComponentForConnection (connection) == nullptr)
         {
             Connector* const conn = new Connector (*graph.get ());
 
             addAndMakeVisible (conn);
 
-            conn->setInput (connection.sourceNode, 0);
-            conn->setOutput (connection.destNode, 0);
+            conn->setInput (connection.sourceNode, connection.sourceChannel);
+            conn->setOutput (connection.destNode, connection.destChannel);
         }
     }
 }

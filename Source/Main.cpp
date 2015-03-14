@@ -47,7 +47,7 @@ public:
     {
     public:
         MainWindow (std::shared_ptr<AppController>& _appController)  : 
-            DocumentWindow ("MainWindow",
+            DocumentWindow ("Ananke",
                             Colours::lightgrey,
                             DocumentWindow::allButtons)
         {

@@ -8,9 +8,12 @@
 struct Connection
 {
     Connection () = default;
-    Connection (const uint32_t sourceNode, const uint32_t destNode)
+    Connection (uint32_t sourceNode, uint32_t sourceChannel, 
+                uint32_t destNode, uint32_t destChannel)
         :   sourceNode (sourceNode),
-            destNode (destNode)
+            sourceChannel (sourceChannel),
+            destNode (destNode),
+            destChannel (destChannel)
     {}
 
     Connection (const NodeModel& node1, const NodeModel& node2)

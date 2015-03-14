@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    float phasor{ 0.f }, freq{ 440.f }, increm{ 0.f };
+    float phasor {0.f}, freq {440.f}, increm {0.f};
 };
 
 #endif

@@ -16,22 +16,24 @@
 #include "NodeModel.h"
 #include "DSP.h"
 
-struct Settings
-{
-    float sampleRate {44100};
-    int blockSize {256};
-    int graphCapacity {50};
-
-    Settings (float sampleRate, int blockSize, int graphCapacity)
-        :   sampleRate (sampleRate),
-            blockSize (blockSize),
-            graphCapacity (graphCapacity)
-    {
-    }
-};
 
 class GraphModel
 {
+public:
+    struct Settings
+    {
+        float sampleRate {44100};
+        int blockSize {256};
+        int graphCapacity {50};
+
+        Settings (float sampleRate, int blockSize, int graphCapacity)
+            : sampleRate (sampleRate),
+            blockSize (blockSize),
+            graphCapacity (graphCapacity)
+        {
+        }
+    };
+
 private:
     using NodeMap = std::map<uint32_t, NodeModel*>;
 
@@ -44,10 +46,11 @@ public:
     bool removeNode (const NodeModel* const node);
     int nodeCount () const;
     const NodeMap& getNodes () const;
-    const NodeModel* const getNodeForID (int id);
+    NodeModel* const getNodeForID (int id);
 
     bool addConnection (const Connection& newConnection);
-    bool addConnection (const NodeModel& srcNode, const NodeModel& destNode);
+    bool addConnection (const NodeModel& sourceNode, uint32_t sourceChannel,
+                        const NodeModel& destNode, uint32_t destChannel);
     bool removeConnection (const Connection& connection);
     int connectionCount () const;
     bool connectionExists (const Connection& testConnection) const;

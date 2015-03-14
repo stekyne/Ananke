@@ -3,17 +3,9 @@
 #include "GraphComponent.h"
 #include "../AudioWidgetsLib/Source/GraphModel.h"
 
-Node::Node (std::shared_ptr<GraphModel> graph_,
-            uint32 id_, String name_,
-            int /*inputNum*/, int /*outputNum*/,
-            bool /*hasMidiIn*/, bool /*hasMidiOut*/)
+Node::Node (std::shared_ptr<GraphModel> graph_, uint32 id_)
     :   graph (graph_),
         id (id_),
-        name (name_),
-        numIns (0),
-        numOuts (0),
-        numInputs (0),
-        numOutputs (0),
         font (13.0f, Font::bold)
 {
     setSize (120, 35);
@@ -43,10 +35,11 @@ void Node::getPinPos (const int index, const bool isInput, float& x, float& y)
 
 void Node::paint (Graphics& g)
 {
+    auto node = graph->getNodeForID (id);
     g.setColour (Colours::blue);
     g.fillRect (5, 5, getWidth () - 10, getHeight () - 10);
     g.setColour (Colours::yellow);
-    g.drawText (name, 0, 0, getWidth (), getHeight (),
+    g.drawText (node->getName (), 0, 0, getWidth (), getHeight (),
                 Justification::centred, false);
 }
 
@@ -72,20 +65,20 @@ void Node::resized ()
     						  outputs[i]->getHeight());
     }
 
-    //if (midiIn != nullptr)
-    //{
-    //	midiIn->setBounds( 0, (getHeight() / 2) - (midiIn->getHeight() / 2),
-    //					   midiIn->getWidth(),
-    //					   midiIn->getHeight() );
-    //}
+    if (midiIn != nullptr)
+    {
+    	midiIn->setBounds  (0, (getHeight() / 2) - (midiIn->getHeight() / 2),
+    					   midiIn->getWidth(),
+    					   midiIn->getHeight());
+    }
 
-    //if( midiOut != nullptr )
-    //{
-    //	midiOut->setBounds( getWidth() - 10, 
-    //					    (getHeight() / 2) - (midiOut->getHeight() / 2),
-    //					    midiOut->getWidth(),
-    //					    midiOut->getHeight() );
-    //}
+    if (midiOut != nullptr)
+    {
+    	midiOut->setBounds (getWidth() - 10, 
+    					    (getHeight() / 2) - (midiOut->getHeight() / 2),
+    					    midiOut->getWidth(),
+    					    midiOut->getHeight());
+    }
 
     for (int i = 0; i < getNumChildComponents (); ++i)
     {
@@ -129,9 +122,8 @@ void Node::update ()
     setSize (w, h);
     setName (node->getName ());
 
-    // TODO need to store the node position in the graph somewhere
-    /*setCentreRelative (f->properties["x"],
-                       f->properties["y"]);*/
+    setCentreRelative (std::get<0> (node->getPosition ()),
+                       std::get<1> (node->getPosition ()));
 
     if (numIns != numInputs || numOuts != numOutputs)
     {
@@ -141,8 +133,8 @@ void Node::update ()
         /** Clear all pins from node */
         inputs.clear();
         outputs.clear();
-        //midiIn  = 0;
-        //midiOut = 0;
+        midiIn  = 0;
+        midiOut = 0;
         deleteAllChildren ();
 
         unsigned int i;
@@ -186,11 +178,13 @@ void Node::mouseDrag (const MouseEvent& e)
 {
     dragger.dragComponent (this, e, nullptr);
 
-    //const auto& node = graph->getNodeForID (id);
+    auto node = graph->getNodeForID (id);
 
-    // TODO need to store the position somewhere for placement in the graph
-    /*node->properties.set ("x", (getX () + getWidth () / 2.0f) / (float)getParentWidth ());
-    node->properties.set ("y", (getY () + getHeight () / 2.0f) / (float)getParentHeight ());*/
+    node->setPosition (
+        std::make_tuple<float, float> (
+            (getX () + getWidth () / 2.0f) / (float)getParentWidth (), 
+            (getY () + getHeight () / 2.0f) / (float)getParentHeight ())
+        );
 
     getGraph ()->updateGraph ();
 }

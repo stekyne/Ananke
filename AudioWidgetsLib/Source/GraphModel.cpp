@@ -67,7 +67,7 @@ const GraphModel::NodeMap& GraphModel::getNodes () const
     return nodes;
 }
 
-const NodeModel* const GraphModel::getNodeForID (int id)
+NodeModel* const GraphModel::getNodeForID (int id)
 {
     return nodes[id];
 }
@@ -78,10 +78,11 @@ bool GraphModel::addConnection (const Connection& newConnection)
     return true;
 }
 
-bool GraphModel::addConnection (const NodeModel& sourceNode, 
-                                const NodeModel& destNode)
+bool GraphModel::addConnection (const NodeModel& sourceNode, uint32_t sourceChannel, 
+                                const NodeModel& destNode, uint32_t destChannel)
 {
-    connections.push_back (Connection (sourceNode.getID (), destNode.getID ()));
+    connections.push_back (Connection (sourceNode.getID (), sourceChannel,
+                                        destNode.getID (), destChannel));
     return true;
 }
 
@@ -190,7 +191,7 @@ void GraphModel::setSettings (Settings settings)
     //TODO implement change listener
 }
 
-const Settings& GraphModel::getSettings () const
+const GraphModel::Settings& GraphModel::getSettings () const
 {
     return settings;
 }

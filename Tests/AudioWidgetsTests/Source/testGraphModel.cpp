@@ -48,8 +48,8 @@ namespace AudioWidgetsTests
             graph.addNode (node2);
             graph.addNode (new NodeModel (3));
 
-            graph.addConnection (Connection (1, 2));
-            graph.addConnection (Connection (2, 3));
+            graph.addConnection (Connection (1, 0, 2, 0));
+            graph.addConnection (Connection (2, 0, 3, 0));
 
             Assert::AreEqual (2, graph.connectionCount (), L"Connection count be be two");
             graph.removeNode (node2);
@@ -95,7 +95,7 @@ namespace AudioWidgetsTests
 
             Assert::AreEqual (0, graph.connectionCount (), L"Graph should have no connections");
             
-            Connection connection (1, 2);
+            Connection connection (1, 0, 2, 0);
             graph.addConnection (connection);
             Assert::AreEqual (1, graph.connectionCount (), L"Graph should have one connection");
 
@@ -145,8 +145,8 @@ namespace AudioWidgetsTests
             graph.addNode (node2);
             graph.addNode (node3);
 
-            graph.addConnection (*node1, *node2);
-            graph.addConnection (*node2, *node3);
+            graph.addConnection (*node1, 0, *node2, 0);
+            graph.addConnection (*node2, 0, *node3, 0);
 
             graph.buildGraph ();
             Logger::WriteMessage (graph.printGraph ().c_str ());
