@@ -13,11 +13,12 @@
 class NodeModel
 {
 public:
-    NodeModel () : id (0) {}
-    explicit NodeModel (const int _id) : id (_id) {}
-    NodeModel (const int _id, float positionX, float positionY)
-        :   id (_id),
-            position (positionX, positionY)
+    NodeModel () = default;
+    virtual ~NodeModel () {};
+    NodeModel (int id) : id (id) {}
+    NodeModel (int id, float positionX, float positionY)
+        :   position (positionX, positionY),
+            id (id)
     {
     }
 
@@ -36,8 +37,6 @@ public:
 
         return true;
     }
-
-    virtual ~NodeModel () {};
 
     virtual const char* const getName () const
     {
@@ -96,7 +95,7 @@ public:
 private:
     // TODO move position data into NodeController, model shouldn't care about visuals
     PointType position {0.f, 0.f};
-    uint32_t id;
+    uint32_t id {0};
 };
 
 #endif

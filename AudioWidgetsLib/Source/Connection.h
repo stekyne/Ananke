@@ -16,9 +16,12 @@ struct Connection
             destChannel (destChannel)
     {}
 
-    Connection (const NodeModel& node1, const NodeModel& node2)
-        :   sourceNode (node1.getID ()),
-            destNode (node2.getID ())
+    Connection (const NodeModel& node1, uint32_t node1Channel,
+                const NodeModel& node2, uint32_t node2Channel)
+                :   sourceNode (node1.getID ()), 
+                    sourceChannel (node1Channel),
+                    destNode (node2.getID ()), 
+                    destChannel (node2Channel)
     {}
 
     static friend bool operator== (const Connection& lhs, const Connection& rhs)

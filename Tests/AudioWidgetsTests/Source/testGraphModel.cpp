@@ -67,7 +67,7 @@ namespace AudioWidgetsTests
             graph.addNode (node1);
             graph.addNode (node2);
             Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
-            graph.addConnection (Connection (*node1, *node2));
+            graph.addConnection (Connection (*node1, 0, *node2, 0));
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
         }
 
@@ -79,7 +79,7 @@ namespace AudioWidgetsTests
             auto node2 = new NodeModel (2);
             graph.addNode (node1);
             graph.addNode (node2);
-            Connection connection (*node1, *node2);
+            Connection connection (*node1, 0, *node2, 0);
             Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
             graph.addConnection (connection);
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
@@ -105,7 +105,44 @@ namespace AudioWidgetsTests
 
         TEST_METHOD (GraphModel_CanConnect)
         {
-            // TODO
+            GraphModel graph;
+            auto node1 = new NodeModel;
+            auto node2 = new NodeModel;
+            auto node3 = new NodeModel;
+            graph.addNode (node1);
+            graph.addNode (node2);
+            graph.addNode (node3);
+
+            graph.addConnection (Connection (1, 0, 2, 0));
+            graph.addConnection (Connection (2, 0, 3, 0));
+
+            Connection testConnection (3, 0, 1, 0);
+            auto result = graph.canConnect (testConnection);
+            Assert::AreEqual (false, result, L"Should not be able to connect node 3 to 1 (loop)");
+
+            Connection testConnection2 (1, 0, 3, 0);
+            result = graph.canConnect (testConnection2);
+            Assert::AreEqual (true, result, L"Should be able to connect node 1 to 3");
+        }
+
+        TEST_METHOD (GraphModel_ValidateConnection)
+        {
+            GraphModel graph;
+            auto node1 = new NodeModel;
+            auto node2 = new NodeModel;
+            auto node3 = new NodeModel;
+            graph.addNode (node1);
+            graph.addNode (node2);
+            graph.addNode (node3);
+
+            graph.addConnection (Connection (*node1, 0, *node2, 0));
+            graph.addConnection (Connection (2, 0, 3, 0));
+
+            auto result = graph.validateConnection (Connection (52, 0, 22, 0));
+            Assert::AreEqual (false, result, L"Connection should not be valid");
+
+            result = graph.validateConnection (Connection (1, 0, 3, 0));
+            Assert::AreEqual (true, result, L"Connection should be valid but isn't");
         }
 
         TEST_METHOD (GraphModel_BuildGraph)
@@ -124,10 +161,10 @@ namespace AudioWidgetsTests
             graph.addNode (node4);
             graph.addNode (node5);
 
-            graph.addConnection (Connection (*node1, *node2));
-            graph.addConnection (Connection (*node3, *node4));
-            graph.addConnection (Connection (*node5, *node1));
-            graph.addConnection (Connection (*node2, *node3));
+            graph.addConnection (Connection (*node1, 0, *node2, 0));
+            graph.addConnection (Connection (*node3, 0, *node4, 0));
+            graph.addConnection (Connection (*node5, 0, *node1, 0));
+            graph.addConnection (Connection (*node2, 0, *node3, 0));
 
             graph.buildGraph ();
             Logger::WriteMessage (graph.printGraph ().c_str ());

@@ -54,14 +54,15 @@ public:
     bool removeConnection (const Connection& connection);
     int connectionCount () const;
     bool connectionExists (const Connection& testConnection) const;
-    bool canConnect (const Connection& testConnection) const;
+    bool canConnect (const Connection& testConnection);
+    bool validateConnection (const Connection& connection);
     const std::vector<Connection>& GraphModel::getConnections () const;
 
     // Clear all nodes and operations from the graph
     void clearGraph ();
 
     // Sort and build the list of operations involved in producing output
-    void buildGraph ();
+    bool buildGraph ();
 
     // Execute the graph of nodes to generate output
     void processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
@@ -95,12 +96,18 @@ private:
     int getFreeInternalID ()
     {
         // TODO need a way of tracking free IDss
-        return internalIDcount++;
+        return ++internalIDcount;
     }
 
-    void topologicalSortUtil (const NodeModel& parentNode,
+    // Returns false if the current node has already been visited
+    bool topologicalSortUtil (const NodeModel& parentNode,
                               const NodeModel& currentNode,
-                              std::map<int, bool>& visited);
+                              std::map<int, bool>& visited,
+                              std::vector<int>& sortedNodes);
+    
+    // Returns true if graph can be sorted with no loops
+    bool performSort (std::vector<int>& sortedNodes);
+
     std::vector<int> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);
 

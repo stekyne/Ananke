@@ -105,11 +105,50 @@ bool GraphModel::connectionExists (const Connection& testConnection) const
                       testConnection) != connections.cend ();
 }
 
-bool GraphModel::canConnect (const Connection& testConnection) const
+bool GraphModel::canConnect (const Connection& testConnection)
 {
-    // TODO implement if one node and connect to another
-    // perform a topological sort and test for loops
-    return false;
+    if (!validateConnection (testConnection) == true)
+        return false;
+
+    // Add connection and perform sort, if loop is detected return false
+    // Remove connection either way
+    addConnection (testConnection);
+
+    std::vector<int> sortedNodes;
+    sortedNodes.reserve (nodes.size ());
+    const auto result = performSort (sortedNodes);
+    removeConnection (testConnection);
+    return result;
+}
+
+bool GraphModel::validateConnection (const Connection& testConnection)
+{
+    // Connection can't point to itself
+    if (testConnection.destNode == testConnection.sourceNode)
+        return false;
+
+    bool srcMatched = false, dstMatched = false;
+    for (const auto& node : nodes)
+    {
+        if (testConnection.sourceNode == node.first)
+        {
+            srcMatched = true;
+            if (dstMatched) break;
+        }
+        if (testConnection.destNode == node.first)
+        {
+            dstMatched = true;
+            if (srcMatched) break;
+        }
+    }
+
+    // Source or destination node does not exist
+    if (srcMatched == false || dstMatched == false)
+        return false;
+
+    // TODO check channels are valid for each node?
+    
+    return true;
 }
 
 const std::vector<Connection>& GraphModel::getConnections () const
@@ -123,7 +162,80 @@ void GraphModel::clearGraph ()
     graphOps.clear ();
 }
 
-void GraphModel::buildGraph ()
+bool GraphModel::buildGraph ()
+{
+    std::vector<int> sortedNodes;
+    sortedNodes.reserve (nodes.size ());
+    auto result = performSort (sortedNodes);
+
+    // Graph contained loops so cannot continue
+    if (result == false)
+        return false;
+
+    for (auto& node : sortedNodes)
+    {
+
+    }
+
+    // TODO using sorted node stack, generate graph operations
+    // Associate storage for audio with this node
+    // Add new graph operations to performance vector
+    // ...
+    // If parent mode is 'empty' it means there is no incoming node
+    /*const auto parentBufferID = (parentNode == NodeModel::Empty) ? AudioBufferID::Empty :
+    audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ());*/
+
+    // This node depends on the parent node to be processed first, we need to get the buffer that 
+    // contains the output of the parent node and use it as the input of this node
+    /*graphOps.push_back (new ProcessNodeOp (parentBufferID, freeBuffer,
+    settings.blockSize, const_cast<NodeModel&>(currentNode), audioBufferManager));*/
+
+    // Associate this node's output with a buffer
+    /*auto freeBuffer = audioBufferManager.getFreeBuffer ();
+    audioBufferManager.associatedBufferWithNode (freeBuffer, currentNodeID);*/
+    return true;
+}
+
+void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
+                               AudioBuffer<DSP::SampleType>& audioOut)
+{
+    for (int i = graphOps.size (); --i >= 0;)
+    {
+        graphOps[i]->perform ();
+    }
+}
+
+bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeModel& currentNode, 
+                                      std::map<int, bool>& visited, std::vector<int>& sortedNodes)
+{
+    const int currentNodeID = currentNode.getID ();
+
+    // Check if current node has been visited, if so, there is a loop in the graph
+    if (visited[currentNodeID] == true)
+        return false;
+    
+    // Mark the current node as visited.
+    visited[currentNodeID] = true;
+
+    // Recur for all the nodes adjacent to this node
+    for (auto& adjacentNode : getDependentsForNode (currentNodeID))
+    {
+        if (!visited[adjacentNode])
+        {
+            auto nodeModel = nodes[adjacentNode];
+            assert (nodeModel != nullptr);
+            auto result = topologicalSortUtil (currentNode, *nodeModel,
+                                                visited, sortedNodes);
+            if (result = false)
+                return false;
+        }
+    }
+
+    sortedNodes.push_back (currentNode.getID ());
+    return true;
+}
+
+bool GraphModel::performSort (std::vector<int>& sortedNodes)
 {
     // Mark all the vertices as not visited
     std::map<int, bool> visited;
@@ -138,50 +250,15 @@ void GraphModel::buildGraph ()
     for (auto& node : nodes)
     {
         if (visited[node.second->getID ()] == false)
-            topologicalSortUtil (NodeModel::Empty, *node.second, visited);
-    }
-}
-
-void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
-                               AudioBuffer<DSP::SampleType>& audioOut)
-{
-    for (int i = graphOps.size (); --i >= 0;)
-    {
-        graphOps[i]->perform ();
-    }
-}
-
-void GraphModel::topologicalSortUtil (const NodeModel& parentNode,
-                                      const NodeModel& currentNode, 
-                                      std::map<int, bool>& visited)
-{
-    const int currentNodeID = currentNode.getID ();
-
-    // Mark the current node as visited.
-    visited[currentNodeID] = true;
-    
-    // Associate this node's output with a buffer
-    auto freeBuffer = audioBufferManager.getFreeBuffer ();
-    audioBufferManager.associatedBufferWithNode (freeBuffer, currentNodeID);
-
-    // Recur for all the nodes adjacent to this node
-    for (auto& adjacentNode : getDependentsForNode (currentNodeID))
-    {
-        if (!visited[adjacentNode])
         {
-            topologicalSortUtil (currentNode, *nodes[adjacentNode],
-                                 visited);
+            bool result = topologicalSortUtil (NodeModel::Empty, *node.second,
+                                          visited, sortedNodes);
+            if (result == false)
+                return false;
         }
     }
-    
-    // If parent mode is 'empty' it means there is no incoming node
-    const auto parentBufferID = parentNode == NodeModel::Empty ? AudioBufferID::Empty : 
-        audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ());
 
-    // This node depends on the parent node to be processed first, we need to get the buffer that 
-    // contains the output of the parent node and use it as the input of this node
-    graphOps.push_back (new ProcessNodeOp (parentBufferID, freeBuffer,
-        settings.blockSize, const_cast<NodeModel&>(currentNode), audioBufferManager));
+    return true;
 }
 
 void GraphModel::setSettings (Settings settings)
