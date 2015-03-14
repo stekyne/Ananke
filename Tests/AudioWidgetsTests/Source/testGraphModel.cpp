@@ -40,29 +40,34 @@ namespace AudioWidgetsTests
             Assert::AreEqual (0, graph.nodeCount (), L"Could not remove node from graph");
         }
 
+        TEST_METHOD (GraphModel_RemoveNodeWithConnections)
+        {
+            GraphModel graph;
+            auto node2 = new NodeModel (2);
+            graph.addNode (new NodeModel (1));
+            graph.addNode (node2);
+            graph.addNode (new NodeModel (3));
+
+            graph.addConnection (Connection (1, 2));
+            graph.addConnection (Connection (2, 3));
+
+            Assert::AreEqual (2, graph.connectionCount (), L"Connection count be be two");
+            graph.removeNode (node2);
+
+            Assert::AreEqual (1, graph.connectionCount (), L"Connection count should be one");
+        }
+
         TEST_METHOD (GraphModel_AddConnection)
         {
             GraphModel graph;
 
             auto node1 = new NodeModel (1);
             auto node2 = new NodeModel (2);
+            Assert::AreEqual (0, graph.nodeCount (), L"Graph should have no nodes");
             graph.addNode (node1);
             graph.addNode (node2);
             Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
             graph.addConnection (Connection (*node1, *node2));
-            Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
-        }
-
-        TEST_METHOD (GraphModel_AddConnectionByNodes)
-        {
-            GraphModel graph;
-
-            auto node1 = new NodeModel (1);
-            auto node2 = new NodeModel (2);
-            graph.addNode (node1);
-            graph.addNode (node2);
-            Assert::AreEqual (0, graph.connectionCount (), L"Connections present when there should not be");
-            graph.addConnection (*node1, *node2);
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
         }
 
@@ -80,6 +85,27 @@ namespace AudioWidgetsTests
             Assert::AreEqual (1, graph.connectionCount (), L"More than 1 or no connections present");
             graph.removeConnection (connection);
             Assert::AreEqual (0, graph.connectionCount (), L"Failed to remove connection");
+        }
+
+        TEST_METHOD (GraphModel_ConnectionExists)
+        {
+            GraphModel graph;
+            graph.addNode (new NodeModel (1));
+            graph.addNode (new NodeModel (2));
+
+            Assert::AreEqual (0, graph.connectionCount (), L"Graph should have no connections");
+            
+            Connection connection (1, 2);
+            graph.addConnection (connection);
+            Assert::AreEqual (1, graph.connectionCount (), L"Graph should have one connection");
+
+            const auto result = graph.connectionExists (connection);
+            Assert::AreEqual (true, result, L"Connection should exist but doesn't");
+        }
+
+        TEST_METHOD (GraphModel_CanConnect)
+        {
+            // TODO
         }
 
         TEST_METHOD (GraphModel_BuildGraph)

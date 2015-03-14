@@ -6,6 +6,8 @@
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "../AudioWidgetsLib/Source/Connection.h"
+
 class Node;
 class Connector;
 class Pin;
@@ -22,7 +24,7 @@ public:
 
     Node* getComponentForFilter (const uint32 filterID) const;
 
-    Connector* getComponentForConnection (const AudioProcessorGraph::Connection& conn) const;
+    Connector* getComponentForConnection (const Connection& connection) const;
 
     /** Create new dragging connector if needed or else take hold of the one
     that was clicked on */

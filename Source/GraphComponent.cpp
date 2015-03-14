@@ -40,18 +40,19 @@ Node* GraphComponent::getComponentForFilter (const uint32 filterID) const
     return nullptr;
 }
 
-Connector* GraphComponent::getComponentForConnection (
-    const AudioProcessorGraph::Connection& conn) const
+Connector* GraphComponent::getComponentForConnection (const Connection& connection) const
 {
     for (int i = getNumChildComponents (); --i >= 0;)
     {
         Connector* const c = dynamic_cast<Connector*>(getChildComponent (i));
 
-        if (c != nullptr
-            && c->sourceFilterID == conn.sourceNodeId
-            && c->destFilterID == conn.destNodeId
-            && c->sourceFilterChannel == conn.sourceChannelIndex
-            && c->destFilterChannel == conn.destChannelIndex)
+        if (c == nullptr) 
+            continue;
+
+        if (c->sourceFilterID == connection.sourceNode &&
+            c->destFilterID == connection.destNode)
+            //&& c->sourceFilterChannel == conn.sourceChannelIndex
+            //&& c->destFilterChannel == conn.destChannelIndex)
         {
             return c;
         }
@@ -242,34 +243,32 @@ void GraphComponent::updateGraph ()
 
     for (auto& node : graph->getNodes ())
     {
-        const auto id = node.first.getNumber ();
+        const auto id = node.first;
         auto nodeModel = node.second;
 
         if (getComponentForFilter (id) == 0)
         {
             Node* const newNode = new Node (graph, id,
-                                             nodeModel->getName (),
-                                             nodeModel->getNumInputChannels (),
-                                             nodeModel->getNumOutputChannels (),
-                                             nodeModel->acceptsMidi (),
-                                             nodeModel->producesMidi ());
+                                            nodeModel->getName (),
+                                            nodeModel->getNumInputChannels (),
+                                            nodeModel->getNumOutputChannels (),
+                                            nodeModel->acceptsMidi (),
+                                            nodeModel->producesMidi ());
             addAndMakeVisible (newNode);
             newNode->update ();
         }
     }
 
-    /*for (i = graph->connectionCount (); --i >= 0;)
+    for (auto& connection : graph->getConnections ())
     {
-        const AudioProcessorGraph::Connection* const c = graph->getConnection (i);
-
-        if (getComponentForConnection (*c) == 0)
+        if (getComponentForConnection (connection) == 0)
         {
-            Connector* const conn = new Connector (graph);
+            Connector* const conn = new Connector (*graph.get ());
 
             addAndMakeVisible (conn);
 
-            conn->setInput (c->sourceNodeId, c->sourceChannelIndex);
-            conn->setOutput (c->destNodeId, c->destChannelIndex);
+            conn->setInput (connection.sourceNode, 0);
+            conn->setOutput (connection.destNode, 0);
         }
-    }*/
+    }
 }

@@ -2,13 +2,13 @@
 #include <iostream>
 #include <list>
 #include <iterator>
+#include <algorithm>
 
 #include "GraphModel.h"
 
 GraphModel::GraphModel ()
     :   settings {44100.f, 50, 50},
-        audioBufferManager (50),
-        connections (50)
+        audioBufferManager (50)
 {
 }
 
@@ -32,8 +32,7 @@ GraphModel::~GraphModel ()
 bool GraphModel::addNode (NodeModel* const newNode)
 {
     newNode->setID (getFreeInternalID ());
-    nodes[newNode->getID ().getNumber ()] = newNode;
-    totalNodeCount++;
+    nodes[newNode->getID ()] = newNode;
     // TODO if the total amount of nodes is greater than the capacity
     // We now need to reallocate more space
     return true;
@@ -49,8 +48,7 @@ bool GraphModel::removeNode (const NodeModel* const node)
         if (itrNode->getID () == node->getID ())
         {
             nodes.erase (iter);
-            totalNodeCount--;
-            clearConnectionsForNode (node->getID ().getNumber ());
+            clearConnectionsForNode (node->getID ());
             break;
         }
         ++iter;
@@ -76,32 +74,34 @@ const NodeModel* const GraphModel::getNodeForID (int id)
 
 bool GraphModel::addConnection (const Connection& newConnection)
 {
-    return setConnectionTableValue (newConnection.sourceNode.getNumber (),
-                                    newConnection.destNode.getNumber (), true);
+    connections.push_back (newConnection);
+    return true;
 }
 
 bool GraphModel::addConnection (const NodeModel& sourceNode, 
                                 const NodeModel& destNode)
 {
-    return setConnectionTableValue (sourceNode.getID ().getNumber (),
-                                    destNode.getID ().getNumber (), true);
+    connections.push_back (Connection (sourceNode.getID (), destNode.getID ()));
+    return true;
 }
 
 bool GraphModel::removeConnection (const Connection& connection)
 {
-    return setConnectionTableValue (connection.sourceNode.getNumber (),
-                                    connection.destNode.getNumber (), false);
+    auto result = 
+        std::remove (connections.begin (), connections.end (), connection);
+    connections.erase (result, connections.end ());
+    return true;
 }
 
 int GraphModel::connectionCount () const
 {
-    return activeConnections;
+    return connections.size ();
 }
 
 bool GraphModel::connectionExists (const Connection& testConnection) const
 {
-    return getConnectionTableValue (testConnection.sourceNode.getNumber (), 
-                                    testConnection.destNode.getNumber ());
+    return std::find (connections.cbegin (), connections.cend (), 
+                      testConnection) != connections.cend ();
 }
 
 bool GraphModel::canConnect (const Connection& testConnection) const
@@ -109,6 +109,11 @@ bool GraphModel::canConnect (const Connection& testConnection) const
     // TODO implement if one node and connect to another
     // perform a topological sort and test for loops
     return false;
+}
+
+const std::vector<Connection>& GraphModel::getConnections () const
+{
+    return connections;
 }
 
 void GraphModel::clearGraph ()
@@ -124,14 +129,14 @@ void GraphModel::buildGraph ()
 
     for (auto& node : nodes)
     {
-        visited[node.second->getID ().getNumber ()] = false;
+        visited[node.second->getID ()] = false;
     }
 
     // Call the recursive helper function to store Topological Sort
     // starting from all vertices one by one
     for (auto& node : nodes)
     {
-        if (visited[node.second->getID ().getNumber ()] == false)
+        if (visited[node.second->getID ()] == false)
             topologicalSortUtil (NodeModel::Empty, *node.second, visited);
     }
 }
@@ -149,7 +154,7 @@ void GraphModel::topologicalSortUtil (const NodeModel& parentNode,
                                       const NodeModel& currentNode, 
                                       std::map<int, bool>& visited)
 {
-    const int currentNodeID = currentNode.getID ().getNumber ();
+    const int currentNodeID = currentNode.getID ();
 
     // Mark the current node as visited.
     visited[currentNodeID] = true;
@@ -170,7 +175,7 @@ void GraphModel::topologicalSortUtil (const NodeModel& parentNode,
     
     // If parent mode is 'empty' it means there is no incoming node
     const auto parentBufferID = parentNode == NodeModel::Empty ? AudioBufferID::Empty : 
-        audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ().getNumber ());
+        audioBufferManager.getAssociatedBufferForNodeId (parentNode.getID ());
 
     // This node depends on the parent node to be processed first, we need to get the buffer that 
     // contains the output of the parent node and use it as the input of this node
@@ -188,6 +193,37 @@ void GraphModel::setSettings (Settings settings)
 const Settings& GraphModel::getSettings () const
 {
     return settings;
+}
+
+std::string GraphModel::printGraph () const
+{
+    std::stringstream buffer;
+    buffer << "Graph: Connections: " << std::endl;
+
+    buffer << "  ";
+    for (int x = 0; x < nodes.size (); ++x)
+        buffer << x % 10;
+
+    buffer << std::endl;
+
+    for (int x = 0; x < connections.size (); ++x)
+    {
+        buffer << x % 10 << " ";
+        for (int y = 0; y < nodes.size (); ++y)
+        {
+            /*const bool value = connections[x * totalNodeCount + y];
+            buffer << (value == true ? "o" : "-");*/
+        }
+        buffer << std::endl;
+    }
+
+    buffer << std::endl << "Operations: " << std::endl;
+    for (int x = graphOps.size (); --x >= 0;)
+    {
+        buffer << graphOps[x]->getName () << std::endl;
+    }
+    buffer << "____________________" << std::endl;
+    return buffer.str ();
 }
 
 bool GraphModel::addListener (Listener* const newListener)
@@ -221,4 +257,39 @@ bool GraphModel::removeListener (const Listener* listener)
     }
 
     return false;
+}
+
+std::vector<int> GraphModel::getDependentsForNode (unsigned int nodeID)
+{
+    std::vector<int> dependentVec;
+
+    for (const auto& connection : connections)
+    {
+        if (connection.sourceNode == nodeID)
+        {
+            if (std::find (dependentVec.cbegin (), dependentVec.cend (),
+                            connection.sourceNode) == dependentVec.cend ())
+            {
+                dependentVec.push_back (connection.destNode);
+            }
+        }
+    }
+
+    return dependentVec;
+}
+
+void GraphModel::clearConnectionsForNode (unsigned int nodeID)
+{
+    auto result = std::remove_if (connections.begin (), connections.end (), 
+        [=](const Connection& conn) { 
+        return conn.sourceNode == nodeID || conn.destNode == nodeID;
+    });
+    
+    if (result != connections.end ())
+        connections.erase (result);
+}
+
+const std::vector<GraphOp*> GraphModel::getGraphOps () const
+{
+    return graphOps;
 }
