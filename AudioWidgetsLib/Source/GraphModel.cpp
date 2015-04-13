@@ -206,53 +206,68 @@ void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
 }
 
 bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeModel& currentNode, 
-                                      std::map<int, bool>& visited, std::vector<int>& sortedNodes)
+                                      std::map<int, Markers>& visited, std::vector<int>& sortedNodes)
 {
     const int currentNodeID = currentNode.getID ();
 
-    // Check if current node has been visited, if so, there is a loop in the graph
-    if (visited[currentNodeID] == true)
+    // Check if current node has been visited (temporary marker) 
+    // if so, there is a loop in the graph so just return false as it's not a DAG
+    if (visited[currentNodeID].temporaryMark == true)
         return false;
-    
-    // Mark the current node as visited.
-    visited[currentNodeID] = true;
 
-    // Recur for all the nodes adjacent to this node
-    for (auto& adjacentNode : getDependentsForNode (currentNodeID))
+    if (visited[currentNodeID].permanentMark == false)
     {
-        if (!visited[adjacentNode])
+        // Mark the current node as visited.
+        visited[currentNodeID].temporaryMark = true;
+
+        // Recur for all the nodes adjacent to this node
+        for (auto& adjacentNode : getDependentsForNode (currentNodeID))
         {
+            if (visited[adjacentNode].permanentMark == true)
+            {
+                // Node has been visited (permanently marked) already so skip
+                continue;
+            }
+
             auto nodeModel = nodes[adjacentNode];
             assert (nodeModel != nullptr);
-            auto result = topologicalSortUtil (currentNode, *nodeModel,
-                                                visited, sortedNodes);
-            if (result = false)
+            const auto result = topologicalSortUtil (currentNode, *nodeModel,
+                                                     visited, sortedNodes);
+            if (result == false)
                 return false;
         }
+
+        visited[currentNodeID].permanentMark = true;
+        visited[currentNodeID].temporaryMark = false;
+
+        sortedNodes.push_back (currentNode.getID ());
+        return true;
     }
 
-    sortedNodes.push_back (currentNode.getID ());
+    // Node has already been visited so skip
     return true;
 }
 
 bool GraphModel::performSort (std::vector<int>& sortedNodes)
 {
     // Mark all the vertices as not visited
-    std::map<int, bool> visited;
+    // First part of tuple represents "permenant mark", second is "temporary mark"
+    std::map<int, Markers> visited;
 
     for (auto& node : nodes)
     {
-        visited[node.second->getID ()] = false;
+        visited[node.second->getID ()].permanentMark = false;
+        visited[node.second->getID ()].temporaryMark = false;
     }
 
     // Call the recursive helper function to store Topological Sort
     // starting from all vertices one by one
     for (auto& node : nodes)
     {
-        if (visited[node.second->getID ()] == false)
+        if (visited[node.second->getID ()].permanentMark == false)
         {
             bool result = topologicalSortUtil (NodeModel::Empty, *node.second,
-                                          visited, sortedNodes);
+                                                visited, sortedNodes);
             if (result == false)
                 return false;
         }
@@ -279,15 +294,15 @@ std::string GraphModel::printGraph () const
     buffer << "Graph: Connections: " << std::endl;
 
     buffer << "  ";
-    for (int x = 0; x < nodes.size (); ++x)
+    for (int x = 0; x < (int)nodes.size (); ++x)
         buffer << x % 10;
 
     buffer << std::endl;
 
-    for (int x = 0; x < connections.size (); ++x)
+    for (int x = 0; x < (int)connections.size (); ++x)
     {
         buffer << x % 10 << " ";
-        for (int y = 0; y < nodes.size (); ++y)
+        for (int y = 0; y < (int)nodes.size (); ++y)
         {
             /*const bool value = connections[x * totalNodeCount + y];
             buffer << (value == true ? "o" : "-");*/

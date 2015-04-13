@@ -103,11 +103,11 @@ void GraphComponent::dragConnector (const MouseEvent& e)
 
         if (pin != nullptr)
         {
-            uint32  srcFilter = draggingConnector->sourceFilterID;
-            int		srcChannel = draggingConnector->sourceFilterChannel;
+            uint32 srcFilter = draggingConnector->sourceFilterID;
+            int	srcChannel = draggingConnector->sourceFilterChannel;
 
-            uint32	dstFilter = draggingConnector->destFilterID;
-            int		dstChannel = draggingConnector->destFilterChannel;
+            uint32 dstFilter = draggingConnector->destFilterID;
+            int	dstChannel = draggingConnector->destFilterChannel;
 
             if (srcFilter == 0 && !pin->isInput)
             {
@@ -195,7 +195,8 @@ Pin* GraphComponent::findPin (const int x, const int y) const
 
         if (fc != nullptr)
         {
-            Pin* const pin = dynamic_cast<Pin*>(fc->getComponentAt (x - fc->getX (),
+            Pin* const pin = dynamic_cast<Pin*>(
+                fc->getComponentAt (x - fc->getX (),
                 y - fc->getY ()));
 
             if (pin != nullptr)
@@ -242,7 +243,6 @@ void GraphComponent::updateGraph ()
     for (auto& node : graph->getNodes ())
     {
         const auto id = node.first;
-        //auto nodeModel = node.second;
 
         if (getComponentForFilter (id) == 0)
         {

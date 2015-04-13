@@ -92,6 +92,12 @@ public:
     bool addListener (Listener* const newListener);
     bool removeListener (const Listener* listener);
 
+    struct Markers
+    {
+        bool permanentMark = false;
+        bool temporaryMark = false;
+    };
+
 private:
     int getFreeInternalID ()
     {
@@ -102,7 +108,7 @@ private:
     // Returns false if the current node has already been visited
     bool topologicalSortUtil (const NodeModel& parentNode,
                               const NodeModel& currentNode,
-                              std::map<int, bool>& visited,
+                              std::map<int, Markers>& visited,
                               std::vector<int>& sortedNodes);
     
     // Returns true if graph can be sorted with no loops

@@ -22,7 +22,9 @@ public:
 private:
     std::shared_ptr<AppController> appController;
     GraphComponent graph;
-
+    MidiKeyboardState midiKeyboardState;
+    MidiKeyboardComponent midiKeyboard;
+ 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 
