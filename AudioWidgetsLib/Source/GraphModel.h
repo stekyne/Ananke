@@ -66,7 +66,8 @@ public:
 
     // Execute the graph of nodes to generate output
     void processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
-                       AudioBuffer<DSP::SampleType>& audioOut);
+                       AudioBuffer<DSP::SampleType>& audioOut,
+                       const unsigned int blockSize);
 
     void setSettings (Settings settings);
     const Settings& getSettings () const;
@@ -99,6 +100,16 @@ public:
     };
 
 private:
+    struct NodeDescriptor
+    {
+        int nodeId {0}, parentNode {0};
+        
+        NodeDescriptor (uint32_t nodeID, uint32_t parentNode) :
+            nodeId (nodeID), parentNode (parentNode)
+        {
+        }
+    };
+
     int getFreeInternalID ()
     {
         // TODO need a way of tracking free IDss
@@ -109,10 +120,10 @@ private:
     bool topologicalSortUtil (const NodeModel& parentNode,
                               const NodeModel& currentNode,
                               std::map<int, Markers>& visited,
-                              std::vector<int>& sortedNodes);
+                              std::vector<NodeDescriptor>& sortedNodes);
     
     // Returns true if graph can be sorted with no loops
-    bool performSort (std::vector<int>& sortedNodes);
+    bool performSort (std::vector<NodeDescriptor>& sortedNodes);
 
     std::vector<int> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);

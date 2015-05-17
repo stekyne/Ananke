@@ -24,7 +24,7 @@ public:
 
         assert (audioIn != nullptr);
         assert (audioIn->getBufferSize () > 0 && 
-                audioIn->getBufferSize () <= numSamples);
+                audioIn->getBufferSize () >= numSamples);
 
         const auto& inBuf = *audioIn;
         auto& outBuf = *audioOut;

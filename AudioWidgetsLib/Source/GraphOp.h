@@ -4,51 +4,43 @@
 #define GRAPHOP_H_INCLUDED
 
 #include <cassert>
-#include "AudioBufferManager.h"
+#include "AudioBuffer.h"
 
 // Interface for a graph operation
 struct GraphOp
 {
     virtual ~GraphOp () {};
-    virtual void perform () = 0;
+    virtual void perform (const int blockSize) = 0;
     virtual const char* const getName () = 0;
 };
 
 class ProcessNodeOp : public GraphOp
 {
 public:
-    ProcessNodeOp (const AudioBufferID audioIn,
-                   const AudioBufferID audioOut,
-                   const unsigned int numSamples, 
-                   NodeModel& node,
-                   AudioBufferManager& audioBufferManager)
-        : audioIn (audioIn), audioOut (audioOut),
-          numSamples (numSamples), node (node),
-          audioBufferManager (audioBufferManager)
+    ProcessNodeOp (AudioBuffer<DSP::SampleType>* const audioIn, 
+                   AudioBuffer<DSP::SampleType>& audioOut,
+                   NodeModel& node)
+        : audioIn (audioIn), audioOut (audioOut), node (node)
     {
-        assert (numSamples != 0);
     }
 
     ProcessNodeOp& operator= (const ProcessNodeOp&) = delete;
 
-    virtual void perform ()
+    virtual void perform (const int blockSize) override
     {
-        auto inputBuffer = audioBufferManager.getBufferFromID (audioIn);
-        auto outputBuffer = audioBufferManager.getBufferFromID (audioOut);
-        node.process (inputBuffer == nullptr ? nullptr : inputBuffer.get (), 
-                      outputBuffer.get (), numSamples);
+        node.process (audioIn == nullptr ? nullptr : audioIn,
+                      &audioOut, blockSize);
     }
 
-    const char* const getName ()
+    const char* const getName () override
     {
         return node.getName ();
     }
 
 private:
-    AudioBufferManager& audioBufferManager;
+    AudioBuffer<DSP::SampleType>* audioIn;
+    AudioBuffer<DSP::SampleType>& audioOut;
     NodeModel& node;
-    const AudioBufferID audioIn, audioOut;
-    const unsigned int numSamples;
 };
 
 #endif

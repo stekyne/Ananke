@@ -74,7 +74,7 @@ public:
         assert (audioOut != nullptr);
         assert (numSamples > 0);
         assert (audioOut->getBufferSize () > 0 && 
-                audioOut->getBufferSize () <= numSamples);
+                audioOut->getBufferSize () >= numSamples);
     }
 
     using PointType = std::tuple <float, float>;

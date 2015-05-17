@@ -145,6 +145,11 @@ namespace AudioWidgetsTests
             Assert::AreEqual (true, result, L"Connection should be valid but isn't");
         }
 
+        TEST_METHOD (GraphModel_ClearConnectionsForNode)
+        {
+            // TODO
+        }
+
         TEST_METHOD (GraphModel_BuildGraph)
         {
             GraphModel graph;
@@ -185,12 +190,13 @@ namespace AudioWidgetsTests
             graph.addConnection (*node1, 0, *node2, 0);
             graph.addConnection (*node2, 0, *node3, 0);
 
-            graph.buildGraph ();
+            auto result = graph.buildGraph ();
+            Assert::AreEqual (true, result, L"Unable to build graph, contained loops");
             Logger::WriteMessage (graph.printGraph ().c_str ());
 
             AudioBuffer<float> audioIn (50);
             AudioBuffer<float> audioOut (50);
-            graph.processGraph (audioIn, audioOut);
+            graph.processGraph (audioIn, audioOut, 20);
         }
 
         TEST_METHOD (GraphModel_AddListener)
