@@ -3,12 +3,14 @@
 #ifndef APPCONTROLLER_H_INCLUDED
 #define APPCONTROLLER_H_INCLUDED
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "AudioManager.h"
 #include "WidgetWrapper.h"
+#include "../JuceLibraryCode/JuceHeader.h"
 #include "../AudioWidgetsLib/Source/GraphModel.h"
 #include "../AudioWidgetsLib/Source/Nodes.h"
 
-class AppController
+
+class AppController :   public AudioManager
 {
 public:
     AppController ();
@@ -20,6 +22,12 @@ public:
     {
         return graphModel;
     }
+
+    void audioDeviceIOCallback (const float **inputChannelData, int totalNumInputChannels,
+                                float **outputChannelData, int totalNumOutputChannels, 
+                                int numSamples);
+    void audioDeviceAboutToStart (AudioIODevice *device);
+    void audioDeviceStopped ();
 
 private:
     void loadTestData ();

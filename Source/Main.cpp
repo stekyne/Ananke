@@ -68,7 +68,7 @@ public:
 
 private:
     std::shared_ptr<AppController> appController;
-    ScopedPointer<MainWindow> mainWindow;
+    ScopedPointer<MainWindow> mainWindow;    
 };
 
 START_JUCE_APPLICATION (AudioWidgetsApplication)

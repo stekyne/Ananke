@@ -22,11 +22,18 @@ public:
     {
         this->id = id;
     }
+
+    AudioBuffer (const SampleType* inputBuffer, int numSamples)
+        : numSamples (numSamples)
+    {
+        deleteOnDestruction = false;
+        buffer = const_cast<SampleType*> (inputBuffer);
+    }
     
     ~AudioBuffer () 
     {        
         assert (buffer != nullptr);
-        if (buffer != nullptr)
+        if (buffer != nullptr && deleteOnDestruction)
         {
             delete[] buffer;
             buffer = nullptr;
@@ -79,7 +86,7 @@ private:
     unsigned int numSamples {0};
     int id {-1};
     SampleType* buffer {nullptr};
-    bool isBufferFree {false};
+    bool isBufferFree {false}, deleteOnDestruction {true};
 };
 
 #endif

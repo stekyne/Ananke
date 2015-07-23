@@ -1485,6 +1485,9 @@
     <ClCompile Include="..\..\Source\Pin.cpp">
       <Filter>AudioWidgets\Source\View\Graph</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\AudioManager.cpp">
+      <Filter>AudioWidgets\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\WidgetWrapper.h">
@@ -2854,6 +2857,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Pin.h">
       <Filter>AudioWidgets\Source\View\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\AudioManager.h">
+      <Filter>AudioWidgets\Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
