@@ -28,8 +28,7 @@ public:
 
     virtual void perform (const int blockSize) override
     {
-        node.process (audioIn == nullptr ? nullptr : audioIn,
-                      &audioOut, blockSize);
+        node.process (audioIn, audioOut, blockSize);
     }
 
     const char* const getName () override

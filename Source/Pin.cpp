@@ -1,13 +1,13 @@
 #include "Pin.h"
 #include "GraphComponent.h"
 
-Pin::Pin (Type type_, uint32 filterID_, int index_, bool isInput_)
-    : pin_type (type_),
-    filterID (filterID_),
-    isInput (isInput_),
-    index (index_)
+Pin::Pin (Type type, uint32 filterID, int index)
+    :   pin_type (type),
+        filterID (filterID),
+        index (index),
+        isInput (type == AudioInput || type == MidiInput)
 {
-    setSize (10, 10);
+    setSize (5, 5);
 }
 
 Pin::~Pin ()
@@ -19,19 +19,18 @@ void Pin::paint (Graphics& g)
     switch (pin_type)
     {
     case AudioInput:
-        g.fillAll (Colours::green);
-        break;
-    case AudioOutput:
-        g.fillAll (Colours::yellow);
-        break;
-    case MidiInput:
         g.fillAll (Colours::red);
         break;
+    case AudioOutput:
+        g.fillAll (Colours::blue);
+        break;
+    case MidiInput:
+        g.fillAll (Colours::yellow);
+        break;
     case MidiOutput:
-        g.fillAll (Colours::white);
+        g.fillAll (Colours::green);
         break;
 
-    case NumberOfTypes:
     default:
         g.fillAll (Colours::black);
         break;

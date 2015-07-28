@@ -16,7 +16,8 @@ class GraphModel;
 class GraphComponent : public Component
 {
 public:
-    GraphComponent (std::shared_ptr<GraphModel> graph);
+    GraphComponent (std::shared_ptr<GraphModel> graph, 
+                    int numAudioInputs, int numAudioOutputs);
     ~GraphComponent ();
 
     void resized ();
@@ -45,11 +46,9 @@ public:
     void updateGraph ();
 
 private:
-    /** Reference to audio graph to get the information to visualise */
     std::shared_ptr<GraphModel> graph;
-
-    /** Connector component for dragging */
-    Connector* draggingConnector;
+    Connector* draggingConnector {nullptr};
+    std::vector<Pin*> inputPins, outputPins;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
 };

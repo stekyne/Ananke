@@ -17,13 +17,11 @@ public:
     ~SawOSCNode () = default;
 
     void process (const AudioBuffer<float>* const audioIn,
-                  AudioBuffer<float>* const audioOut,
+                  AudioBuffer<float>& audioOut,
                   const unsigned int numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
         assert (audioIn == nullptr);
-
-        auto& outBuf = *audioOut;
 
         float sr = 44100.f;
         increm = freq / sr;
@@ -35,7 +33,7 @@ public:
             if (phasor > 1.f)
                 phasor = -1.f;
 
-            outBuf[i] = phasor;
+            audioOut[i] = phasor;
         }
     }
 

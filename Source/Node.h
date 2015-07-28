@@ -36,7 +36,7 @@ private:
 private:
     ComponentDragger dragger;
     std::vector<Pin*> inputs, outputs;
-    Pin* midiIn {nullptr}, *midiOut {nullptr};
+    Pin *midiIn {nullptr}, *midiOut {nullptr};
     std::shared_ptr<GraphModel> graph;
     Font font;
     int numIns {0}, numOuts {0}, numInputs {0}, numOutputs {0};

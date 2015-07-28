@@ -67,14 +67,13 @@ public:
     uint32_t getID () const { return id; }
 
     virtual void process (const AudioBuffer<float>* const /*audioIn*/,
-                          AudioBuffer<float>* const audioOut,
+                          AudioBuffer<float>& audioOut,
                           const unsigned int numSamples)
     {
         // AudioIn can be null so overriding nodes must check if it applies or not
-        assert (audioOut != nullptr);
         assert (numSamples > 0);
-        assert (audioOut->getBufferSize () > 0 && 
-                audioOut->getBufferSize () >= numSamples);
+        assert (audioOut.getBufferSize () > 0 && 
+                audioOut.getBufferSize () >= numSamples);
     }
 
     using PointType = std::tuple <float, float>;

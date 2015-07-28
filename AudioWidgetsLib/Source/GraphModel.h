@@ -27,9 +27,9 @@ public:
         int graphCapacity {50};
 
         Settings (float sampleRate, int blockSize, int graphCapacity)
-            : sampleRate (sampleRate),
-            blockSize (blockSize),
-            graphCapacity (graphCapacity)
+            :   sampleRate (sampleRate),
+                blockSize (blockSize),
+                graphCapacity (graphCapacity)
         {
         }
     };
@@ -38,7 +38,7 @@ private:
     using NodeMap = std::map<uint32_t, NodeModel*>;
 
 public:
-    GraphModel ();
+    GraphModel () = default;
     GraphModel (Settings settings);
     ~GraphModel ();
 
@@ -72,13 +72,19 @@ public:
     void setSettings (Settings settings);
     const Settings& getSettings () const;
 
+    // Pretty print of the current graph showing connections and node processing order
     std::string printGraph () const;
+    
+    // Get the list of graph operations required to produce audio output
     const std::vector<GraphOp*> getGraphOps () const;
+    
+    // Get the node processing order (based on dependencies) as a list of node IDs
+    std::vector<int> getGraphOrderAsList () const;
 
 public:
     struct Listener
     {
-        Listener () {}
+        Listener () = default;
         Listener (const Listener&) = delete;
         Listener& operator= (const Listener&) = delete;
         virtual ~Listener () = default;
@@ -104,8 +110,8 @@ private:
     {
         int nodeId {0}, parentNode {0};
         
-        NodeDescriptor (uint32_t nodeID, uint32_t parentNode) :
-            nodeId (nodeID), parentNode (parentNode)
+        NodeDescriptor (uint32_t nodeID, uint32_t parentNode)
+            : nodeId (nodeID), parentNode (parentNode)
         {
         }
     };
@@ -133,8 +139,8 @@ private:
     std::vector<Connection> connections;
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
-    AudioBufferManager audioBufferManager;
-    Settings settings;
+    AudioBufferManager audioBufferManager {50};
+    Settings settings {44100.f, 50, 50};
     unsigned int internalIDcount {0};
 };
 

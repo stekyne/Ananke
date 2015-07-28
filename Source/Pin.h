@@ -22,7 +22,7 @@ public:
 
     //=====================================================================
     Pin () = delete;
-    explicit Pin (Type type, uint32 filterID, int index, bool isInput);
+    explicit Pin (Type type, uint32 filterID, int index);
     ~Pin ();
 
     void paint (Graphics& g);

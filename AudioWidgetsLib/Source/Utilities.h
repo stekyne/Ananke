@@ -3,18 +3,18 @@
 #ifndef UTILITIES_H_INCLUDED
 #define UTILITIES_H_INCLUDED
 
+#include "AudioBuffer.h"
+
 namespace Utilities
 {
 
-#include "AudioBuffer.h"
-
-static void fillWithDC (AudioBuffer<float>& buffer, float gain)
-{
-    for (int i = 0; i < buffer.getBufferSize (); ++i)
+    static void fillWithDC (AudioBuffer<float>& buffer, float gain)
     {
-        buffer[i] = gain;
+        for (int i = 0; i < buffer.getBufferSize (); ++i)
+        {
+            buffer[i] = gain;
+        }
     }
-}
 
 }
 

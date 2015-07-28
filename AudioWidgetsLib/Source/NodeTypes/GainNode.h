@@ -17,7 +17,7 @@ public:
     ~GainNode () = default;
 
     void process (const AudioBuffer<float>* const audioIn,
-                  AudioBuffer<float>* const audioOut,
+                  AudioBuffer<float>& audioOut,
                   const unsigned int numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
@@ -27,11 +27,10 @@ public:
                 audioIn->getBufferSize () >= numSamples);
 
         const auto& inBuf = *audioIn;
-        auto& outBuf = *audioOut;
 
         for (unsigned int i = 0; i < numSamples; ++i)
         {
-            outBuf[i] = inBuf[i] * gain;
+            audioOut[i] = inBuf[i] * gain;
         }
     }
 

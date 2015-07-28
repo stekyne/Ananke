@@ -2855,6 +2855,12 @@
     <ClInclude Include="..\..\Source\Pin.h">
       <Filter>AudioWidgets\Source\View\Graph</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\CommandIDs.h">
+      <Filter>AudioWidgets\Source\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\AppColours.h">
+      <Filter>AudioWidgets\Source\Controller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\TODOlist.txt">

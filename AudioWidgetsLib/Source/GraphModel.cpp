@@ -6,12 +6,6 @@
 
 #include "GraphModel.h"
 
-GraphModel::GraphModel ()
-    :   settings {44100.f, 50, 50},
-        audioBufferManager (50)
-{
-}
-
 GraphModel::GraphModel (Settings settings)
     :   settings (settings),
         audioBufferManager (settings.blockSize)
@@ -128,6 +122,7 @@ bool GraphModel::validateConnection (const Connection& testConnection)
         return false;
 
     bool srcMatched = false, dstMatched = false;
+
     for (const auto& node : nodes)
     {
         if (testConnection.sourceNode == node.first)
@@ -166,7 +161,7 @@ bool GraphModel::buildGraph ()
 {
     std::vector<NodeDescriptor> sortedNodes;
     sortedNodes.reserve (nodes.size ());
-    auto result = performSort (sortedNodes);
+    const auto result = performSort (sortedNodes);
 
     // Graph contained loops so cannot continue
     if (result == false)
@@ -174,7 +169,7 @@ bool GraphModel::buildGraph ()
 
     for (int i = sortedNodes.size (); --i >= 0;)
     {
-        auto nodeDetails = sortedNodes[i];
+        const auto nodeDetails = sortedNodes[i];
 
         // If parent mode is 'empty' it means there is no incoming node
         const auto parentBufferID = (nodeDetails.parentNode == NodeModel::Empty) ?
@@ -389,4 +384,11 @@ void GraphModel::clearConnectionsForNode (unsigned int nodeID)
 const std::vector<GraphOp*> GraphModel::getGraphOps () const
 {
     return graphOps;
+}
+
+std::vector<int> GraphModel::getGraphOrderAsList () const
+{
+    std::vector<int> graphList;
+
+    return graphList;
 }

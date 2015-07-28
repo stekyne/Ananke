@@ -145,11 +145,6 @@ namespace AudioWidgetsTests
             Assert::AreEqual (true, result, L"Connection should be valid but isn't");
         }
 
-        TEST_METHOD (GraphModel_ClearConnectionsForNode)
-        {
-            // TODO
-        }
-
         TEST_METHOD (GraphModel_BuildGraph)
         {
             GraphModel graph;

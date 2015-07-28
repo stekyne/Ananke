@@ -38,12 +38,14 @@ private:
     int id {-1};
 };
 
+// TODO should we return shared pointers or normal pointers seeing as this class will 
+// outlive the GraphModel and therefore never be point to invalid memory?
 class AudioBufferManager
 {
 public:
-    AudioBufferManager () {}
+    AudioBufferManager () = default;
     explicit AudioBufferManager (unsigned int blockSize) : blockSize (blockSize) {}
-    ~AudioBufferManager () {}
+    ~AudioBufferManager () = default;
 
     // Set the number of samples per block allocated
     void setBlockSize (unsigned int blockSize)

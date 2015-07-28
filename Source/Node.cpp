@@ -3,9 +3,9 @@
 #include "GraphComponent.h"
 #include "../AudioWidgetsLib/Source/GraphModel.h"
 
-Node::Node (std::shared_ptr<GraphModel> graph_, uint32 id_)
-    :   graph (graph_),
-        id (id_),
+Node::Node (std::shared_ptr<GraphModel> graph, uint32 id)
+    :   graph (graph),
+        id (id),
         font (13.0f, Font::bold)
 {
     setSize (120, 35);
@@ -35,10 +35,11 @@ void Node::getPinPos (const int index, const bool isInput, float& x, float& y)
 
 void Node::paint (Graphics& g)
 {
-    auto node = graph->getNodeForID (id);
-    g.setColour (Colours::blue);
-    g.fillRect (5, 5, getWidth () - 10, getHeight () - 10);
-    g.setColour (Colours::yellow);
+    const auto node = graph->getNodeForID (id);
+    g.setColour (Colours::lightgrey);
+    g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
+    g.setColour (Colours::darkgrey);
+    g.setFont (Font ("Arial", "Bold", 12.f));
     g.drawText (node->getName (), 0, 0, getWidth (), getHeight (),
                 Justification::centred, false);
 }
@@ -140,27 +141,27 @@ void Node::update ()
         unsigned int i;
         for (i = 0; i < node->getNumInputChannels (); ++i)
         {
-            Pin* const newPin = new Pin (Pin::AudioInput, id, i, true);
+            Pin* const newPin = new Pin (Pin::AudioInput, id, i);
             inputs.push_back( newPin );
             addAndMakeVisible (newPin);
         }
 
         if (node->acceptsMidi ())
         {
-            Pin* const midiIn = new Pin (Pin::MidiInput, id, Pin::midi_num, true);
+            Pin* const midiIn = new Pin (Pin::MidiInput, id, Pin::midi_num);
             addAndMakeVisible (midiIn);
         }
 
         for (i = 0; i < node->getNumOutputChannels (); ++i)
         {
-            Pin* const newPin = new Pin (Pin::AudioOutput, id, i, false);
+            Pin* const newPin = new Pin (Pin::AudioOutput, id, i);
             outputs.push_back( newPin );
             addAndMakeVisible (newPin);
         }
 
         if (node->producesMidi ())
         {
-            Pin* const midiOut = new Pin (Pin::MidiOutput, id, Pin::midi_num, false);
+            Pin* const midiOut = new Pin (Pin::MidiOutput, id, Pin::midi_num);
             addAndMakeVisible (midiOut);
         }
 
