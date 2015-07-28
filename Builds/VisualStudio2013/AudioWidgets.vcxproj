@@ -81,7 +81,7 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <LargeAddressAware>true</LargeAddressAware>
       <AdditionalDependencies>AudioWidgetsLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>G:\Programming\GitHub\Ananke\Builds\VisualStudio2013\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(TargetDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -133,6 +133,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\AudioManager.cpp" />
     <ClCompile Include="..\..\Source\Connector.cpp" />
     <ClCompile Include="..\..\Source\GraphComponent.cpp" />
     <ClCompile Include="..\..\Source\Node.cpp" />
@@ -1255,6 +1256,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\AppColours.h" />
     <ClInclude Include="..\..\Source\CommandIDs.h" />
+    <ClInclude Include="..\..\Source\AudioManager.h" />
     <ClInclude Include="..\..\Source\Connector.h" />
     <ClInclude Include="..\..\Source\GraphComponent.h" />
     <ClInclude Include="..\..\Source\Node.h" />
