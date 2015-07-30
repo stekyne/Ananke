@@ -1259,6 +1259,7 @@
     <ClInclude Include="..\..\Source\AudioManager.h" />
     <ClInclude Include="..\..\Source\Connector.h" />
     <ClInclude Include="..\..\Source\GraphComponent.h" />
+    <ClInclude Include="..\..\Source\LookAndFeel.h" />
     <ClInclude Include="..\..\Source\Node.h" />
     <ClInclude Include="..\..\Source\Pin.h" />
     <ClInclude Include="..\..\Source\WidgetWrapper.h" />

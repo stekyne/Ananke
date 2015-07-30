@@ -2863,7 +2863,11 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\AppColours.h">
       <Filter>AudioWidgets\Source\Controller</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\AudioManager.h">
+      <Filter>AudioWidgets\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\LookAndFeel.h">
       <Filter>AudioWidgets\Source</Filter>
     </ClInclude>
   </ItemGroup>

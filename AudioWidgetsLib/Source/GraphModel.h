@@ -99,13 +99,13 @@ public:
     bool addListener (Listener* const newListener);
     bool removeListener (const Listener* listener);
 
+private:
     struct Markers
     {
         bool permanentMark = false;
         bool temporaryMark = false;
     };
 
-private:
     struct NodeDescriptor
     {
         int nodeId {0}, parentNode {0};

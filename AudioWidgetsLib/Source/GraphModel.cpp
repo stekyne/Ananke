@@ -29,11 +29,17 @@ bool GraphModel::addNode (NodeModel* const newNode)
     nodes[newNode->getID ()] = newNode;
     // TODO if the total amount of nodes is greater than the capacity
     // We now need to reallocate more space
+    
+    for (auto& listener : listeners)
+        listener->newNodeAdded ();
+
     return true;
 }
 
 bool GraphModel::removeNode (const NodeModel* const node)
 {
+    bool isNodeFound = false;
+
     auto iter = nodes.cbegin ();
 
     while (iter != nodes.end ())
@@ -41,6 +47,7 @@ bool GraphModel::removeNode (const NodeModel* const node)
         auto itrNode = iter->second;
         if (itrNode->getID () == node->getID ())
         {
+            isNodeFound = true;
             nodes.erase (iter);
             clearConnectionsForNode (node->getID ());
             break;
@@ -48,7 +55,10 @@ bool GraphModel::removeNode (const NodeModel* const node)
         ++iter;
     }
 
-    return true;
+    for (auto& listener : listeners)
+        listener->nodeRemoved ();
+
+    return isNodeFound;
 }
 
 int GraphModel::nodeCount () const
@@ -69,6 +79,10 @@ NodeModel* const GraphModel::getNodeForID (int id)
 bool GraphModel::addConnection (const Connection& newConnection)
 {
     connections.push_back (newConnection);
+
+    for (auto& listener : listeners)
+        listener->newConnectionAdded ();
+
     return true;
 }
 
@@ -77,6 +91,10 @@ bool GraphModel::addConnection (const NodeModel& sourceNode, uint32_t sourceChan
 {
     connections.push_back (Connection (sourceNode.getID (), sourceChannel,
                                         destNode.getID (), destChannel));
+
+    for (auto& listener : listeners)
+        listener->newConnectionAdded ();
+
     return true;
 }
 
@@ -85,6 +103,10 @@ bool GraphModel::removeConnection (const Connection& connection)
     auto result = 
         std::remove (connections.begin (), connections.end (), connection);
     connections.erase (result, connections.end ());
+
+    for (auto& listener : listeners)
+        listener->connectionRemoved ();
+
     return true;
 }
 
@@ -176,7 +198,7 @@ bool GraphModel::buildGraph ()
             AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeId (nodeDetails.parentNode);
 
         // Associate this node's output with a buffer
-        auto freeBuffer = audioBufferManager.getFreeBuffer ();
+        const auto freeBuffer = audioBufferManager.getFreeBuffer ();
         audioBufferManager.associatedBufferWithNode (freeBuffer, nodeDetails.nodeId);
 
         // This node depends on the parent node to be processed first, we need to get the buffer that 
@@ -230,8 +252,10 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeMod
 
             auto& nodeModel = nodes[adjacentNode];
             assert (nodeModel != nullptr);
-            const auto result = topologicalSortUtil (currentNode, *nodeModel,
-                                                     visited, sortedNodes);
+
+            const auto result = 
+                topologicalSortUtil (currentNode, *nodeModel, visited, sortedNodes);
+
             if (result == false)
                 return false;
         }
@@ -265,8 +289,9 @@ bool GraphModel::performSort (std::vector<NodeDescriptor>& sortedNodes)
     {
         if (visited[node.second->getID ()].permanentMark == false)
         {
-            bool result = topologicalSortUtil (NodeModel::Empty, *node.second,
-                                                visited, sortedNodes);
+            const bool result = 
+                topologicalSortUtil (NodeModel::Empty, *node.second, visited, sortedNodes);
+
             if (result == false)
                 return false;
         }
@@ -279,7 +304,9 @@ void GraphModel::setSettings (Settings settings)
 {
     this->settings = settings;
     audioBufferManager.setBlockSize (settings.blockSize);
-    //TODO implement change listener
+    
+    for (auto& listener : listeners)
+        listener->graphSettingsChanged ();
 }
 
 const GraphModel::Settings& GraphModel::getSettings () const
@@ -389,6 +416,8 @@ const std::vector<GraphOp*> GraphModel::getGraphOps () const
 std::vector<int> GraphModel::getGraphOrderAsList () const
 {
     std::vector<int> graphList;
+
+
 
     return graphList;
 }
