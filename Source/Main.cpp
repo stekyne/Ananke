@@ -8,10 +8,11 @@
   ==============================================================================
 */
 
-#include "../JuceLibraryCode/JuceHeader.h"
 #include "MainComponent.h"
-#include "AppController.h"
+#include "Controller\AppController.h"
+
 #include <memory>
+#include "../JuceLibraryCode/JuceHeader.h"
 
 class AudioWidgetsApplication  : public JUCEApplication
 {

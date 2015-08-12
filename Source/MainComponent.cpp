@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Controller\AppController.h"
 #include "MainComponent.h"
-#include "AppController.h"
 #include "CommandIDs.h"
 
 MainContentComponent::MainContentComponent (

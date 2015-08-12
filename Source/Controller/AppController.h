@@ -3,12 +3,12 @@
 #ifndef APPCONTROLLER_H_INCLUDED
 #define APPCONTROLLER_H_INCLUDED
 
-#include "AudioManager.h"
-#include "WidgetWrapper.h"
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../AudioManager.h"
+#include "../View/WidgetWrapper.h"
 #include "../AudioWidgetsLib/Source/GraphModel.h"
 #include "../AudioWidgetsLib/Source/Nodes.h"
 
+#include "../JuceLibraryCode/JuceHeader.h"
 
 class AppController :   public AudioManager
 {

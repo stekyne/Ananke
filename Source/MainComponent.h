@@ -6,7 +6,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <memory>
 
-#include "GraphComponent.h"
+#include "View\Graph\GraphComponent.h"
 
 class AppController;
 

@@ -2,23 +2,37 @@
 
 <JUCERPROJECT id="Q1i7m3" name="AudioWidgets" projectType="guiapp" version="1.0.0"
               bundleIdentifier="com.stevesoft.AudioWidgets" includeBinaryInAppConfig="1"
-              jucerVersion="3.1.0">
+              jucerVersion="3.2.0">
   <MAINGROUP id="ztJ27y" name="AudioWidgets">
-    <GROUP id="{56089715-280E-CCAC-951C-982575B86B34}" name="Tests"/>
-    <GROUP id="{94A04FA8-3058-EEBB-E0CD-A529F5E8B354}" name="Misc">
-      <FILE id="t07yWz" name="TODOlist.txt" compile="0" resource="1" file="TODOlist.txt"/>
-    </GROUP>
     <GROUP id="{A8E72126-27BC-3EA5-58BE-824B5598C7FF}" name="Source">
+      <FILE id="xwxq78" name="AppColours.h" compile="0" resource="0" file="Source/AppColours.h"/>
+      <FILE id="YpgnRK" name="AudioManager.cpp" compile="1" resource="0"
+            file="Source/AudioManager.cpp"/>
+      <FILE id="cyW3NK" name="AudioManager.h" compile="0" resource="0" file="Source/AudioManager.h"/>
+      <FILE id="XMHQDH" name="CommandIDs.h" compile="0" resource="0" file="Source/CommandIDs.h"/>
+      <FILE id="Fpa3vu" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
       <GROUP id="{62F962CD-7CEB-7498-2D6A-DCBB5D6602D8}" name="View">
-        <FILE id="KE31V2" name="WidgetWrapper.cpp" compile="1" resource="0"
-              file="Source/WidgetWrapper.cpp"/>
-        <FILE id="CMSuiI" name="WidgetWrapper.h" compile="0" resource="0" file="Source/WidgetWrapper.h"/>
+        <FILE id="hLgAmb" name="WidgetWrapper.cpp" compile="1" resource="0"
+              file="Source/View/WidgetWrapper.cpp"/>
+        <FILE id="hfIwn1" name="WidgetWrapper.h" compile="0" resource="0" file="Source/View/WidgetWrapper.h"/>
+        <GROUP id="{C0E1089B-F3EC-D34A-5BDF-70F2036EC68E}" name="Graph">
+          <FILE id="mQR93h" name="Connector.cpp" compile="1" resource="0" file="Source/View/Graph/Connector.cpp"/>
+          <FILE id="a9yuPG" name="Connector.h" compile="0" resource="0" file="Source/View/Graph/Connector.h"/>
+          <FILE id="doRe15" name="GraphComponent.cpp" compile="1" resource="0"
+                file="Source/View/Graph/GraphComponent.cpp"/>
+          <FILE id="FEFx8K" name="GraphComponent.h" compile="0" resource="0"
+                file="Source/View/Graph/GraphComponent.h"/>
+          <FILE id="Bi8hQn" name="Node.cpp" compile="1" resource="0" file="Source/View/Graph/Node.cpp"/>
+          <FILE id="H948GG" name="Node.h" compile="0" resource="0" file="Source/View/Graph/Node.h"/>
+          <FILE id="lONogQ" name="Pin.cpp" compile="1" resource="0" file="Source/View/Graph/Pin.cpp"/>
+          <FILE id="jwvXnC" name="Pin.h" compile="0" resource="0" file="Source/View/Graph/Pin.h"/>
+        </GROUP>
         <GROUP id="{EC0D44D6-2232-958E-36B4-9EBC3792C05B}" name="Widgets"/>
       </GROUP>
       <GROUP id="{42B9F758-4FBB-460D-5D45-B08B9B402240}" name="Controller">
-        <FILE id="P8aLns" name="AppController.cpp" compile="1" resource="0"
-              file="Source/AppController.cpp"/>
-        <FILE id="BwWVgz" name="AppController.h" compile="0" resource="0" file="Source/AppController.h"/>
+        <FILE id="KUjzDE" name="AppController.cpp" compile="1" resource="0"
+              file="Source/Controller/AppController.cpp"/>
+        <FILE id="Pysfsd" name="AppController.h" compile="0" resource="0" file="Source/Controller/AppController.h"/>
       </GROUP>
       <FILE id="lAxbhi" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
@@ -27,30 +41,6 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <VS2010 targetFolder="Builds/VisualStudio2010">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="AudioWidgets"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="AudioWidgets"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_video" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
-      </MODULEPATHS>
-    </VS2010>
     <VS2013 targetFolder="Builds/VisualStudio2013">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
@@ -59,22 +49,46 @@
                        isDebug="0" optimisation="2" targetName="AudioWidgets"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_video" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_core" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="../../GitHub/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_video" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_opengl" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_cryptography" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="..\juce\JUCE\modules"/>
       </MODULEPATHS>
     </VS2013>
+    <VS2015 targetFolder="Builds/VisualStudio2015">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="AudioWidgets"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="AudioWidgets"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_video" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_opengl" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_cryptography" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\juce\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\juce\JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2015>
   </EXPORTFORMATS>
   <MODULES>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the juce_core module of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission to use, copy, modify, and/or distribute this software for any purpose with
    or without fee is hereby granted, provided that the above copyright notice and this
@@ -63,8 +63,8 @@
 //==============================================================================
 #if JUCE_IOS || JUCE_LINUX || JUCE_ANDROID || JUCE_PPC
   /** This will try to break into the debugger if the app is currently being debugged.
-      If called by an app that's not being debugged, the behaiour isn't defined - it may crash or not, depending
-      on the platform.
+      If called by an app that's not being debugged, the behaviour isn't defined - it may
+      crash or not, depending on the platform.
       @see jassert()
   */
   #define juce_breakDebugger        { ::kill (0, SIGTRAP); }
@@ -334,98 +334,6 @@ namespace juce
  #define JUCE_PACKED __attribute__((packed))
 #elif ! DOXYGEN
  #define JUCE_PACKED
-#endif
-
-//==============================================================================
-// Here, we'll check for C++11 compiler support, and if it's not available, define
-// a few workarounds, so that we can still use some of the newer language features.
-#if (__cplusplus >= 201103L || defined (__GXX_EXPERIMENTAL_CXX0X__)) && (__GNUC__ * 100 + __GNUC_MINOR__) >= 405
- #define JUCE_COMPILER_SUPPORTS_NOEXCEPT 1
- #define JUCE_COMPILER_SUPPORTS_NULLPTR 1
- #define JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS 1
-
- #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 407 && ! defined (JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL)
-  #define JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL 1
- #endif
-
- #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 407 && ! defined (JUCE_DELETED_FUNCTION)
-  #define JUCE_DELETED_FUNCTION = delete
- #endif
-
- #if (__GNUC__ * 100 + __GNUC_MINOR__) >= 406 && ! defined (JUCE_COMPILER_SUPPORTS_LAMBDAS)
-  #define JUCE_COMPILER_SUPPORTS_LAMBDAS 1
- #endif
-#endif
-
-#if JUCE_CLANG && defined (__has_feature)
- #if __has_feature (cxx_nullptr)
-  #define JUCE_COMPILER_SUPPORTS_NULLPTR 1
- #endif
-
- #if __has_feature (cxx_noexcept)
-  #define JUCE_COMPILER_SUPPORTS_NOEXCEPT 1
- #endif
-
- #if __has_feature (cxx_rvalue_references)
-  #define JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS 1
- #endif
-
- #if __has_feature (cxx_deleted_functions)
-  #define JUCE_DELETED_FUNCTION = delete
- #endif
-
- #if __has_feature (cxx_lambdas) \
-      && ((JUCE_MAC && defined (MAC_OS_X_VERSION_10_8) && MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_8) \
-           || (JUCE_IOS && defined (__IPHONE_7_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_0) \
-           || ! (JUCE_MAC || JUCE_IOS))
-  #define JUCE_COMPILER_SUPPORTS_LAMBDAS 1
- #endif
-
- #ifndef JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL
-  #define JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL 1
- #endif
-
- #ifndef JUCE_COMPILER_SUPPORTS_ARC
-  #define JUCE_COMPILER_SUPPORTS_ARC 1
- #endif
-#endif
-
-#if defined (_MSC_VER) && _MSC_VER >= 1600
- #define JUCE_COMPILER_SUPPORTS_NULLPTR 1
- #define JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS 1
-#endif
-
-#if defined (_MSC_VER) && _MSC_VER >= 1700
- #define JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL 1
- #define JUCE_COMPILER_SUPPORTS_LAMBDAS 1
-#endif
-
-#ifndef JUCE_DELETED_FUNCTION
- #define JUCE_DELETED_FUNCTION
-#endif
-
-//==============================================================================
-// Declare some fake versions of nullptr and noexcept, for older compilers:
-#if ! (DOXYGEN || JUCE_COMPILER_SUPPORTS_NOEXCEPT)
- #ifdef noexcept
-  #undef noexcept
- #endif
- #define noexcept  throw()
- #if defined (_MSC_VER) && _MSC_VER > 1600
-  #define _ALLOW_KEYWORD_MACROS 1 // (to stop VC2012 complaining)
- #endif
-#endif
-
-#if ! (DOXYGEN || JUCE_COMPILER_SUPPORTS_NULLPTR)
- #ifdef nullptr
-  #undef nullptr
- #endif
- #define nullptr (0)
-#endif
-
-#if ! (DOXYGEN || JUCE_COMPILER_SUPPORTS_OVERRIDE_AND_FINAL)
- #undef  override
- #define override
 #endif
 
 #endif   // JUCE_PLATFORMDEFS_H_INCLUDED
