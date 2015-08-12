@@ -5,7 +5,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class AnankeLookAndFeel : public LookAndFeel
+class AnankeLookAndFeel : public LookAndFeel_V3
 {
     
 };

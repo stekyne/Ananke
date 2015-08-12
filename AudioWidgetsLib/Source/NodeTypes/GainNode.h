@@ -54,9 +54,9 @@ public:
         return false;
     }
 
-    void setGain (float gain)
+    void setGain (float _gain)
     {
-        this->gain = gain;
+        this->gain = _gain;
     }
 
     float getGain () const

@@ -40,7 +40,7 @@ public:
     const int index;
     const bool isInput;
 
-    static enum { midi_num = 0x1000 };
+    enum { midi_num = 0x1000 };
 
 private:
     GraphComponent* getGraph () const

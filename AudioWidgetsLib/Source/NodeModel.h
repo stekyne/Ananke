@@ -63,7 +63,7 @@ public:
         return false;
     }
 
-    void setID (uint32_t id) { this->id = id; }
+    void setID (uint32_t _id) { this->id = _id; }
     uint32_t getID () const { return id; }
 
     virtual void process (const AudioBuffer<float>* const /*audioIn*/,

@@ -400,7 +400,7 @@ std::vector<int> GraphModel::getDependentsForNode (unsigned int nodeID)
 void GraphModel::clearConnectionsForNode (unsigned int nodeID)
 {
     auto result = std::remove_if (connections.begin (), connections.end (), 
-        [=](const Connection& conn) { 
+        [&](const Connection& conn) { 
         return conn.sourceNode == nodeID || conn.destNode == nodeID;
     });
     

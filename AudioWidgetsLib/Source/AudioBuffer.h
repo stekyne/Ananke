@@ -45,9 +45,9 @@ public:
         return numSamples;
     }
 
-    void setID (unsigned int id)
+    void setID (unsigned int _id)
     {
-        this->id = id;
+        this->id = _id;
     }
 
     int getID () const

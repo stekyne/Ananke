@@ -57,9 +57,9 @@ public:
         return true;
     }
 
-    void setFrequency (float freq)
+    void setFrequency (float _freq)
     {
-        this->freq = freq;
+        this->freq = _freq;
     }
 
     float getFrequency () const

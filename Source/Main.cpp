@@ -10,6 +10,7 @@
 
 #include "MainComponent.h"
 #include "Controller\AppController.h"
+#include "LookAndFeel.h"
 
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
@@ -25,6 +26,7 @@ public:
 
     void initialise (const String& /*commandLine*/) override
     {
+		LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
         appController = std::make_shared<AppController> ();
         mainWindow = new MainWindow (appController);
     }
@@ -70,6 +72,7 @@ public:
 private:
     std::shared_ptr<AppController> appController;
     ScopedPointer<MainWindow> mainWindow;    
+	AnankeLookAndFeel lookAndFeel;
 };
 
 START_JUCE_APPLICATION (AudioWidgetsApplication)

@@ -48,9 +48,9 @@ public:
     ~AudioBufferManager () = default;
 
     // Set the number of samples per block allocated
-    void setBlockSize (unsigned int blockSize)
+    void setBlockSize (unsigned int _blockSize)
     {
-        this->blockSize = blockSize;
+        this->blockSize = _blockSize;
         // TODO reallocate blocks
     }
 

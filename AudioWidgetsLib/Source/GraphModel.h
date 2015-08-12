@@ -25,11 +25,14 @@ public:
         float sampleRate {44100};
         int blockSize {256};
         int graphCapacity {50};
+		int controlRate {32};
 
-        Settings (float sampleRate, int blockSize, int graphCapacity)
+        Settings (float sampleRate, int blockSize, 
+				  int graphCapacity, int controlRate)
             :   sampleRate (sampleRate),
                 blockSize (blockSize),
-                graphCapacity (graphCapacity)
+                graphCapacity (graphCapacity),
+				controlRate (controlRate)
         {
         }
     };
@@ -140,7 +143,7 @@ private:
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
-    Settings settings {44100.f, 50, 50};
+    Settings settings {44100.f, 50, 50, 32};
     unsigned int internalIDcount {0};
 };
 

@@ -131,38 +131,36 @@ void Node::update ()
         numInputs = numIns;
         numOutputs = numOuts;
 
-        /** Clear all pins from node */
         inputs.clear();
         outputs.clear();
-        midiIn  = 0;
-        midiOut = 0;
+        midiIn  = nullptr;
+        midiOut = nullptr;
         deleteAllChildren ();
 
-        unsigned int i;
-        for (i = 0; i < node->getNumInputChannels (); ++i)
+        for (unsigned int i = 0; i < node->getNumInputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioInput, id, i);
-            inputs.push_back( newPin );
+            inputs.push_back (newPin);
             addAndMakeVisible (newPin);
-        }
+        }    
 
-        if (node->acceptsMidi ())
-        {
-            Pin* const midiIn = new Pin (Pin::MidiInput, id, Pin::midi_num);
-            addAndMakeVisible (midiIn);
-        }
-
-        for (i = 0; i < node->getNumOutputChannels (); ++i)
+        for (unsigned int i = 0; i < node->getNumOutputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioOutput, id, i);
-            outputs.push_back( newPin );
+            outputs.push_back (newPin);
             addAndMakeVisible (newPin);
         }
+
+		if (node->acceptsMidi())
+		{
+			Pin* const midiInPin = new Pin(Pin::MidiInput, id, Pin::midi_num);
+			addAndMakeVisible(midiInPin);
+		}
 
         if (node->producesMidi ())
         {
-            Pin* const midiOut = new Pin (Pin::MidiOutput, id, Pin::midi_num);
-            addAndMakeVisible (midiOut);
+            Pin* const midiOutPin = new Pin (Pin::MidiOutput, id, Pin::midi_num);
+            addAndMakeVisible (midiOutPin);
         }
 
         resized ();
