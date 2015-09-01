@@ -55,7 +55,7 @@ public:
     }
 
     // Get an unused pre-allocated buffer ID
-    const AudioBufferID getFreeBuffer ()
+    const AudioBufferID getFreeBuffer (int numChannels = 1)
     {
         for (auto& elem : buffers)
         {
@@ -64,7 +64,7 @@ public:
         }
 
         // No free buffers so allocate more
-        return createBuffer ();
+        return createBuffer (numChannels);
     }
 
     // Mark a currently in use buffer as free to use
@@ -82,7 +82,7 @@ public:
     }
 
     // Associate buffer with a particular node
-    void associatedBufferWithNode (AudioBufferID buffer, int nodeID)
+    void associateBufferWithNode (AudioBufferID buffer, int nodeID)
     {
         for (auto& elem : buffers)
         {
@@ -95,14 +95,18 @@ public:
     }
 
     // Return a buffer from the presented ID
-    std::shared_ptr<AudioBuffer<DSP::SampleType>> getBufferFromID (AudioBufferID bufferId)
+    AudioBuffer<>& getBufferFromID (AudioBufferID bufferId)
     {
         assert (buffers.size () != 0);
         
         if (bufferId == AudioBufferID::Empty)
-            return nullptr;
+            return AudioBuffer<>::Empty;
 
-        return buffers[bufferId];
+        // Check if the key is in the map, return empty buffer if not found
+        if (buffers.find (bufferId) == buffers.end ())
+            return AudioBuffer<>::Empty;
+
+        return *buffers[bufferId].get();
     }
 
     // Find the buffer that is associated with a particular node ID
@@ -123,17 +127,17 @@ public:
     int getFreeBufferCount () const { return numberFreeBuffers; }
 
 private:
-    AudioBufferID createBuffer ()
+    AudioBufferID createBuffer (unsigned int numChannels)
     {
         AudioBufferID newBuffer (++ids);
         buffers[newBuffer] = 
-            std::make_shared<AudioBuffer<DSP::SampleType>> (blockSize, newBuffer.getID ());
+            std::make_shared<AudioBuffer<DSP::SampleType>> (blockSize, numChannels, newBuffer.getID ());
         ++numberBuffers;
         return newBuffer;
     }
 
     std::map<AudioBufferID, std::shared_ptr<AudioBuffer<DSP::SampleType>>> buffers;
-    unsigned int ids {0}, blockSize {0};
+    unsigned int ids {0}, blockSize {50};
     unsigned int numberBuffers {0}, numberFreeBuffers {0};
 };
 

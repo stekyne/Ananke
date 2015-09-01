@@ -8,7 +8,9 @@
 
 GraphModel::GraphModel (Settings settings)
     :   settings (settings),
-        audioBufferManager (settings.blockSize)
+        audioBufferManager (settings.blockSize),
+        inputNode (InputNodeID),
+        outputNode (OutputNodeID)
 {
 }
 
@@ -25,10 +27,11 @@ GraphModel::~GraphModel ()
 
 bool GraphModel::addNode (NodeModel* const newNode)
 {
+    if (newNode == nullptr)
+        return false;
+
     newNode->setID (getFreeInternalID ());
     nodes[newNode->getID ()] = newNode;
-    // TODO if the total amount of nodes is greater than the capacity
-    // We now need to reallocate more space
     
     for (auto& listener : listeners)
         listener->newNodeAdded ();
@@ -38,8 +41,10 @@ bool GraphModel::addNode (NodeModel* const newNode)
 
 bool GraphModel::removeNode (const NodeModel* const node)
 {
-    bool isNodeFound = false;
+    if (node == nullptr)
+        return false;
 
+    bool isNodeFound = false;
     auto iter = nodes.cbegin ();
 
     while (iter != nodes.end ())
@@ -71,6 +76,7 @@ const GraphModel::NodeMap& GraphModel::getNodes () const
     return nodes;
 }
 
+// TODO return const, needs to be mutable currently to set position
 NodeModel* const GraphModel::getNodeForID (int id)
 {
     return nodes[id];
@@ -173,6 +179,12 @@ const std::vector<Connection>& GraphModel::getConnections () const
     return connections;
 }
 
+bool GraphModel::initialise ()
+{
+    // TODO 
+    return true;
+}
+
 void GraphModel::clearGraph ()
 {
     nodes.clear ();
@@ -193,25 +205,35 @@ bool GraphModel::buildGraph ()
     {
         const auto nodeDetails = sortedNodes[i];
 
-        // If parent mode is 'empty' it means there is no incoming node
+        // If parent node is 'empty' it means there is no incoming node
         const auto parentBufferID = (nodeDetails.parentNode == NodeModel::Empty) ?
             AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeId (nodeDetails.parentNode);
 
         // Associate this node's output with a buffer
         const auto freeBuffer = audioBufferManager.getFreeBuffer ();
-        audioBufferManager.associatedBufferWithNode (freeBuffer, nodeDetails.nodeId);
+        audioBufferManager.associateBufferWithNode (freeBuffer, nodeDetails.nodeId);
 
         // This node depends on the parent node to be processed first, we need to get the buffer that 
         // contains the output of the parent node and use it as the input of this node
         auto currentNode = nodes[nodeDetails.nodeId];
         assert (currentNode != nullptr);
 
-        auto audioIn = audioBufferManager.getBufferFromID (parentBufferID);
-        auto audioOut = audioBufferManager.getBufferFromID (freeBuffer);
+        // This node has no incoming audio if parentBufferId is null/empty
+        if (parentBufferID == AudioBufferID::Empty)
+        {
+            auto& audioOut = audioBufferManager.getBufferFromID (freeBuffer);
 
-        graphOps.push_back (new ProcessNodeOp (audioIn.get (), *audioOut.get (), *currentNode));
+            graphOps.push_back (new GeneratorNode (audioOut, *currentNode));
+        }
+        else
+        {
+            auto& audioIn = audioBufferManager.getBufferFromID (parentBufferID);
+            auto& audioOut = audioBufferManager.getBufferFromID (freeBuffer);
+
+            graphOps.push_back (new FilterNodeOp (audioIn, audioOut, *currentNode));
+        }
     }
-       
+
     return true;
 }
 
@@ -226,7 +248,7 @@ void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
 }
 
 bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeModel& currentNode, 
-                                      std::map<int, Markers>& visited, 
+                                      std::unordered_map<int, Markers>& visited, 
                                       std::vector<NodeDescriptor>& sortedNodes)
 {
     const int currentNodeID = currentNode.getID ();
@@ -250,7 +272,16 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeMod
                 continue;
             }
 
-            auto& nodeModel = nodes[adjacentNode];
+            const auto* nodeModel = nodes[adjacentNode];
+
+            // NodeModel not found in map, check if it's the input or output node
+            if (adjacentNode == InputNodeID) {
+                nodeModel = &inputNode;
+            } 
+            else if (adjacentNode == OutputNodeID) {
+                nodeModel = &outputNode;
+            }
+
             assert (nodeModel != nullptr);
 
             const auto result = 
@@ -275,26 +306,50 @@ bool GraphModel::performSort (std::vector<NodeDescriptor>& sortedNodes)
 {
     // Mark all the vertices as not visited
     // First part of tuple represents "permenant mark", second is "temporary mark"
-    std::map<int, Markers> visited;
+    std::unordered_map<int, Markers> visited;
+
+    visited[inputNode.getID ()].permanentMark = false;
+    visited[inputNode.getID ()].temporaryMark = false;
+    visited[outputNode.getID ()].permanentMark = false;
+    visited[outputNode.getID ()].temporaryMark = false;
 
     for (auto& node : nodes)
     {
+        assert (node.second != nullptr);
         visited[node.second->getID ()].permanentMark = false;
         visited[node.second->getID ()].temporaryMark = false;
     }
 
     // Call the recursive helper function to store Topological Sort
     // starting from all vertices one by one
-    for (auto& node : nodes)
+    // Begin with the input node as this should be connected for any meaningful graph 
+    topologicalSortUtil (NodeModel::Empty, inputNode, visited, sortedNodes);
+
+    for (const auto& node : nodes)
     {
-        if (visited[node.second->getID ()].permanentMark == false)
+        const NodeModel* nodeModel = node.second;
+
+        if (visited[nodeModel->getID ()].permanentMark == false)
         {
             const bool result = 
-                topologicalSortUtil (NodeModel::Empty, *node.second, visited, sortedNodes);
+                topologicalSortUtil (NodeModel::Empty, *nodeModel,
+                                     visited, sortedNodes);
 
             if (result == false)
                 return false;
         }
+    }
+
+    // Lastly check if the output node is still not visited
+    // Only really should occur if it's unconnected
+    if (visited[OutputNodeID].permanentMark == false)
+    {
+        const bool result =
+            topologicalSortUtil (NodeModel::Empty, outputNode,
+                                 visited, sortedNodes);
+
+        if (result == false)
+            return false;
     }
 
     return true;

@@ -16,21 +16,20 @@ public:
 
     ~LowPassNode () = default;
 
-    void process (const AudioBuffer<float>* const audioIn,
+    void process (const AudioBuffer<float>& audioIn,
                   AudioBuffer<float>& audioOut,
                   const unsigned int numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
-        assert (audioIn != nullptr);
-        assert (audioIn->getBufferSize () > 0 &&
-                audioIn->getBufferSize () >= numSamples);
 
-        const auto& inBuf = *audioIn;
-        audioOut[0] = inBuf[0];
+        assert (audioIn.getBufferSize () > 0 &&
+                audioIn.getBufferSize () >= numSamples);
+
+        //audioOut[0] = audioIn[0];
 
         for (unsigned int i = 1; i < numSamples; ++i)
         {
-            audioOut[i] = inBuf[i] + inBuf[i - 1];
+            //audioOut[i] = audioIn[i] + audioIn[i - 1];
         }
     }
 

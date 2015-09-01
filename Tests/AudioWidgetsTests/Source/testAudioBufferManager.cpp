@@ -38,9 +38,19 @@ namespace AudioWidgetsTests
             AudioBufferManager audioBufferManager (50);
 
             auto& bufferEntry = audioBufferManager.getFreeBuffer ();
-            auto buffer = audioBufferManager.getBufferFromID (bufferEntry);
+            auto& buffer = audioBufferManager.getBufferFromID (bufferEntry);
 
-            Assert::AreEqual (1, buffer->getID (), L"ID did not match expected");
+            Assert::AreEqual (1, buffer.getID (), L"ID did not match expected");
+        }
+
+        TEST_METHOD (AudioBufferManager_associateBufferWithNode)
+        {
+            // TODO
+        }
+
+        TEST_METHOD (AudioBufferManager_getAssociatedBufferForNodeId)
+        {
+            // TODO
         }
 
     private:

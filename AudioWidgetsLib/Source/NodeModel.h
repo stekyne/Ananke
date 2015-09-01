@@ -66,13 +66,24 @@ public:
     void setID (uint32_t _id) { this->id = _id; }
     uint32_t getID () const { return id; }
 
-    virtual void process (const AudioBuffer<float>* const /*audioIn*/,
+    // Process function for filter type nodes
+    virtual void process (const AudioBuffer<float>& audioIn,
                           AudioBuffer<float>& audioOut,
                           const unsigned int numSamples)
     {
-        // AudioIn can be null so overriding nodes must check if it applies or not
         assert (numSamples > 0);
+        assert (audioIn.getBufferSize () > 0 && 
+                audioIn.getBufferSize () >= numSamples);
         assert (audioOut.getBufferSize () > 0 && 
+                audioOut.getBufferSize () >= numSamples);
+    }
+
+    // Process function for generator type nodes
+    virtual void process (AudioBuffer<float>& audioOut,
+                          const unsigned int numSamples)
+    {
+        assert (numSamples > 0);
+        assert (audioOut.getBufferSize () > 0 &&
                 audioOut.getBufferSize () >= numSamples);
     }
 
@@ -89,7 +100,7 @@ public:
     }
 
     // An empty instance of this class
-    const static NodeModel Empty;
+    static const NodeModel Empty;
 
 private:
     // TODO move position data into NodeController, model shouldn't care about visuals
