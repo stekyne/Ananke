@@ -6,12 +6,20 @@
 
 #include "GraphModel.h"
 
-GraphModel::GraphModel (Settings settings)
-    :   settings (settings),
-        audioBufferManager (settings.blockSize),
-        inputNode (InputNodeID),
-        outputNode (OutputNodeID)
+GraphModel::GraphModel () :
+    inputNode (InputNodeID),
+    outputNode (OutputNodeID)
 {
+    addFixedNodes ();
+}
+
+GraphModel::GraphModel (Settings settings)  :   
+    settings (settings),
+    audioBufferManager (settings.blockSize),
+    inputNode (InputNodeID),
+    outputNode (OutputNodeID)
+{
+    addFixedNodes ();
 }
 
 GraphModel::~GraphModel ()
@@ -21,8 +29,17 @@ GraphModel::~GraphModel ()
             delete graphOps[i];
 
     for (auto& node : nodes)
+    {
         if (node.second != nullptr)
-            delete node.second;
+        {
+            if (node.second->getID () != NodeModel::Empty.getID () &&
+                node.second->getID () != inputNode.getID () &&
+                node.second->getID () != outputNode.getID ())
+            {
+                delete node.second;
+            }
+        }
+    }
 }
 
 bool GraphModel::addNode (NodeModel* const newNode)
@@ -68,7 +85,8 @@ bool GraphModel::removeNode (const NodeModel* const node)
 
 int GraphModel::nodeCount () const
 {
-    return nodes.size ();
+    // Subtract the 'empty' and input/output nodes
+    return nodes.size () - 3 ;
 }
 
 const GraphModel::NodeMap& GraphModel::getNodes () const
@@ -189,6 +207,7 @@ void GraphModel::clearGraph ()
 {
     nodes.clear ();
     graphOps.clear ();
+    addFixedNodes ();
 }
 
 bool GraphModel::buildGraph ()
@@ -222,14 +241,12 @@ bool GraphModel::buildGraph ()
         if (parentBufferID == AudioBufferID::Empty)
         {
             auto& audioOut = audioBufferManager.getBufferFromID (freeBuffer);
-
             graphOps.push_back (new GeneratorNode (audioOut, *currentNode));
         }
         else
         {
             auto& audioIn = audioBufferManager.getBufferFromID (parentBufferID);
             auto& audioOut = audioBufferManager.getBufferFromID (freeBuffer);
-
             graphOps.push_back (new FilterNodeOp (audioIn, audioOut, *currentNode));
         }
     }
@@ -241,10 +258,14 @@ void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
                                AudioBuffer<DSP::SampleType>& audioOut,
                                const unsigned int blockSize)
 {
+    // TODO Set inputNode audio channels
+    // TODO Set outputNode audio channels
+
     for (int i = 0; i < (int)graphOps.size (); ++i)
     {
         graphOps[i]->perform (blockSize);
     }
+    
 }
 
 bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& currentNode, 
@@ -274,15 +295,6 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
             }
 
             auto* nodeModel = nodes[adjacentNode];
-
-            // NodeModel not found in map, check if it's the input or output node
-            if (adjacentNode == InputNodeID) {
-                nodeModel = &inputNode;
-            } 
-            else if (adjacentNode == OutputNodeID) {
-                nodeModel = &outputNode;
-            }
-
             assert (nodeModel != nullptr);
 
             const auto result = 
@@ -306,16 +318,14 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
 bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
 {
     // Mark all the vertices as not visited
-    // First part of tuple represents "permenant mark", second is "temporary mark"
+    // First part of tuple represents "permanent mark", second is "temporary mark"
     std::unordered_map<int, Markers> visited;
-
-    visited[inputNode.getID ()].permanentMark = false;
-    visited[inputNode.getID ()].temporaryMark = false;
-    visited[outputNode.getID ()].permanentMark = false;
-    visited[outputNode.getID ()].temporaryMark = false;
 
     for (auto& node : nodes)
     {
+        if (*node.second == NodeModel::Empty)
+            continue;
+
         assert (node.second != nullptr);
         visited[node.second->getID ()].permanentMark = false;
         visited[node.second->getID ()].temporaryMark = false;
@@ -323,11 +333,11 @@ bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
 
     // Call the recursive helper function to store Topological Sort
     // starting from all vertices one by one
-    // Begin with the input node as this should be connected for any meaningful graph 
-    topologicalSortUtil (NodeModel::Empty, inputNode, visited, sortedNodes);
-
     for (const auto& node : nodes)
     {
+        if (*node.second == NodeModel::Empty)
+            continue;
+
         NodeModel* nodeModel = node.second;
 
         if (visited[nodeModel->getID ()].permanentMark == false)
@@ -339,18 +349,6 @@ bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
             if (result == false)
                 return false;
         }
-    }
-
-    // Lastly check if the output node is still not visited
-    // Only really should occur if it's unconnected
-    if (visited[OutputNodeID].permanentMark == false)
-    {
-        const bool result =
-            topologicalSortUtil (NodeModel::Empty, outputNode,
-                                 visited, sortedNodes);
-
-        if (result == false)
-            return false;
     }
 
     return true;
@@ -474,4 +472,11 @@ std::vector<int> GraphModel::getGraphOrderAsList () const
     std::vector<int> graphList;
 
     return graphList;
+}
+
+void GraphModel::addFixedNodes ()
+{
+    nodes[NodeModel::Empty.getID ()] = &NodeModel::Empty;
+    nodes[inputNode.getID ()] = &inputNode;
+    nodes[outputNode.getID ()] = &outputNode;
 }

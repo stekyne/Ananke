@@ -37,7 +37,7 @@ private:
     using NodeMap = std::unordered_map<uint32_t, NodeModel*>;
 
 public:
-    GraphModel () = default;
+    GraphModel ();
     GraphModel (Settings settings);
     ~GraphModel ();
 
@@ -133,6 +133,9 @@ private:
 
     std::vector<int> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);
+
+    // Add 'empty' and 'input'/'output' nodes to cleared graph
+    void addFixedNodes ();
 
     const int InputNodeID  = 1001;
     const int OutputNodeID = 2002;

@@ -104,7 +104,7 @@ public:
     }
 
     // An empty instance of this class
-    static const NodeModel Empty;
+    static NodeModel Empty;
 
 private:
     // TODO move position data into NodeController, model shouldn't care about visuals

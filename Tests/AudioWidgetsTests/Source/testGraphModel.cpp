@@ -106,9 +106,9 @@ namespace AudioWidgetsTests
         TEST_METHOD (GraphModel_CanConnect)
         {
             GraphModel graph;
-            auto node1 = new NodeModel;
-            auto node2 = new NodeModel;
-            auto node3 = new NodeModel;
+            auto node1 = new NodeModel (1);
+            auto node2 = new NodeModel (2);
+            auto node3 = new NodeModel (3);
             graph.addNode (node1);
             graph.addNode (node2);
             graph.addNode (node3);
