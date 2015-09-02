@@ -35,6 +35,11 @@ void AppController::audioDeviceAboutToStart (AudioIODevice* /*device*/)
 
 }
 
+void AppController::audioDeviceStopped ()
+{
+
+}
+
 void AppController::loadWidgets ()
 {
 

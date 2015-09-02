@@ -23,6 +23,13 @@ public:
         return graphModel;
     }
 
+    void AppController::audioDeviceIOCallback (
+        const float** inputChannelData, int totalNumInputChannels,
+        float **outputChannelData, int totalNumOutputChannels,
+        int numSamples);
+    void audioDeviceAboutToStart (AudioIODevice* /*device*/);
+    void audioDeviceStopped ();
+
 private:
     void loadTestData ();
 
