@@ -32,7 +32,7 @@ public:
             if (phasor > 1.f)
                 phasor = -1.f;
 
-            audioOut[i] = phasor;
+            //audioOut[i] = phasor;
         }
     }
 

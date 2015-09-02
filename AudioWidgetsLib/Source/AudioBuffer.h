@@ -4,40 +4,40 @@
 #define AUDIOBUFFER_H_INCLUDED
 
 #include <cassert>
+#include "DSP.h"
 
-template <typename SampleType>
+template <typename SampleType = DSP::SampleType>
 class AudioBuffer
 {
 public:
-    AudioBuffer () = delete;
-    AudioBuffer (const unsigned int numSamples)
-        : numSamples (numSamples)
+    AudioBuffer () = default;
+    AudioBuffer (const AudioBuffer& other) = delete;
+
+    AudioBuffer (const unsigned int numSamples, 
+                 const unsigned int numChannels, const int id)
+        :   numSamples (numSamples),
+            numChannels (numChannels),
+            id (id)
     {
-        buffer = new SampleType[numSamples];
-        memset (buffer, 0, sizeof (SampleType) * numSamples);
+        buffer = new SampleType*[numChannels];
+
+        for (unsigned int i = 0; i < numChannels; ++i)
+        {
+            buffer[i] = new SampleType[numSamples];
+        }
     }
 
-    AudioBuffer (const unsigned int numSamples, const int id)
-        : AudioBuffer (numSamples)
-    {
-        this->id = id;
-    }
-
-    AudioBuffer (const SampleType* inputBuffer, int numSamples)
-        : numSamples (numSamples)
-    {
-        deleteOnDestruction = false;
-        buffer = const_cast<SampleType*> (inputBuffer);
-    }
-    
     ~AudioBuffer () 
     {        
-        assert (buffer != nullptr);
-        if (buffer != nullptr && deleteOnDestruction)
+        if (buffer == nullptr || !deleteOnDestruction) 
+            return;
+
+        for (unsigned int i = 0; i < numChannels; ++i)
         {
-            delete[] buffer;
-            buffer = nullptr;
+            delete[] buffer[i];
         }
+
+        delete[] buffer;
     }
 
     int getSamplesCount () const
@@ -55,18 +55,6 @@ public:
         return id;
     }
 
-    SampleType& operator[] (const unsigned int index)
-    {
-        assert (index >= 0 && index < numSamples);
-        return buffer[index];
-    }
-
-    const SampleType& operator[] (const unsigned int index) const
-    {
-        assert (index >= 0 && index < numSamples);
-        return buffer[index];
-    }
-
     void setBufferFree ()
     {
         isBufferFree = true;
@@ -77,16 +65,32 @@ public:
         return isBufferFree; 
     }
 
-    unsigned getBufferSize () const
+    unsigned int getBufferSize () const
     {
         return numSamples;
     }
 
+    unsigned int getChannelCount () const
+    {
+        return numChannels;
+    }
+
+    SampleType* const getChannel (const unsigned int channel)
+    {
+        assert (channel >= 0 && channel < numChannels);
+        return buffer[channel];
+    }
+
+    static AudioBuffer<> Empty;
+
 private:
-    unsigned int numSamples {0};
+    unsigned int numSamples {0}, numChannels {0};
     int id {-1};
-    SampleType* buffer {nullptr};
+    SampleType** buffer {nullptr};
     bool isBufferFree {false}, deleteOnDestruction {true};
+    unsigned int referenceCount {0};
 };
+
+AudioBuffer<float> AudioBuffer<float>::Empty;
 
 #endif

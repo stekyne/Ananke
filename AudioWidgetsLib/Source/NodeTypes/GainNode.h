@@ -22,13 +22,12 @@ public:
     {
         NodeModel::process (audioIn, audioOut, numSamples);
 
-        assert (audioIn.isValid ());
         assert (audioIn.getBufferSize () > 0 && 
                 audioIn.getBufferSize () >= numSamples);
 
         for (unsigned int i = 0; i < numSamples; ++i)
         {
-            audioOut[i] = audioIn[i] * gain;
+            //audioOut[i] = audioIn[i] * gain;
         }
     }
 

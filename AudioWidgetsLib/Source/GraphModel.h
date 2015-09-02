@@ -6,7 +6,7 @@
 #include <vector>
 #include <stack>
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 
 #include "AudioBuffer.h"
@@ -34,7 +34,7 @@ public:
     };
 
 private:
-    using NodeMap = std::map<uint32_t, NodeModel*>;
+    using NodeMap = std::unordered_map<uint32_t, NodeModel*>;
 
 public:
     GraphModel () = default;
@@ -56,6 +56,10 @@ public:
     bool canConnect (const Connection& testConnection);
     bool validateConnection (const Connection& connection);
     const std::vector<Connection>& GraphModel::getConnections () const;
+
+    // Initialise the graph based on environmental parameters
+    // Such as number of inputs, outputs, sample and control rate
+    bool initialise ();
 
     // Clear all nodes and operations from the graph
     void clearGraph ();
@@ -107,13 +111,21 @@ private:
 
     int getFreeInternalID ()
     {
-        return ++internalIDcount;
+        const int newId = ++internalIDcount;
+
+        if (newId == InputNodeID ||
+            newId == OutputNodeID)
+        {
+            return ++internalIDcount;
+        }
+
+        return newId;
     }
 
     // Returns false if the current node has already been visited
     bool topologicalSortUtil (const NodeModel& parentNode,
                               NodeModel& currentNode,
-                              std::map<int, Markers>& visited,
+                              std::unordered_map<int, Markers>& visited,
                               std::vector<NodeModel>& sortedNodes);
     
     // Returns true if graph can be sorted with no loops
@@ -122,14 +134,18 @@ private:
     std::vector<int> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);
 
+    const int InputNodeID  = 1001;
+    const int OutputNodeID = 2002;
+
 private:
     NodeMap nodes;
     std::vector<Connection> connections;
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
+    NodeModel inputNode, outputNode;
     Settings settings {44100.f, 50, 32};
-    unsigned int internalIDcount = 0;
+    unsigned int internalIDcount {0};
 };
 
 #endif

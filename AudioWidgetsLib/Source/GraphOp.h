@@ -14,19 +14,19 @@ struct GraphOp
     virtual const char* const getName () = 0;
 };
 
-class ProcessNodeOp : public GraphOp
+class FilterNodeOp : public GraphOp
 {
 public:
-    ProcessNodeOp (AudioBuffer<DSP::SampleType>& audioIn,
-                   AudioBuffer<DSP::SampleType>& audioOut,
-                   NodeModel& node)
+    FilterNodeOp (const AudioBuffer<DSP::SampleType>& audioIn,
+                  AudioBuffer<DSP::SampleType>& audioOut,
+                  NodeModel& node)
         :   audioIn (audioIn), 
             audioOut (audioOut), 
             node (node)
     {
     }
 
-    ProcessNodeOp& operator= (const ProcessNodeOp&) = delete;
+    FilterNodeOp& operator= (const FilterNodeOp&) = delete;
 
     virtual void perform (const int blockSize) override
     {
@@ -39,8 +39,34 @@ public:
     }
 
 private:
-    AudioBuffer<DSP::SampleType>& audioIn;
+    const AudioBuffer<DSP::SampleType>& audioIn;
     AudioBuffer<DSP::SampleType>& audioOut;
+    NodeModel& node;
+};
+
+class GeneratorNode : public GraphOp
+{
+public:
+    GeneratorNode (AudioBuffer<>& audioOut, NodeModel& node)
+        :   audioOut (audioOut),
+            node (node)
+    {
+    }
+
+    GeneratorNode& operator= (const GeneratorNode&) = delete;
+
+    virtual void perform (const int blockSize) override
+    {
+        node.process (audioOut, blockSize);
+    }
+
+    const char* const getName () override
+    {
+        return node.getName ();
+    }
+
+private:
+    AudioBuffer<>& audioOut;
     NodeModel& node;
 };
 

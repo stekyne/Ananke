@@ -21,15 +21,15 @@ public:
                   const unsigned int numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
-        assert (audioIn.isValid ());
+
         assert (audioIn.getBufferSize () > 0 &&
                 audioIn.getBufferSize () >= numSamples);
 
-        audioOut[0] = audioIn[0];
+        //audioOut[0] = audioIn[0];
 
         for (unsigned int i = 1; i < numSamples; ++i)
         {
-            audioOut[i] = audioIn[i] + audioIn[i - 1];
+            //audioOut[i] = audioIn[i] + audioIn[i - 1];
         }
     }
 

@@ -189,9 +189,9 @@ namespace AudioWidgetsTests
             Assert::AreEqual (true, result, L"Unable to build graph, contained loops");
             Logger::WriteMessage (graph.printGraph ().c_str ());
 
-            AudioBuffer<float> audioIn (50);
-            AudioBuffer<float> audioOut (50);
-            graph.processGraph (audioIn, audioOut, 20);
+            //AudioBuffer<float> audioIn (50, 1);
+            //AudioBuffer<float> audioOut (50, 1);
+            //graph.processGraph (audioIn, audioOut, 20);
         }
 
         TEST_METHOD (GraphModel_AddListener)

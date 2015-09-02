@@ -70,17 +70,24 @@ public:
     void setParentID (uint32_t _pId) { this->id = _pId; }
     uint32_t getParentID () const { return parentId; }
 
+    // Process function for filter type nodes
     virtual void process (const AudioBuffer<float>& audioIn,
                           AudioBuffer<float>& audioOut,
                           const unsigned int numSamples)
     {
-        if (audioIn.isValid())
-        {
-            assert (audioIn.getBufferSize () > 0 &&
-                    audioIn.getBufferSize () >= numSamples);
-        }
         assert (numSamples > 0);
+        assert (audioIn.getBufferSize () > 0 && 
+                audioIn.getBufferSize () >= numSamples);
         assert (audioOut.getBufferSize () > 0 && 
+                audioOut.getBufferSize () >= numSamples);
+    }
+
+    // Process function for generator type nodes
+    virtual void process (AudioBuffer<float>& audioOut,
+                          const unsigned int numSamples)
+    {
+        assert (numSamples > 0);
+        assert (audioOut.getBufferSize () > 0 &&
                 audioOut.getBufferSize () >= numSamples);
     }
 
@@ -97,7 +104,7 @@ public:
     }
 
     // An empty instance of this class
-    const static NodeModel Empty;
+    static const NodeModel Empty;
 
 private:
     // TODO move position data into NodeController, model shouldn't care about visuals
