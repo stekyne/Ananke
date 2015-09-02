@@ -14,7 +14,26 @@ AppController::~AppController ()
 
 }
 
+void AppController::audioDeviceIOCallback (
+    const float** inputChannelData, int totalNumInputChannels,
+    float **outputChannelData, int totalNumOutputChannels,
+    int numSamples)
+{
+    jassert (totalNumInputChannels >= totalNumOutputChannels);
 
+    for (int channelNum = 0; channelNum < totalNumInputChannels; ++channelNum)
+    {
+        /*AudioBuffer<float> inputBuffer (inputChannelData[channelNum], numSamples);
+        AudioBuffer<float> outputBuffer (outputChannelData[channelNum], numSamples);
+
+        graphModel->processGraph (inputBuffer, outputBuffer, numSamples);*/
+    }
+}
+
+void AppController::audioDeviceAboutToStart (AudioIODevice* /*device*/)
+{
+
+}
 
 void AppController::loadWidgets ()
 {

@@ -37,7 +37,6 @@ struct Connection
     
     uint32_t sourceNode {0}, destNode {0};
     uint32_t sourceChannel {0}, destChannel {0};
-
 };
 
 #endif

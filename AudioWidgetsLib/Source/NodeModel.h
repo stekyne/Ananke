@@ -15,7 +15,8 @@ class NodeModel
 public:
     NodeModel () = default;
     virtual ~NodeModel () {};
-    NodeModel (int id) : id (id) {}
+    NodeModel (int _id) : id (_id) {}
+    NodeModel (int _id, int _parentId) : id (_id), parentId (_parentId) {}
     NodeModel (int id, float positionX, float positionY)
         :   position (positionX, positionY),
             id (id)
@@ -66,6 +67,9 @@ public:
     void setID (uint32_t _id) { this->id = _id; }
     uint32_t getID () const { return id; }
 
+    void setParentID (uint32_t _pId) { this->id = _pId; }
+    uint32_t getParentID () const { return parentId; }
+
     // Process function for filter type nodes
     virtual void process (const AudioBuffer<float>& audioIn,
                           AudioBuffer<float>& audioOut,
@@ -105,7 +109,7 @@ public:
 private:
     // TODO move position data into NodeController, model shouldn't care about visuals
     PointType position {0.f, 0.f};
-    uint32_t id {0};
+    int id {0}, parentId {-1};
 };
 
 #endif

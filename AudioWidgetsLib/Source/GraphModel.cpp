@@ -136,7 +136,7 @@ bool GraphModel::canConnect (const Connection& testConnection)
     // Remove connection either way
     addConnection (testConnection);
 
-    std::vector<NodeDescriptor> sortedNodes;
+    std::vector<NodeModel> sortedNodes;
     sortedNodes.reserve (nodes.size ());
     const auto result = performSort (sortedNodes);
     removeConnection (testConnection);
@@ -193,7 +193,7 @@ void GraphModel::clearGraph ()
 
 bool GraphModel::buildGraph ()
 {
-    std::vector<NodeDescriptor> sortedNodes;
+    std::vector<NodeModel> sortedNodes;
     sortedNodes.reserve (nodes.size ());
     const auto result = performSort (sortedNodes);
 
@@ -203,19 +203,19 @@ bool GraphModel::buildGraph ()
 
     for (int i = sortedNodes.size (); --i >= 0;)
     {
-        const auto nodeDetails = sortedNodes[i];
+        const auto node = sortedNodes[i];
 
-        // If parent node is 'empty' it means there is no incoming node
-        const auto parentBufferID = (nodeDetails.parentNode == NodeModel::Empty) ?
-            AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeId (nodeDetails.parentNode);
+        // If parent mode is 'empty' it means there is no incoming node
+        const auto parentBufferID = (node.getParentID () == NodeModel::Empty) ?
+            AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeId (node.getParentID ());
 
         // Associate this node's output with a buffer
         const auto freeBuffer = audioBufferManager.getFreeBuffer ();
-        audioBufferManager.associateBufferWithNode (freeBuffer, nodeDetails.nodeId);
+        audioBufferManager.associateBufferWithNode (freeBuffer, node.getID ());
 
         // This node depends on the parent node to be processed first, we need to get the buffer that 
         // contains the output of the parent node and use it as the input of this node
-        auto currentNode = nodes[nodeDetails.nodeId];
+        auto currentNode = nodes[node.getID ()];
         assert (currentNode != nullptr);
 
         // This node has no incoming audio if parentBufferId is null/empty
@@ -247,11 +247,12 @@ void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
     }
 }
 
-bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeModel& currentNode, 
+bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& currentNode, 
                                       std::unordered_map<int, Markers>& visited, 
-                                      std::vector<NodeDescriptor>& sortedNodes)
+                                      std::vector<NodeModel>& sortedNodes)
 {
     const int currentNodeID = currentNode.getID ();
+    currentNode.setParentID (parentNode.getID ());
 
     // Check if current node has been visited (temporary marker) 
     // if so, there is a loop in the graph so just return false as it's not a DAG
@@ -272,7 +273,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeMod
                 continue;
             }
 
-            const auto* nodeModel = nodes[adjacentNode];
+            auto* nodeModel = nodes[adjacentNode];
 
             // NodeModel not found in map, check if it's the input or output node
             if (adjacentNode == InputNodeID) {
@@ -294,7 +295,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeMod
         visited[currentNodeID].permanentMark = true;
         visited[currentNodeID].temporaryMark = false;
 
-        sortedNodes.push_back (NodeDescriptor (currentNode.getID (), parentNode.getID ()));
+        sortedNodes.push_back (NodeModel (currentNode.getID (), parentNode.getID ()));
         return true;
     }
 
@@ -302,7 +303,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, const NodeMod
     return true;
 }
 
-bool GraphModel::performSort (std::vector<NodeDescriptor>& sortedNodes)
+bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
 {
     // Mark all the vertices as not visited
     // First part of tuple represents "permenant mark", second is "temporary mark"
@@ -327,7 +328,7 @@ bool GraphModel::performSort (std::vector<NodeDescriptor>& sortedNodes)
 
     for (const auto& node : nodes)
     {
-        const NodeModel* nodeModel = node.second;
+        NodeModel* nodeModel = node.second;
 
         if (visited[nodeModel->getID ()].permanentMark == false)
         {
@@ -442,7 +443,7 @@ std::vector<int> GraphModel::getDependentsForNode (unsigned int nodeID)
         if (connection.sourceNode == nodeID)
         {
             if (std::find (dependentVec.cbegin (), dependentVec.cend (),
-                            connection.sourceNode) == dependentVec.cend ())
+                           connection.sourceNode) == dependentVec.cend ())
             {
                 dependentVec.push_back (connection.destNode);
             }
@@ -456,7 +457,7 @@ void GraphModel::clearConnectionsForNode (unsigned int nodeID)
 {
     auto result = std::remove_if (connections.begin (), connections.end (), 
         [&](const Connection& conn) { 
-        return conn.sourceNode == nodeID || conn.destNode == nodeID;
+            return conn.sourceNode == nodeID || conn.destNode == nodeID;
     });
     
     if (result != connections.end ())
@@ -471,8 +472,6 @@ const std::vector<GraphOp*> GraphModel::getGraphOps () const
 std::vector<int> GraphModel::getGraphOrderAsList () const
 {
     std::vector<int> graphList;
-
-
 
     return graphList;
 }
