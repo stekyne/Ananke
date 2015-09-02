@@ -16,21 +16,19 @@ public:
 
     ~GainNode () = default;
 
-    void process (const AudioBuffer<float>* const audioIn,
+    void process (const AudioBuffer<float>& audioIn,
                   AudioBuffer<float>& audioOut,
                   const unsigned int numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
 
-        assert (audioIn != nullptr);
-        assert (audioIn->getBufferSize () > 0 && 
-                audioIn->getBufferSize () >= numSamples);
-
-        const auto& inBuf = *audioIn;
+        assert (audioIn.isValid ());
+        assert (audioIn.getBufferSize () > 0 && 
+                audioIn.getBufferSize () >= numSamples);
 
         for (unsigned int i = 0; i < numSamples; ++i)
         {
-            audioOut[i] = inBuf[i] * gain;
+            audioOut[i] = audioIn[i] * gain;
         }
     }
 

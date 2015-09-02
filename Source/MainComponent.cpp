@@ -75,6 +75,7 @@ void MainContentComponent::menuItemSelected (int menuItemID, int /*topLevelMenuI
 
 StringArray MainContentComponent::getMenuBarNames ()
 {
-    const char* const names[] = { "File", "Edit", "Modules", "Help", nullptr };
-    return StringArray (names);
+    return StringArray ({ 
+		"File", "Edit", "Modules", "Help", nullptr 
+	});
 }

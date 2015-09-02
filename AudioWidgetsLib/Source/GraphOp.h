@@ -17,10 +17,12 @@ struct GraphOp
 class ProcessNodeOp : public GraphOp
 {
 public:
-    ProcessNodeOp (AudioBuffer<DSP::SampleType>* const audioIn, 
+    ProcessNodeOp (AudioBuffer<DSP::SampleType>& audioIn,
                    AudioBuffer<DSP::SampleType>& audioOut,
                    NodeModel& node)
-        : audioIn (audioIn), audioOut (audioOut), node (node)
+        :   audioIn (audioIn), 
+            audioOut (audioOut), 
+            node (node)
     {
     }
 
@@ -37,7 +39,7 @@ public:
     }
 
 private:
-    AudioBuffer<DSP::SampleType>* audioIn;
+    AudioBuffer<DSP::SampleType>& audioIn;
     AudioBuffer<DSP::SampleType>& audioOut;
     NodeModel& node;
 };

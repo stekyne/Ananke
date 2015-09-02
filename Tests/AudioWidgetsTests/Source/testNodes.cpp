@@ -20,7 +20,7 @@ namespace AudioWidgetsTests
             AudioBuffer<float> audioOut (1);
             
             gainNode.setGain (0.5);
-            gainNode.process (&audioIn, audioOut, audioIn.getBufferSize ());
+            gainNode.process (audioIn, audioOut, audioIn.getBufferSize ());
 
             Assert::AreEqual (true, audioIn[0] == 1.f, L"Input node didn't contain expected value");
             Assert::AreEqual (true, audioOut[0] == 0.5f, L"Output node didn't contain expected value");
@@ -34,7 +34,7 @@ namespace AudioWidgetsTests
             audioIn[0] = 1.f;
             AudioBuffer<float> audioOut (1);
 
-            lowPassNode.process (&audioIn, audioOut, audioIn.getBufferSize ());
+            lowPassNode.process (audioIn, audioOut, audioIn.getBufferSize ());
 
             Assert::AreEqual (true, audioOut[0] == audioIn[0], L"Output node didn't contain expected value");
         }
@@ -46,7 +46,7 @@ namespace AudioWidgetsTests
 
             AudioBuffer<float> audioOut (50);
 
-            sawOscNode.process (nullptr, audioOut, 50);
+            sawOscNode.process (AudioBuffer<float>::Empty, audioOut, 50);
         }
 
     private:

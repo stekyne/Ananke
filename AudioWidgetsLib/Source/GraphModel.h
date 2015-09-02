@@ -16,7 +16,6 @@
 #include "NodeModel.h"
 #include "DSP.h"
 
-
 class GraphModel
 {
 public:
@@ -24,14 +23,11 @@ public:
     {
         float sampleRate {44100};
         int blockSize {256};
-        int graphCapacity {50};
 		int controlRate {32};
 
-        Settings (float sampleRate, int blockSize, 
-				  int graphCapacity, int controlRate)
+        Settings (float sampleRate, int blockSize, int controlRate)
             :   sampleRate (sampleRate),
                 blockSize (blockSize),
-                graphCapacity (graphCapacity),
 				controlRate (controlRate)
         {
         }
@@ -109,30 +105,19 @@ private:
         bool temporaryMark = false;
     };
 
-    struct NodeDescriptor
-    {
-        int nodeId {0}, parentNode {0};
-        
-        NodeDescriptor (uint32_t nodeID, uint32_t parentNode)
-            : nodeId (nodeID), parentNode (parentNode)
-        {
-        }
-    };
-
     int getFreeInternalID ()
     {
-        // TODO need a way of tracking free IDss
         return ++internalIDcount;
     }
 
     // Returns false if the current node has already been visited
     bool topologicalSortUtil (const NodeModel& parentNode,
-                              const NodeModel& currentNode,
+                              NodeModel& currentNode,
                               std::map<int, Markers>& visited,
-                              std::vector<NodeDescriptor>& sortedNodes);
+                              std::vector<NodeModel>& sortedNodes);
     
     // Returns true if graph can be sorted with no loops
-    bool performSort (std::vector<NodeDescriptor>& sortedNodes);
+    bool performSort (std::vector<NodeModel>& sortedNodes);
 
     std::vector<int> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);
@@ -143,8 +128,8 @@ private:
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
-    Settings settings {44100.f, 50, 50, 32};
-    unsigned int internalIDcount {0};
+    Settings settings {44100.f, 50, 32};
+    unsigned int internalIDcount = 0;
 };
 
 #endif
