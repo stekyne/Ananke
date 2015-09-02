@@ -23,10 +23,10 @@ void AppController::audioDeviceIOCallback (
 
     for (int channelNum = 0; channelNum < totalNumInputChannels; ++channelNum)
     {
-        AudioBuffer<float> inputBuffer (inputChannelData[channelNum], numSamples);
+        /*AudioBuffer<float> inputBuffer (inputChannelData[channelNum], numSamples);
         AudioBuffer<float> outputBuffer (outputChannelData[channelNum], numSamples);
 
-        graphModel->processGraph (inputBuffer, outputBuffer, numSamples);
+        graphModel->processGraph (inputBuffer, outputBuffer, numSamples);*/
     }
 }
 
