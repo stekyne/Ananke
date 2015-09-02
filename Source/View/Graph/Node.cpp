@@ -153,7 +153,7 @@ void Node::update ()
 
 		if (node->acceptsMidi())
 		{
-			Pin* const midiInPin = new Pin(Pin::MidiInput, id, Pin::midi_num);
+			Pin* const midiInPin = new Pin (Pin::MidiInput, id, Pin::midi_num);
 			addAndMakeVisible(midiInPin);
 		}
 

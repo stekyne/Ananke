@@ -5,11 +5,11 @@
 
 class AudioManager	:	public ChangeListener,
                         public ChangeBroadcaster,
-						public AudioIODeviceCallback
+                        public AudioIODeviceCallback
 {
 public:
-	AudioManager ();
-	~AudioManager ();
+    AudioManager ();
+    virtual ~AudioManager ();
 
     void changeListenerCallback (ChangeBroadcaster*) {}
 
@@ -26,10 +26,16 @@ public:
         return formatManager;
     }
 
+    void audioDeviceIOCallback (const float **inputChannelData, int totalNumInputChannels,
+                                float **outputChannelData, int totalNumOutputChannels,
+                                int numSamples);
+    void audioDeviceAboutToStart (AudioIODevice *device);
+    void audioDeviceStopped ();
+
 private:
-	ScopedPointer<AudioDeviceManager> deviceManager;
+    ScopedPointer<AudioDeviceManager> deviceManager;
     ScopedPointer<AudioFormatManager> formatManager;
-	ScopedPointer<MixerAudioSource> mixerSource;
+    ScopedPointer<MixerAudioSource> mixerSource;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioManager);
 };

@@ -38,9 +38,9 @@ private:
     std::vector<Pin*> inputs, outputs;
     Pin *midiIn {nullptr}, *midiOut {nullptr};
     std::shared_ptr<GraphModel> graph;
-    Font font;
     int numIns {0}, numOuts {0}, numInputs {0}, numOutputs {0};
     bool acceptsMidi {false}, producesMidi {false};
+    Font font;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Node);
 };
