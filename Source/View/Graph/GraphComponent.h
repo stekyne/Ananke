@@ -48,7 +48,7 @@ public:
 private:
     std::shared_ptr<GraphModel> graph;
     Connector* draggingConnector {nullptr};
-    std::vector<Pin*> inputPins, outputPins;
+    //std::vector<Pin*> inputPins, outputPins;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
 };
