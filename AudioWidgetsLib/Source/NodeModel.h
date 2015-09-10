@@ -67,7 +67,7 @@ public:
     void setID (uint32_t _id) { this->id = _id; }
     uint32_t getID () const { return id; }
 
-    void setParentID (uint32_t _pId) { this->id = _pId; }
+    void setParentID (uint32_t _pId) { this->parentId = _pId; }
     uint32_t getParentID () const { return parentId; }
 
     // Process function for filter type nodes

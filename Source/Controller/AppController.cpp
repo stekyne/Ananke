@@ -20,14 +20,7 @@ void AppController::audioDeviceIOCallback (
     int numSamples)
 {
     jassert (totalNumInputChannels >= totalNumOutputChannels);
-
-    for (int channelNum = 0; channelNum < totalNumInputChannels; ++channelNum)
-    {
-        /*AudioBuffer<float> inputBuffer (inputChannelData[channelNum], numSamples);
-        AudioBuffer<float> outputBuffer (outputChannelData[channelNum], numSamples);
-
-        graphModel->processGraph (inputBuffer, outputBuffer, numSamples);*/
-    }
+    graphModel->processGraph (inputChannelData, outputChannelData, numSamples);
 }
 
 void AppController::audioDeviceAboutToStart (AudioIODevice* /*device*/)

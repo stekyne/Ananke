@@ -6,9 +6,30 @@
 
 #include "GraphModel.h"
 
+#ifdef _DEBUG
+# include <Windows.h>
+
+int dbg (const char* format, ...)
+{
+    char buffer[512];
+    int _Result;
+    va_list _ArgList;
+    va_start (_ArgList, format);
+    #pragma warning(push)
+    #pragma warning(disable: 4996) // Deprecation
+    _Result = _vsprintf_l (buffer, format, NULL, _ArgList);
+    #pragma warning(pop)
+    va_end (_ArgList);
+    OutputDebugString (buffer);
+    return _Result;
+}
+#else
+int dbg (const char* format, ...) {}
+#endif
+
 GraphModel::GraphModel () :
-    inputNode (InputNodeID),
-    outputNode (OutputNodeID)
+    inputNode (InputNodeID, 0.f, 0.f, ExternalNode::InputType),
+    outputNode (OutputNodeID, 0.f, 0.f, ExternalNode::OutputType)
 {
     addFixedNodes ();
 }
@@ -16,8 +37,8 @@ GraphModel::GraphModel () :
 GraphModel::GraphModel (Settings settings)  :   
     settings (settings),
     audioBufferManager (settings.blockSize),
-    inputNode (InputNodeID),
-    outputNode (OutputNodeID)
+    inputNode (InputNodeID, 0.f, 0.f, ExternalNode::InputType),
+    outputNode (OutputNodeID, 0.f, 0.f, ExternalNode::OutputType)
 {
     addFixedNodes ();
 }
@@ -25,8 +46,10 @@ GraphModel::GraphModel (Settings settings)  :
 GraphModel::~GraphModel ()
 {
     for (unsigned int i = 0; i < graphOps.size (); ++i)
+    {
         if (graphOps[i] != nullptr)
             delete graphOps[i];
+    }
 
     for (auto& node : nodes)
     {
@@ -254,18 +277,28 @@ bool GraphModel::buildGraph ()
     return true;
 }
 
-void GraphModel::processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
-                               AudioBuffer<DSP::SampleType>& audioOut,
-                               const unsigned int blockSize)
+void GraphModel::processGraph (const float** audioIn, float** audioOut,
+                               const uint32_t blockSize)
 {
-    // TODO Set inputNode audio channels
-    // TODO Set outputNode audio channels
+    setInputNodeBuffers (audioIn, 2, blockSize);
+    setOutputNodeBuffers (audioOut, 2, blockSize);
 
-    for (int i = 0; i < (int)graphOps.size (); ++i)
+    for (size_t i = 0u; i < graphOps.size (); ++i)
     {
         graphOps[i]->perform (blockSize);
     }
     
+}
+
+void GraphModel::setInputNodeBuffers (const float** const buffers, 
+                                      uint32_t numChannels, uint32_t numSamples)
+{
+    inputNode.setExternalBuffers ((float**)buffers, numChannels, numSamples);
+}
+
+void GraphModel::setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples)
+{
+    outputNode.setExternalBuffers (buffers, numChannels, numSamples);
 }
 
 bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& currentNode, 
@@ -278,12 +311,16 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
     // Check if current node has been visited (temporary marker) 
     // if so, there is a loop in the graph so just return false as it's not a DAG
     if (visited[currentNodeID].temporaryMark == true)
+    {
+        dbg ("Node: %d, already visited, not a DAG \n", currentNodeID);
         return false;
+    }
 
     if (visited[currentNodeID].permanentMark == false)
     {
         // Mark the current node as visited.
         visited[currentNodeID].temporaryMark = true;
+        dbg ("Node: %d, adding temporary mark \n", currentNodeID);
 
         // Recur for all the nodes adjacent to this node
         for (auto& adjacentNode : getDependentsForNode (currentNodeID))
@@ -291,11 +328,15 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
             if (visited[adjacentNode].permanentMark == true)
             {
                 // Node has been visited (permanently marked) already so skip
+                dbg ("Node: %d, already visited so skipping", adjacentNode);
                 continue;
             }
 
             auto* nodeModel = nodes[adjacentNode];
             assert (nodeModel != nullptr);
+            assert (nodeModel->getID () != NodeModel::Empty);
+
+            dbg ("Node: %d, attempting to visit node: %d \n", currentNodeID, nodeModel->getID ());
 
             const auto result = 
                 topologicalSortUtil (currentNode, *nodeModel, visited, sortedNodes);
@@ -308,6 +349,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
         visited[currentNodeID].temporaryMark = false;
 
         sortedNodes.push_back (NodeModel (currentNode.getID (), parentNode.getID ()));
+        dbg ("Node %d, added to sorted list \n", currentNodeID);
         return true;
     }
 
@@ -318,15 +360,15 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
 bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
 {
     // Mark all the vertices as not visited
-    // First part of tuple represents "permanent mark", second is "temporary mark"
     std::unordered_map<int, Markers> visited;
 
     for (auto& node : nodes)
     {
+        assert (node.second != nullptr);
+
         if (*node.second == NodeModel::Empty)
             continue;
-
-        assert (node.second != nullptr);
+        
         visited[node.second->getID ()].permanentMark = false;
         visited[node.second->getID ()].temporaryMark = false;
     }
@@ -338,10 +380,12 @@ bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
         if (*node.second == NodeModel::Empty)
             continue;
 
-        NodeModel* nodeModel = node.second;
+        NodeModel* const nodeModel = node.second;
 
         if (visited[nodeModel->getID ()].permanentMark == false)
         {
+            dbg ("Visiting node: %d \n", nodeModel->getID ());
+
             const bool result = 
                 topologicalSortUtil (NodeModel::Empty, *nodeModel,
                                      visited, sortedNodes);
@@ -432,9 +476,11 @@ bool GraphModel::removeListener (const Listener* listener)
     return false;
 }
 
-std::vector<int> GraphModel::getDependentsForNode (unsigned int nodeID)
+std::vector<uint32_t> GraphModel::getDependentsForNode (unsigned int nodeID)
 {
-    std::vector<int> dependentVec;
+    std::vector<uint32_t> dependentVec;
+
+    dbg ("Dependents: [");
 
     for (const auto& connection : connections)
     {
@@ -444,10 +490,12 @@ std::vector<int> GraphModel::getDependentsForNode (unsigned int nodeID)
                            connection.sourceNode) == dependentVec.cend ())
             {
                 dependentVec.push_back (connection.destNode);
+                dbg ("%d ", connection.destNode);
             }
         }
     }
 
+    dbg ("] \n");
     return dependentVec;
 }
 

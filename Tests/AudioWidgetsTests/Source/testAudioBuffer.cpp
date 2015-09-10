@@ -15,7 +15,7 @@ namespace AudioWidgetsTests
         {
             AudioBuffer<float> buffer (256, 1, -1);
 
-            Assert::AreEqual (256, buffer.getSamplesCount (), 
+            Assert::AreEqual (256u, buffer.getSamplesCount (), 
                               L"Sample count not as expected");
         }
 

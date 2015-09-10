@@ -12,9 +12,10 @@
 #include "AudioBuffer.h"
 #include "AudioBufferManager.h"
 #include "Connection.h"
+#include "DSP.h"
 #include "GraphOp.h"
 #include "NodeModel.h"
-#include "DSP.h"
+#include "..\Source\NodeTypes\ExternalNode.h"
 
 class GraphModel
 {
@@ -68,9 +69,11 @@ public:
     bool buildGraph ();
 
     // Execute the graph of nodes to generate output
-    void processGraph (const AudioBuffer<DSP::SampleType>& audioIn,
-                       AudioBuffer<DSP::SampleType>& audioOut,
-                       const unsigned int blockSize);
+    void processGraph (const float** audioIn, float** audioOut,
+                       const uint32_t blockSize);
+
+    void setInputNodeBuffers (const float** const buffers, uint32_t numChannels, uint32_t numSamples);
+    void setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples);
 
     void setSettings (Settings settings);
     const Settings& getSettings () const;
@@ -131,7 +134,7 @@ private:
     // Returns true if graph can be sorted with no loops
     bool performSort (std::vector<NodeModel>& sortedNodes);
 
-    std::vector<int> getDependentsForNode (unsigned int nodeID);
+    std::vector<uint32_t> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);
 
     // Add 'empty' and 'input'/'output' nodes to cleared graph
@@ -146,7 +149,7 @@ private:
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
-    NodeModel inputNode, outputNode;
+    ExternalNode inputNode, outputNode;
     Settings settings {44100.f, 50, 32};
     unsigned int internalIDcount {0};
 };
