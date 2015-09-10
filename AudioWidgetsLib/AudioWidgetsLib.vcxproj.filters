@@ -69,6 +69,9 @@
     <ClInclude Include="Source\DSP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\NodeTypes\ExternalNode.h">
+      <Filter>Header Files\Models\NodeTypes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AudioBufferManager.cpp">

@@ -31,22 +31,22 @@ public:
         }
     }
 
-    const char* const getName () const
+    const char* const getName () const override
     {
         return "GainNode";
     }
 
-    unsigned int getNumInputChannels () const
+    unsigned int getNumInputChannels () const override
     {
         return 2;
     }
 
-    unsigned int getNumOutputChannels () const
+    unsigned int getNumOutputChannels () const override
     {
         return 2;
     }
 
-    bool acceptsMidi () const
+    bool acceptsMidi () const override
     {
         return false;
     }

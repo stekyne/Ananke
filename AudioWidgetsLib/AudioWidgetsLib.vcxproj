@@ -75,6 +75,7 @@
     <ClInclude Include="Source\GraphOp.h" />
     <ClInclude Include="Source\NodeModel.h" />
     <ClInclude Include="Source\Nodes.h" />
+    <ClInclude Include="Source\NodeTypes\ExternalNode.h" />
     <ClInclude Include="Source\NodeTypes\GainNode.h" />
     <ClInclude Include="Source\NodeTypes\LowPass.h" />
     <ClInclude Include="Source\NodeTypes\SawOsc.h" />
