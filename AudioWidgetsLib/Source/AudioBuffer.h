@@ -40,7 +40,7 @@ public:
         delete[] buffer;
     }
 
-    int getSamplesCount () const
+    uint32_t getSamplesCount () const
     {
         return numSamples;
     }
@@ -65,12 +65,12 @@ public:
         return isBufferFree; 
     }
 
-    unsigned int getBufferSize () const
+    uint32_t getBufferSize () const
     {
         return numSamples;
     }
 
-    unsigned int getChannelCount () const
+    uint32_t getChannelCount () const
     {
         return numChannels;
     }
@@ -81,14 +81,20 @@ public:
         return buffer[channel];
     }
 
+    const SampleType* const getChannel (const unsigned int channel) const
+    {
+        assert (channel >= 0 && channel < numChannels);
+        return buffer[channel];
+    }
+
     static AudioBuffer<> Empty;
 
 private:
-    unsigned int numSamples {0}, numChannels {0};
+    uint32_t numSamples {0}, numChannels {0};
     int id {-1};
     SampleType** buffer {nullptr};
     bool isBufferFree {false}, deleteOnDestruction {true};
-    unsigned int referenceCount {0};
+    uint32_t referenceCount {0};
 };
 
 AudioBuffer<float> AudioBuffer<float>::Empty;

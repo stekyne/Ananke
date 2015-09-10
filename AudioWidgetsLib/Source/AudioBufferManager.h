@@ -44,7 +44,8 @@ class AudioBufferManager
 {
 public:
     AudioBufferManager () = default;
-    explicit AudioBufferManager (unsigned int blockSize) : blockSize (blockSize) {}
+    explicit AudioBufferManager (unsigned int blockSize) : 
+        blockSize (blockSize) {}
     ~AudioBufferManager () = default;
 
     // Set the number of samples per block allocated
@@ -131,14 +132,17 @@ private:
     {
         AudioBufferID newBuffer (++ids);
         buffers[newBuffer] = 
-            std::make_shared<AudioBuffer<DSP::SampleType>> (blockSize, numChannels, newBuffer.getID ());
+            std::make_unique<AudioBuffer<DSP::SampleType>> (blockSize, numChannels, newBuffer.getID ());
         ++numberBuffers;
         return newBuffer;
     }
 
-    std::map<AudioBufferID, std::shared_ptr<AudioBuffer<DSP::SampleType>>> buffers;
-    unsigned int ids {0}, blockSize {50};
-    unsigned int numberBuffers {0}, numberFreeBuffers {0};
+private:
+    std::map<AudioBufferID, std::unique_ptr<AudioBuffer<DSP::SampleType>>> buffers;
+    uint32_t ids {0};
+    uint32_t blockSize {50};
+    uint32_t numberBuffers {0};
+    uint32_t numberFreeBuffers {0};
 };
 
 #endif
