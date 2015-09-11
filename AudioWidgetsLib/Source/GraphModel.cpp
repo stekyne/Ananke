@@ -27,18 +27,14 @@ int dbg (const char* format, ...)
 int dbg (const char* format, ...) {}
 #endif
 
-GraphModel::GraphModel () :
-    inputNode (InputNodeID, 0.f, 0.f, ExternalNode::InputType),
-    outputNode (OutputNodeID, 0.f, 0.f, ExternalNode::OutputType)
+GraphModel::GraphModel ()
 {
     addFixedNodes ();
 }
 
 GraphModel::GraphModel (Settings settings)  :   
     settings (settings),
-    audioBufferManager (settings.blockSize),
-    inputNode (InputNodeID, 0.f, 0.f, ExternalNode::InputType),
-    outputNode (OutputNodeID, 0.f, 0.f, ExternalNode::OutputType)
+    audioBufferManager (settings.blockSize)
 {
     addFixedNodes ();
 }
@@ -328,7 +324,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
             if (visited[adjacentNode].permanentMark == true)
             {
                 // Node has been visited (permanently marked) already so skip
-                dbg ("Node: %d, already visited so skipping", adjacentNode);
+                dbg ("Node: %d, already visited so skipping \n", adjacentNode);
                 continue;
             }
 

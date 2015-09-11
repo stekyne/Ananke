@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 
 #include "AudioBufferManager.h"
+#include "Nodes.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -43,14 +44,17 @@ namespace AudioWidgetsTests
             Assert::AreEqual (1, buffer.getID (), L"ID did not match expected");
         }
 
-        TEST_METHOD (AudioBufferManager_associateBufferWithNode)
+        TEST_METHOD (AudioBufferManager_associatedBuffers)
         {
-            // TODO
-        }
+            AudioBufferManager audioBufferManager (50);
+            
+            GainNode node (1, 0.0, 0.0);
 
-        TEST_METHOD (AudioBufferManager_getAssociatedBufferForNodeId)
-        {
-            // TODO
+            const auto& freeBuffer = audioBufferManager.getFreeBuffer ();
+            audioBufferManager.associateBufferWithNode (freeBuffer, node.getID ());
+            const auto& buffer = audioBufferManager.getAssociatedBufferForNodeId (node.getID ());
+            
+            Assert::AreEqual (1, buffer.getID (), L"Node ID was not as expected");
         }
 
     private:

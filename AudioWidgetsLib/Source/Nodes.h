@@ -6,6 +6,7 @@
 #include "NodeTypes\GainNode.h"
 #include "NodeTypes\LowPass.h"
 #include "NodeTypes\SawOsc.h"
+#include "NodeTypes\ExternalNode.h"
 
 namespace DSP
 {

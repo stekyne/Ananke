@@ -71,8 +71,8 @@ public:
     uint32_t getParentID () const { return parentId; }
 
     // Process function for filter type nodes
-    virtual void process (const AudioBuffer<float>& audioIn,
-                          AudioBuffer<float>& audioOut,
+    virtual void process (const AudioBuffer<>& audioIn,
+                          AudioBuffer<>& audioOut,
                           const unsigned int numSamples)
     {
         assert (numSamples > 0);
@@ -83,7 +83,7 @@ public:
     }
 
     // Process function for generator type nodes
-    virtual void process (AudioBuffer<float>& audioOut,
+    virtual void process (AudioBuffer<>& audioOut,
                           const unsigned int numSamples)
     {
         assert (numSamples > 0);

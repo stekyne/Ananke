@@ -38,7 +38,6 @@ private:
     int id {-1};
 };
 
-// TODO should we return shared pointers or normal pointers seeing as this class will 
 // outlive the GraphModel and therefore never be point to invalid memory?
 class AudioBufferManager
 {

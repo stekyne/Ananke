@@ -149,7 +149,8 @@ private:
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
-    ExternalNode inputNode, outputNode;
+    ExternalNode inputNode {InputNodeID, 0.f, 0.f, ExternalNode::InputType};
+    ExternalNode outputNode {OutputNodeID, 0.f, 0.f, ExternalNode::OutputType};
     Settings settings {44100.f, 50, 32};
     unsigned int internalIDcount {0};
 };
