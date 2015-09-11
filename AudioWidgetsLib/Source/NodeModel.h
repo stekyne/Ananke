@@ -56,7 +56,7 @@ public:
 
     virtual bool acceptsMidi () const
     {
-        return true;
+        return false;
     }
 
     virtual bool producesMidi () const
