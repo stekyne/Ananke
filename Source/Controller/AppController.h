@@ -34,7 +34,7 @@ private:
     void loadTestData ();
 
 private:
-    //juce::ValueTree valueTree;
+    juce::ValueTree valueTree;
     OwnedArray<WidgetWrapper> widgets;
     std::shared_ptr<GraphModel> graphModel;
 };

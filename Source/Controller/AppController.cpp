@@ -2,9 +2,9 @@
 
 #include "AppController.h"
 
-AppController::AppController ()
-    :   graphModel (new GraphModel)
-    //: valueTree (juce::Identifier ("audioWidgets"))
+AppController::AppController () :
+    graphModel (new GraphModel),
+    valueTree (juce::Identifier ("audioWidgets"))
 {
     loadTestData ();
 }
