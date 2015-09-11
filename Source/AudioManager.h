@@ -1,6 +1,7 @@
 #ifndef __AUDIOMANAGER_23ADECB__
 #define __AUDIOMANAGER_23ADECB__
 
+#include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class AudioManager	:	public ChangeListener,
@@ -13,7 +14,7 @@ public:
 
     void changeListenerCallback (ChangeBroadcaster*) {}
 
-    ScopedPointer<AudioDeviceSelectorComponent> getSelector (
+    std::unique_ptr<AudioDeviceSelectorComponent> getSelector (
         int width = 500, int height = 400);
 
     double getCPU () const 
@@ -23,13 +24,12 @@ public:
 
     AudioFormatManager* getFormatManager () const
     {
-        return formatManager;
+        return formatManager.get();
     }
 
 private:
-    ScopedPointer<AudioDeviceManager> deviceManager;
-    ScopedPointer<AudioFormatManager> formatManager;
-    ScopedPointer<MixerAudioSource> mixerSource;
+    std::unique_ptr<AudioDeviceManager> deviceManager;
+    std::unique_ptr<AudioFormatManager> formatManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioManager);
 };

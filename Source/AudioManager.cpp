@@ -1,8 +1,8 @@
 #include "AudioManager.h"
 
-AudioManager::AudioManager ()
-    :	deviceManager (new AudioDeviceManager),
-        formatManager (new AudioFormatManager)
+AudioManager::AudioManager () :	
+    deviceManager (std::make_unique<AudioDeviceManager>()),
+    formatManager (std::make_unique<AudioFormatManager>())
 {
     const String result (deviceManager->initialise (0, 2, 0, true));
 
@@ -16,9 +16,9 @@ AudioManager::AudioManager ()
             "Could not open a suitable device or no device present");
     }
     else
-    {
-        deviceManager->addAudioCallback (this);
-        deviceManager->addChangeListener (this);
+    {   
+        //deviceManager->addAudioCallback (this);
+        //deviceManager->addChangeListener (this);
     }
 
     formatManager->registerBasicFormats ();
@@ -30,13 +30,12 @@ AudioManager::~AudioManager ()
     deviceManager->removeAudioCallback (this);
 }
 
-ScopedPointer<AudioDeviceSelectorComponent> AudioManager::getSelector (
+std::unique_ptr<AudioDeviceSelectorComponent> AudioManager::getSelector (
     int width, int height)
 {
-    ScopedPointer<AudioDeviceSelectorComponent> deviceSelector 
-         (new AudioDeviceSelectorComponent (*deviceManager,
-                                            0, 2, 0, 2, 
-                                            true, true, true, false));
+    std::unique_ptr<AudioDeviceSelectorComponent> deviceSelector =
+         std::make_unique<AudioDeviceSelectorComponent> (
+             *deviceManager, 0, 2, 0, 2, true, true, true, false);
 
     deviceSelector->setSize (width, height);
     return deviceSelector;
