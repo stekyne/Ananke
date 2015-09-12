@@ -87,12 +87,6 @@ public:
         return buffer[channel];
     }
 
-    const SampleType* const getChannel (const unsigned int channel) const
-    {
-        assert (channel >= 0 && channel < numChannels);
-        return buffer[channel];
-    }
-
     static AudioBuffer<> Empty;
 
 private:
