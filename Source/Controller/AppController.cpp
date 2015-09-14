@@ -33,16 +33,17 @@ void AppController::audioDeviceStopped ()
 
 }
 
-void AppController::loadWidgets ()
-{
-
-}
-
 void AppController::loadTestData ()
 {
+    auto inputNode = new ExternalNode (0.1f, 0.1f, ExternalNode::InputType);
+    auto outputNode = new ExternalNode (0.9f, 0.9f, ExternalNode::OutputType);
+
     auto node1 = DSP::createNode<GainNode> (0.5f, 0.5f);
     auto node2 = DSP::createNode<SawOSCNode> (0.5f, 0.25f);
     auto node3 = DSP::createNode<LowPassNode> (0.5f, 0.75f);
+
+    graphModel->addNode (inputNode);
+    graphModel->addNode (outputNode);
 
     graphModel->addNode (node1);
     graphModel->addNode (node2);

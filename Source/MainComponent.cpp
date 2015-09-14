@@ -7,7 +7,7 @@
 MainContentComponent::MainContentComponent (
     std::shared_ptr<AppController> appController)
     :   appController (appController),
-        graph (appController->getGraphModel (), 2, 2),
+        graph (appController->getGraphModel ()),
         midiKeyboard (midiKeyboardState, MidiKeyboardComponent::horizontalKeyboard),
         menuBar (this)
 {
