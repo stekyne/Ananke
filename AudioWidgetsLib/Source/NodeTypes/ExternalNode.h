@@ -16,10 +16,10 @@ public:
     };
 
 public:
-    ExternalNode () = default;
-    ExternalNode (int _id, float positionX, float positionY, NodeType _type) : 
-        NodeModel (_id, positionX, positionY),
-        type (_type)
+    ExternalNode () = delete;
+    ExternalNode (float positionX, float positionY, NodeType _type) : 
+        NodeModel (type == InputType ? InputNodeID : OutputNodeID, positionX, positionY),
+        type (_type)        
     {
     }
 

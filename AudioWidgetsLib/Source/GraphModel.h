@@ -70,10 +70,7 @@ public:
 
     // Execute the graph of nodes to generate output
     void processGraph (const float** audioIn, float** audioOut,
-                       const uint32_t blockSize);
-
-    void setInputNodeBuffers (const float** const buffers, uint32_t numChannels, uint32_t numSamples);
-    void setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples);
+                       const uint32_t blockSize);    
 
     void setSettings (Settings settings);
     const Settings& getSettings () const;
@@ -114,15 +111,7 @@ private:
 
     int getFreeInternalID ()
     {
-        const int newId = ++internalIDcount;
-
-        if (newId == InputNodeID ||
-            newId == OutputNodeID)
-        {
-            return ++internalIDcount;
-        }
-
-        return newId;
+        return ++internalIDcount;
     }
 
     // Returns false if the current node has already been visited
@@ -140,8 +129,9 @@ private:
     // Add 'empty' and 'input'/'output' nodes to cleared graph
     void addFixedNodes ();
 
-    const int InputNodeID  = 1001;
-    const int OutputNodeID = 2002;
+    // Attach incoming raw buffers to the external nodes
+    void setInputNodeBuffers (const float** const buffers, uint32_t numChannels, uint32_t numSamples);
+    void setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples);
 
 private:
     NodeMap nodes;
@@ -149,8 +139,8 @@ private:
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
-    ExternalNode inputNode {InputNodeID, 0.f, 0.f, ExternalNode::InputType};
-    ExternalNode outputNode {OutputNodeID, 0.f, 0.f, ExternalNode::OutputType};
+    ExternalNode* inputNode {nullptr};
+    ExternalNode* outputNode {nullptr};
     Settings settings {44100.f, 50, 32};
     unsigned int internalIDcount {0};
 };

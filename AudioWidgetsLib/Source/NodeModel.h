@@ -13,6 +13,15 @@
 class NodeModel
 {
 public:
+    enum IDs
+    {
+        InputNodeID = 0x10001,
+        OutputNodeID = 0x20002,
+        MidiInNodeID = 0x30003,
+        MidiOutNodeID = 0x40004
+    };
+
+public:
     NodeModel () = default;
     virtual ~NodeModel () {};
     NodeModel (int _id) : id (_id) {}

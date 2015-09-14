@@ -68,7 +68,7 @@ void Connector::dragEnd (int x, int y)
 
 void Connector::paint (Graphics& g)
 {
-    g.setColour (Colours::pink);
+    g.setColour (Colours::whitesmoke);
     g.fillPath (linePath);
 }
 

@@ -51,9 +51,7 @@ GraphModel::~GraphModel ()
     {
         if (node.second != nullptr)
         {
-            if (node.second->getID () != NodeModel::Empty.getID () &&
-                node.second->getID () != inputNode.getID () &&
-                node.second->getID () != outputNode.getID ())
+            if (node.second->getID () != NodeModel::Empty.getID ())
             {
                 delete node.second;
             }
@@ -104,8 +102,8 @@ bool GraphModel::removeNode (const NodeModel* const node)
 
 int GraphModel::nodeCount () const
 {
-    // Subtract the 'empty' and input/output nodes
-    return nodes.size () - 3 ;
+    // Subtract the 'empty' node
+    return nodes.size () - 1;
 }
 
 const GraphModel::NodeMap& GraphModel::getNodes () const
@@ -289,12 +287,40 @@ void GraphModel::processGraph (const float** audioIn, float** audioOut,
 void GraphModel::setInputNodeBuffers (const float** const buffers, 
                                       uint32_t numChannels, uint32_t numSamples)
 {
-    inputNode.setExternalBuffers ((float**)buffers, numChannels, numSamples);
+    // Find the node in the map and cache the reference
+    if (inputNode == nullptr)
+    {
+        // Find input node if it exists
+        auto inputNodeItr = nodes.find (NodeModel::InputNodeID);
+
+        if (inputNodeItr != std::end (nodes))
+        {
+            auto inputNode = dynamic_cast<ExternalNode*> (inputNodeItr->second);
+            if (inputNode == nullptr)
+                return;
+        }
+    }
+
+    inputNode->setExternalBuffers ((float**)buffers, numChannels, numSamples);
 }
 
 void GraphModel::setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples)
 {
-    outputNode.setExternalBuffers (buffers, numChannels, numSamples);
+    // Find the node in the map and cache the reference
+    if (outputNode == nullptr)
+    {
+        // Find output node if it exists
+        auto outputNodeItr = nodes.find (NodeModel::OutputNodeID);
+
+        if (outputNodeItr != std::end (nodes))
+        {
+            auto outputNode = dynamic_cast<ExternalNode*> (outputNodeItr->second);
+            if (outputNode == nullptr)
+                return;
+        }
+    }
+
+    outputNode->setExternalBuffers (buffers, numChannels, numSamples);
 }
 
 bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& currentNode, 
@@ -521,6 +547,4 @@ std::vector<int> GraphModel::getGraphOrderAsList () const
 void GraphModel::addFixedNodes ()
 {
     nodes[NodeModel::Empty.getID ()] = &NodeModel::Empty;
-    nodes[inputNode.getID ()] = &inputNode;
-    nodes[outputNode.getID ()] = &outputNode;
 }
