@@ -25,14 +25,14 @@ public:
 
     ~ExternalNode () = default;
 
-    void process (const AudioBuffer<float>& audioIn,
-                  AudioBuffer<float>& audioOut,
-                  const unsigned int _numSamples) override
+    void process (InputBufArray buffersIn,
+                  OutputBufArray buffersOut,
+                  const uint32_t numSamples) override
     {
-        assert (buffers != nullptr);
-        assert (numSamples == _numSamples);
+        //assert (buffers != nullptr);
+        //assert (numSamples == _numSamples);
 
-        if (type == NodeType::InputType)
+        /*if (type == NodeType::InputType)
         {
             assert (audioIn.getChannelCount () == numChannels);
             assert (audioIn.getSamplesCount () == _numSamples);
@@ -40,7 +40,7 @@ public:
             for (auto i = 0u; i < audioIn.getChannelCount (); ++i)
             {
                 auto* bufIn = buffers[i];
-                auto* bufOut = audioOut.getChannel (i);
+                auto* bufOut = buffersOut.getChannel (i);
                 memcpy (bufOut, bufIn, sizeof (float) * _numSamples);
             }
         }
@@ -55,7 +55,7 @@ public:
                 auto* bufOut = buffers[i];
                 memcpy (bufOut, bufIn, sizeof (float) * _numSamples);
             }
-        }
+        }*/
     }
 
     const char* const getName () const override

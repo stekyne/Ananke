@@ -13,7 +13,7 @@ namespace AudioWidgetsTests
     public:
         TEST_METHOD (AudioBuffer_Constructor)
         {
-            AudioBuffer<float> buffer (256, 1, -1);
+            AudioBuffer<float> buffer (256, 1);
 
             Assert::AreEqual (256u, buffer.getSamplesCount (), 
                               L"Sample count not as expected");

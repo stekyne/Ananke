@@ -243,16 +243,17 @@ bool GraphModel::buildGraph ()
 
         // If parent mode is 'empty' it means there is no incoming node
         const auto parentBufferID = (node.getParentID () == NodeModel::Empty) ?
-            AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeId (node.getParentID ());
+            AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeOutput (node.getParentID (), 0);
 
         // Associate this node's output with a buffer
         const auto freeBuffer = audioBufferManager.getFreeBuffer ();
-        audioBufferManager.associateBufferWithNode (freeBuffer, node.getID ());
+        freeBuffer->setID (AudioBufferID (node.getID (), 0));
 
         // This node depends on the parent node to be processed first, we need to get the buffer that 
         // contains the output of the parent node and use it as the input of this node
         auto currentNode = nodes[node.getID ()];
         assert (currentNode != nullptr);
+        assert (*currentNode != NodeModel::Empty);
 
         // This node has no incoming audio if parentBufferId is null/empty
         if (parentBufferID == AudioBufferID::Empty)
