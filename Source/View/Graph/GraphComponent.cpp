@@ -4,92 +4,26 @@
 #include "Pin.h"
 #include "../AudioWidgetsLib/Source/GraphModel.h"
 
-GraphComponent::GraphComponent (std::shared_ptr<GraphModel> graph,
-                                int numAudioInputs, int numAudioOutputs)
-    :   graph (graph)
+GraphComponent::GraphComponent (std::shared_ptr<GraphModel> _graph) :
+    graph (_graph)
 {
-    // Add input pins
-    //for (int i = 0; i < numAudioInputs; ++i)
-    {
-        Pin* pin = nullptr;
-        //inputPins.push_back (pin = new Pin (Pin::AudioInput, 0x7000, i));
-        //addAndMakeVisible (pin);
-    }
-
-    // Add output pins
-    //for (int i = 0; i < numAudioOutputs; ++i)
-    {
-        Pin* pin = nullptr;
-        //.push_back (pin = new Pin (Pin::AudioOutput, 0x7500, i));
-        //addAndMakeVisible (pin);
-    }
-
     setOpaque (true);
     setSize (600, 400);
 }
 
 GraphComponent::~GraphComponent ()
 {
-    //for (int i = 0; i < (int)inputPins.size (); ++i)
-    //    delete inputPins[i];
-
-    //for (int i = 0; i < (int)outputPins.size (); ++i)
-    //    delete outputPins[i];
-
     deleteAllChildren ();
 }
 
 void GraphComponent::resized ()
 {
-    //const auto pinSize = 5 + 10;
-    //const auto centerWindowY = getHeight () * .5f;
-    //const auto inputPinIncrement = (inputPins.size () * pinSize) + (10 * 2);
-    //const auto outputPinIncrement = (outputPins.size () * pinSize) + (10 * 2);
-    //const auto inputPinsY  = centerWindowY - (inputPinIncrement * .5f);
-    //const auto outputPinsY = centerWindowY - (outputPinIncrement * .5f);
-
-    //// Resize input pins
-    //for (int i = 0; i < (int)inputPins.size (); ++i)
-    //{
-    //    inputPins[i]->setBounds (5, 
-    //                             (int)((inputPinsY + 10) + (i * pinSize)),
-    //                             inputPins[i]->getWidth (), 
-    //                             inputPins[i]->getHeight ());
-    //}
-
-    //// Resize output pins
-    //for (int i = 0; i < (int)outputPins.size (); ++i)
-    //{
-    //    outputPins[i]->setBounds (getWidth () - 10, 
-    //                              (int)((outputPinsY + 10) + (i * pinSize)),
-    //                              outputPins[i]->getWidth (),
-    //                              outputPins[i]->getHeight ());
-    //}
-    
     updateGraph ();
 }
 
 void GraphComponent::paint (Graphics& g)
 {
     g.fillAll (Colours::darkgrey);
-
-    // Draw incoming audio pins rectangle
-    //const auto inAudioHeight = float((10 * 2) + (inputPins.size ()) * (5 + 10));
-    //const auto centerWindowY = getHeight () * .5f;
-    //const auto inAudioRectY = centerWindowY - (inAudioHeight * .5f);
-    //const Rectangle<float> inAudioRect (-10.f, inAudioRectY, 25.f, inAudioHeight);
-
-    //g.setColour (Colours::lightgrey);
-    //g.fillRoundedRectangle (inAudioRect, 3.f);
-
-    //// Draw outgoing audio pins rectangle
-    //const auto outAudioHeight = float((10 * 2) + (outputPins.size ()) * (5 + 10));
-    //const auto outAudioRectY = centerWindowY - (outAudioHeight * .5f);
-    //const Rectangle<float> outAudioRect (getWidth () - 15.f, outAudioRectY, 
-    //                                     25.f, outAudioHeight);
-
-    //g.fillRoundedRectangle (outAudioRect, 3.f);
-    g.drawRect (0.f, 0.f, (float)getWidth (), (float)getHeight (), 2.f);
 }
 
 Node* GraphComponent::getComponentForFilter (const uint32 filterID) const
@@ -203,7 +137,6 @@ void GraphComponent::dragConnector (const MouseEvent& e)
         else
             draggingConnector->dragEnd (x, y);
     }
-
 }
 
 void GraphComponent::endConnector (const MouseEvent& e)

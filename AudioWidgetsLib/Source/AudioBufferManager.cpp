@@ -1,3 +1,3 @@
 #include "AudioBufferManager.h"
 
-const AudioBufferID AudioBufferID::Empty = AudioBufferID (0);
+const AudioBufferID AudioBufferID::Empty (0, 0);

@@ -4,38 +4,64 @@
 #define AUDIOBUFFER_H_INCLUDED
 
 #include <cassert>
+#include <vector>
 #include "DSP.h"
+
+struct AudioBufferID
+{
+    AudioBufferID (const uint32_t id, const uint32_t channelNumber) :
+        id (id),
+        channelNumber (channelNumber)
+    {
+    }
+
+    uint32_t getID () const { return id; }
+    uint32_t getChanelNumber () const { return channelNumber; }
+
+    friend bool operator< (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    {
+        return lhs.getID () < rhs.getID () &&
+            lhs.getChanelNumber () < rhs.getChanelNumber ();
+    }
+
+    friend bool operator== (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    {
+        return lhs.id == rhs.id &&
+            lhs.channelNumber == rhs.channelNumber;
+    }
+
+    friend bool operator!= (const AudioBufferID& lhs, const AudioBufferID& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    const static AudioBufferID Empty;
+
+private:
+    uint32_t id {0}, channelNumber {0};
+};
 
 template <typename SampleType = DSP::SampleType>
 class AudioBuffer
 {
 public:
-    AudioBuffer () = default;
+    AudioBuffer () = delete;
     AudioBuffer (const AudioBuffer& other) = delete;
+    AudioBuffer (AudioBuffer&& other) = delete;
+    AudioBuffer& operator= (const AudioBuffer& other) = delete;
+    AudioBuffer& operator= (AudioBuffer&& other) = delete;
 
-    AudioBuffer (const unsigned int numSamples, 
-                 const unsigned int numChannels, const int id)
-        :   numSamples (numSamples),
-            numChannels (numChannels),
-            id (id)
+    AudioBuffer (const uint32_t numSamples, AudioBufferID id) :
+        numSamples (numSamples),
+        id (id)
     {
-        buffer = new SampleType*[numChannels];
-
-        for (unsigned int i = 0; i < numChannels; ++i)
-        {
-            buffer[i] = new SampleType[numSamples];
-        }
+        buffer = new SampleType[numSamples];
     }
 
     ~AudioBuffer () 
     {        
-        if (buffer == nullptr || !deleteOnDestruction) 
+        if (buffer == nullptr) 
             return;
-
-        for (unsigned int i = 0; i < numChannels; ++i)
-        {
-            delete[] buffer[i];
-        }
 
         delete[] buffer;
     }
@@ -45,12 +71,12 @@ public:
         return numSamples;
     }
 
-    void setID (unsigned int _id)
+    void setID (AudioBufferID _id)
     {
-        this->id = _id;
+        id = _id;
     }
 
-    int getID () const
+    AudioBufferID getID () const
     {
         return id;
     }
@@ -70,33 +96,32 @@ public:
         return numSamples;
     }
 
-    uint32_t getChannelCount () const
+    float& operator[] (const int index)
     {
-        return numChannels;
+        assert (index < numSamples);
+        return buffer[index];
     }
 
-    SampleType* const getChannel (const unsigned int channel)
+    const float& operator[] (const int index) const
     {
-        assert (channel >= 0 && channel < numChannels);
-        return buffer[channel];
+        assert (index < numSamples);
+        return buffer[index];
     }
 
-    const SampleType* const getChannel (const unsigned int channel) const
-    {
-        assert (channel >= 0 && channel < numChannels);
-        return buffer[channel];
-    }
-
-    static AudioBuffer<> Empty;
+    static AudioBuffer<DSP::SampleType> Empty;
 
 private:
-    uint32_t numSamples {0}, numChannels {0};
-    int id {-1};
-    SampleType** buffer {nullptr};
-    bool isBufferFree {false}, deleteOnDestruction {true};
+    SampleType* buffer {nullptr};
+    uint32_t numSamples {0};
+    AudioBufferID id {0, 0};
+    bool isBufferFree {false};
     uint32_t referenceCount {0};
 };
 
-AudioBuffer<float> AudioBuffer<float>::Empty;
+AudioBuffer<DSP::SampleType> AudioBuffer<DSP::SampleType>::Empty (0, {0,0});
+
+// TODO move to more appropriate place
+using InputBufArray = std::vector<const AudioBuffer<DSP::SampleType>* const>;
+using OutputBufArray = std::vector<AudioBuffer<DSP::SampleType>* const>;
 
 #endif

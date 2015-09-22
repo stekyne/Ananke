@@ -16,11 +16,11 @@ namespace AudioWidgetsTests
             AudioBufferManager audioBufferManager (50);
 
             auto& bufferEntry = audioBufferManager.getFreeBuffer ();
-            Assert::AreEqual (1, bufferEntry.getID (), L"Buffer ID did not match expected value");
+            Assert::AreEqual (1u, bufferEntry.getID (), L"Buffer ID did not match expected value");
             Assert::AreEqual (1, audioBufferManager.getBufferCount (), L"Buffer count didn't match expected");
 
             auto& bufferEntry2 = audioBufferManager.getFreeBuffer ();
-            Assert::AreEqual (2, bufferEntry2.getID (), L"Buffer2 ID did not match expected value");
+            Assert::AreEqual (2u, bufferEntry2.getID (), L"Buffer2 ID did not match expected value");
             Assert::AreEqual (2, audioBufferManager.getBufferCount (), L"Buffer2 count didn't match expected");
         }
 
@@ -51,10 +51,10 @@ namespace AudioWidgetsTests
             GainNode node (1, 0.0, 0.0);
 
             const auto& freeBuffer = audioBufferManager.getFreeBuffer ();
-            audioBufferManager.associateBufferWithNode (freeBuffer, node.getID ());
+            freeBuffer->setID (AudioBufferID (node.getID (), 0));
             const auto& buffer = audioBufferManager.getAssociatedBufferForNodeId (node.getID ());
             
-            Assert::AreEqual (1, buffer.getID (), L"Node ID was not as expected");
+            Assert::AreEqual (1u, buffer.getID (), L"Node ID was not as expected");
         }
 
     private:

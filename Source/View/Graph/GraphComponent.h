@@ -4,20 +4,18 @@
 #define GRAPHCOMPONENT_H_INCLUDED
 
 #include <memory>
+#include "../AudioWidgetsLib/Source/Connection.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 
-#include "../AudioWidgetsLib/Source/Connection.h"
-
-class Node;
 class Connector;
+class Node;
 class Pin;
 class GraphModel;
 
 class GraphComponent : public Component
 {
 public:
-    GraphComponent (std::shared_ptr<GraphModel> graph, 
-                    int numAudioInputs, int numAudioOutputs);
+    GraphComponent (std::shared_ptr<GraphModel> graph);
     ~GraphComponent ();
 
     void resized ();
@@ -48,7 +46,6 @@ public:
 private:
     std::shared_ptr<GraphModel> graph;
     Connector* draggingConnector {nullptr};
-    //std::vector<Pin*> inputPins, outputPins;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
 };

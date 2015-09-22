@@ -13,6 +13,15 @@
 class NodeModel
 {
 public:
+    enum IDs
+    {
+        InputNodeID = 0x10001,
+        OutputNodeID = 0x20002,
+        MidiInNodeID = 0x30003,
+        MidiOutNodeID = 0x40004
+    };
+
+public:
     NodeModel () = default;
     virtual ~NodeModel () {};
     NodeModel (int _id) : id (_id) {}
@@ -44,12 +53,12 @@ public:
         return "Node";
     }
 
-    virtual unsigned int getNumInputChannels () const
+    virtual uint32_t getNumInputChannels () const
     {
         return 0;
     }
 
-    virtual unsigned int getNumOutputChannels () const
+    virtual uint32_t getNumOutputChannels () const
     {
         return 0;
     }
@@ -71,24 +80,21 @@ public:
     uint32_t getParentID () const { return parentId; }
 
     // Process function for filter type nodes
-    virtual void process (const AudioBuffer<>& audioIn,
-                          AudioBuffer<>& audioOut,
-                          const unsigned int numSamples)
+    virtual void process (InputBufArray buffersIn,
+                          OutputBufArray buffersOut,
+                          const uint32_t numSamples)
     {
         assert (numSamples > 0);
-        assert (audioIn.getBufferSize () > 0 && 
-                audioIn.getBufferSize () >= numSamples);
-        assert (audioOut.getBufferSize () > 0 && 
-                audioOut.getBufferSize () >= numSamples);
-    }
-
-    // Process function for generator type nodes
-    virtual void process (AudioBuffer<>& audioOut,
-                          const unsigned int numSamples)
-    {
-        assert (numSamples > 0);
-        assert (audioOut.getBufferSize () > 0 &&
-                audioOut.getBufferSize () >= numSamples);
+        //assert (buffersIn.size () == <number of channels we expect>)
+        //assert (buffersOut.size () == <number of channels we expect>)
+        
+        for (auto& channel : buffersIn)
+        {
+            for (int i = 0; i < channel->getSamplesCount (); ++i)
+            {
+                
+            }
+        }
     }
 
     using PointType = std::tuple <float, float>;

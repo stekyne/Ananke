@@ -17,8 +17,8 @@ struct GraphOp
 class FilterNodeOp : public GraphOp
 {
 public:
-    FilterNodeOp (const AudioBuffer<DSP::SampleType>& audioIn,
-                  AudioBuffer<DSP::SampleType>& audioOut,
+    FilterNodeOp (InputBufArray& audioIn,
+                  OutputBufArray& audioOut,
                   NodeModel& node) :
         audioIn (audioIn), 
         audioOut (audioOut), 
@@ -39,15 +39,15 @@ public:
     }
 
 private:
-    const AudioBuffer<DSP::SampleType>& audioIn;
-    AudioBuffer<DSP::SampleType>& audioOut;
+    InputBufArray& audioIn;
+    OutputBufArray& audioOut;
     NodeModel& node;
 };
 
 class GeneratorNode : public GraphOp
 {
 public:
-    GeneratorNode (AudioBuffer<>& audioOut, NodeModel& node) :
+    GeneratorNode (OutputBufArray& audioOut, NodeModel& node) :
         audioOut (audioOut),
         node (node)
     {
@@ -57,7 +57,7 @@ public:
 
     virtual void perform (const uint32_t blockSize) override
     {
-        node.process (audioOut, blockSize);
+        node.process (InputBufArray(), audioOut, blockSize);
     }
 
     const char* const getName () override
@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    AudioBuffer<>& audioOut;
+    OutputBufArray& audioOut;
     NodeModel& node;
 };
 
