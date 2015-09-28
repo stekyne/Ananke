@@ -115,13 +115,13 @@ private:
     }
 
     // Returns false if the current node has already been visited
-    bool topologicalSortUtil (const NodeModel& parentNode,
-                              NodeModel& currentNode,
+    bool topologicalSortUtil (const NodeModel* parentNode,
+                              NodeModel* currentNode,
                               std::unordered_map<int, Markers>& visited,
-                              std::vector<NodeModel>& sortedNodes);
+                              std::vector<NodeModel*>& sortedNodes);
     
     // Returns true if graph can be sorted with no loops
-    bool performSort (std::vector<NodeModel>& sortedNodes);
+    bool performSort (std::vector<NodeModel*>& sortedNodes);
 
     std::vector<uint32_t> getDependentsForNode (unsigned int nodeID);
     void clearConnectionsForNode (unsigned int nodeID);

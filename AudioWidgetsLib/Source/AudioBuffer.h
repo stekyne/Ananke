@@ -45,11 +45,11 @@ template <typename SampleType = DSP::SampleType>
 class AudioBuffer
 {
 public:
-    AudioBuffer () = delete;
-    AudioBuffer (const AudioBuffer& other) = delete;
-    AudioBuffer (AudioBuffer&& other) = delete;
-    AudioBuffer& operator= (const AudioBuffer& other) = delete;
-    AudioBuffer& operator= (AudioBuffer&& other) = delete;
+    AudioBuffer () = default;
+    AudioBuffer (const AudioBuffer& other) = default;
+    AudioBuffer (AudioBuffer&& other) = default;
+    AudioBuffer& operator= (const AudioBuffer& other) = default;
+    AudioBuffer& operator= (AudioBuffer&& other) = default;
 
     AudioBuffer (const uint32_t numSamples, AudioBufferID id) :
         numSamples (numSamples),
@@ -121,7 +121,7 @@ private:
 AudioBuffer<DSP::SampleType> AudioBuffer<DSP::SampleType>::Empty (0, {0,0});
 
 // TODO move to more appropriate place
-using InputBufArray = std::vector<const AudioBuffer<DSP::SampleType>* const>;
-using OutputBufArray = std::vector<AudioBuffer<DSP::SampleType>* const>;
+using InputBufArray = std::vector<AudioBuffer<DSP::SampleType>*>;
+using OutputBufArray = std::vector<AudioBuffer<DSP::SampleType>*>;
 
 #endif

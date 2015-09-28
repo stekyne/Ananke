@@ -171,7 +171,7 @@ bool GraphModel::canConnect (const Connection& testConnection)
     // Remove connection either way
     addConnection (testConnection);
 
-    std::vector<NodeModel> sortedNodes;
+    std::vector<NodeModel*> sortedNodes;
     sortedNodes.reserve (nodes.size ());
     const auto result = performSort (sortedNodes);
     removeConnection (testConnection);
@@ -229,7 +229,7 @@ void GraphModel::clearGraph ()
 
 bool GraphModel::buildGraph ()
 {
-    std::vector<NodeModel> sortedNodes;
+    std::vector<NodeModel*> sortedNodes;
     sortedNodes.reserve (nodes.size ());
     const auto result = performSort (sortedNodes);
 
@@ -239,33 +239,48 @@ bool GraphModel::buildGraph ()
 
     for (int i = sortedNodes.size (); --i >= 0;)
     {
-        const auto node = sortedNodes[i];
+        auto node = sortedNodes[i];
 
-        // If parent mode is 'empty' it means there is no incoming node
-        const auto parentBufferID = (node.getParentID () == NodeModel::Empty) ?
-            AudioBufferID::Empty : audioBufferManager.getAssociatedBufferForNodeOutput (node.getParentID (), 0);
+        // If parent node is 'empty' it means there is no incoming node
+        const auto parentBufferID = (node->getParentID () == NodeModel::Empty) ? nullptr 
+            : audioBufferManager.getAssociatedBufferForNodeOutput (node->getParentID (), 0);
 
-        // Associate this node's output with a buffer
-        const auto freeBuffer = audioBufferManager.getFreeBuffer ();
-        freeBuffer->setID (AudioBufferID (node.getID (), 0));
+        // Associate this node's output with free buffers
+        OutputBufArray outputBuffers;
+        for (auto i = 0u; i < node->getNumOutputChannels (); ++i)
+        {
+            auto freeBuffer = audioBufferManager.getFreeBuffer ();
+            freeBuffer->setID (AudioBufferID (node->getID (), i));
+            outputBuffers.push_back (freeBuffer);
+        }
 
-        // This node depends on the parent node to be processed first, we need to get the buffer that 
-        // contains the output of the parent node and use it as the input of this node
-        auto currentNode = nodes[node.getID ()];
-        assert (currentNode != nullptr);
-        assert (*currentNode != NodeModel::Empty);
+        // Find all incoming buffers required by this node
+        InputBufArray inputBufers;
+        if (node->getNumInputChannels () > 0)
+        {
+            for (auto& connection : connections)
+            {
+                if (connection.destNode == node->getID ())
+                {
+                    auto buffer =
+                        audioBufferManager.getBufferFromID (AudioBufferID (connection.sourceNode,
+                                                                           connection.sourceChannel));
+                    assert (buffer != nullptr);
+                    inputBufers.push_back (buffer);
+                }
+            }
+        }
 
         // This node has no incoming audio if parentBufferId is null/empty
-        if (parentBufferID == AudioBufferID::Empty)
+        if (parentBufferID == nullptr)
         {
-            auto& audioOut = audioBufferManager.getBufferFromID (freeBuffer);
-            graphOps.push_back (new GeneratorNode (audioOut, *currentNode));
+            graphOps.push_back (new GeneratorNode (std::move(outputBuffers), node));
         }
         else
         {
-            auto& audioIn = audioBufferManager.getBufferFromID (parentBufferID);
-            auto& audioOut = audioBufferManager.getBufferFromID (freeBuffer);
-            graphOps.push_back (new FilterNodeOp (audioIn, audioOut, *currentNode));
+            graphOps.push_back (new FilterNodeOp (std::move (inputBufers), 
+                                                  std::move (outputBuffers), 
+                                                  node));
         }
     }
 
@@ -324,12 +339,12 @@ void GraphModel::setOutputNodeBuffers (float** const buffers, uint32_t numChanne
     outputNode->setExternalBuffers (buffers, numChannels, numSamples);
 }
 
-bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& currentNode, 
+bool GraphModel::topologicalSortUtil (const NodeModel* parentNode, NodeModel* currentNode, 
                                       std::unordered_map<int, Markers>& visited, 
-                                      std::vector<NodeModel>& sortedNodes)
+                                      std::vector<NodeModel*>& sortedNodes)
 {
-    const int currentNodeID = currentNode.getID ();
-    currentNode.setParentID (parentNode.getID ());
+    const int currentNodeID = currentNode->getID ();
+    currentNode->setParentID (parentNode->getID ());
 
     // Check if current node has been visited (temporary marker) 
     // if so, there is a loop in the graph so just return false as it's not a DAG
@@ -362,7 +377,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
             dbg ("Node: %d, attempting to visit node: %d \n", currentNodeID, nodeModel->getID ());
 
             const auto result = 
-                topologicalSortUtil (currentNode, *nodeModel, visited, sortedNodes);
+                topologicalSortUtil (currentNode, nodeModel, visited, sortedNodes);
 
             if (result == false)
                 return false;
@@ -371,7 +386,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
         visited[currentNodeID].permanentMark = true;
         visited[currentNodeID].temporaryMark = false;
 
-        sortedNodes.push_back (NodeModel (currentNode.getID (), parentNode.getID ()));
+        sortedNodes.push_back (currentNode);
         dbg ("Node %d, added to sorted list \n", currentNodeID);
         return true;
     }
@@ -380,7 +395,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel& parentNode, NodeModel& cu
     return true;
 }
 
-bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
+bool GraphModel::performSort (std::vector<NodeModel*>& sortedNodes)
 {
     // Mark all the vertices as not visited
     std::unordered_map<int, Markers> visited;
@@ -410,7 +425,7 @@ bool GraphModel::performSort (std::vector<NodeModel>& sortedNodes)
             dbg ("Visiting node: %d \n", nodeModel->getID ());
 
             const bool result = 
-                topologicalSortUtil (NodeModel::Empty, *nodeModel,
+                topologicalSortUtil (&NodeModel::Empty, nodeModel,
                                      visited, sortedNodes);
 
             if (result == false)
@@ -439,24 +454,12 @@ std::string GraphModel::printGraph () const
 {
     std::stringstream buffer;
     buffer << "Graph: Connections: " << std::endl;
-
-    buffer << "  ";
-    for (int x = 0; x < (int)nodes.size (); ++x)
-        buffer << x % 10;
-
-    buffer << std::endl;
-
-    for (int x = 0; x < (int)connections.size (); ++x)
+    for (const auto& connection : connections)
     {
-        buffer << x % 10 << " ";
-        for (int y = 0; y < (int)nodes.size (); ++y)
-        {
-            /*const bool value = connections[x * totalNodeCount + y];
-            buffer << (value == true ? "o" : "-");*/
-        }
+        buffer << "Src: (" << connection.sourceNode << ", " << connection.sourceChannel 
+               << ") -> Dst: (" << connection.destNode << ", " << connection.destChannel << ")";
         buffer << std::endl;
     }
-
     buffer << std::endl << "Operations: " << std::endl;
     for (int x = 0; x < (int)graphOps.size (); ++x)
     {
@@ -509,8 +512,8 @@ std::vector<uint32_t> GraphModel::getDependentsForNode (unsigned int nodeID)
     {
         if (connection.sourceNode == nodeID)
         {
-            if (std::find (dependentVec.cbegin (), dependentVec.cend (),
-                           connection.sourceNode) == dependentVec.cend ())
+            if (std::find (std::cbegin (dependentVec), std::cend (dependentVec),
+                           connection.sourceNode) == std::end (dependentVec))
             {
                 dependentVec.push_back (connection.destNode);
                 dbg ("%d ", connection.destNode);

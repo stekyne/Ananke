@@ -17,11 +17,11 @@ struct GraphOp
 class FilterNodeOp : public GraphOp
 {
 public:
-    FilterNodeOp (InputBufArray& audioIn,
-                  OutputBufArray& audioOut,
-                  NodeModel& node) :
-        audioIn (audioIn), 
-        audioOut (audioOut), 
+    FilterNodeOp (InputBufArray&& audioIn,
+                  OutputBufArray&& audioOut,
+                  NodeModel* node) :
+        audioIn (std::forward<InputBufArray>(audioIn)),
+        audioOut (std::forward<OutputBufArray>(audioOut)),
         node (node)
     {
     }
@@ -30,25 +30,25 @@ public:
 
     virtual void perform (const uint32_t blockSize) override
     {
-        node.process (audioIn, audioOut, blockSize);
+        node->process (audioIn, audioOut, blockSize);
     }
 
     const char* const getName () override
     {
-        return node.getName ();
+        return node->getName ();
     }
 
 private:
-    InputBufArray& audioIn;
-    OutputBufArray& audioOut;
-    NodeModel& node;
+    InputBufArray audioIn;
+    OutputBufArray audioOut;
+    NodeModel* node;
 };
 
 class GeneratorNode : public GraphOp
 {
 public:
-    GeneratorNode (OutputBufArray& audioOut, NodeModel& node) :
-        audioOut (audioOut),
+    GeneratorNode (OutputBufArray&& audioOut, NodeModel* node) :
+        audioOut (std::forward<OutputBufArray> (audioOut)),
         node (node)
     {
     }
@@ -57,17 +57,17 @@ public:
 
     virtual void perform (const uint32_t blockSize) override
     {
-        node.process (InputBufArray(), audioOut, blockSize);
+        node->process (InputBufArray(), audioOut, blockSize);
     }
 
     const char* const getName () override
     {
-        return node.getName ();
+        return node->getName ();
     }
 
 private:
-    OutputBufArray& audioOut;
-    NodeModel& node;
+    OutputBufArray audioOut;
+    NodeModel* node;
 };
 
 #endif

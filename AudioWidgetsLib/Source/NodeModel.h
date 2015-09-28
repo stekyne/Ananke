@@ -90,7 +90,7 @@ public:
         
         for (auto& channel : buffersIn)
         {
-            for (int i = 0; i < channel->getSamplesCount (); ++i)
+            for (auto i = 0u; i < channel->getSamplesCount (); ++i)
             {
                 
             }

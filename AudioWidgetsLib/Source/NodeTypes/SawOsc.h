@@ -16,9 +16,9 @@ public:
 
     ~SawOSCNode () = default;
 
-    void process (const AudioBuffer<float>& audioIn,
-                  AudioBuffer<float>& audioOut,
-                  const unsigned int numSamples) override
+    void process (InputBufArray audioIn,
+                  OutputBufArray audioOut,
+                  const uint32_t numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
 

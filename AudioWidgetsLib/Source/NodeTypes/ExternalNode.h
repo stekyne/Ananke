@@ -18,7 +18,8 @@ public:
 public:
     ExternalNode () = delete;
     ExternalNode (float positionX, float positionY, NodeType _type) : 
-        NodeModel (type == InputType ? InputNodeID : OutputNodeID, positionX, positionY),
+        NodeModel (type == InputType ? InputNodeID : OutputNodeID, 
+                   positionX, positionY),
         type (_type)        
     {
     }
@@ -27,7 +28,7 @@ public:
 
     void process (InputBufArray buffersIn,
                   OutputBufArray buffersOut,
-                  const uint32_t numSamples) override
+                  const uint32_t _numSamples) override
     {
         //assert (buffers != nullptr);
         //assert (numSamples == _numSamples);

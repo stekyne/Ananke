@@ -24,8 +24,8 @@ public:
         // TODO reallocate blocks
     }
 
-    // Get an unused pre-allocated buffer ID
-    auto getFreeBuffer ()
+    // Get an unused pre-allocated buffer pointer. Do not delete!
+    AudioBuffer<DSP::SampleType>* getFreeBuffer ()
     {
         for (auto& elem : buffers)
         {
@@ -97,10 +97,11 @@ private:
     AudioBuffer<DSP::SampleType>* createBuffer ()
     {
         auto buffer = 
-            std::make_unique<AudioBuffer<DSP::SampleType>> (blockSize, AudioBufferID(0, 0));
-        buffers.push_back (buffer);
+            std::make_unique<AudioBuffer<DSP::SampleType>> (blockSize, AudioBufferID(++ids, 0));
+        auto bufferPtr = buffer.get ();
+        buffers.push_back (std::move (buffer));
         ++numberBuffers;
-        return buffer.get ();
+        return bufferPtr;
     }
 
 private:
