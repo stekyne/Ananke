@@ -370,7 +370,7 @@ bool GraphModel::topologicalSortUtil (const NodeModel* parentNode, NodeModel* cu
                 continue;
             }
 
-            auto* nodeModel = nodes[adjacentNode];
+            auto* const nodeModel = nodes[adjacentNode];
             assert (nodeModel != nullptr);
             assert (nodeModel->getID () != NodeModel::Empty);
 
@@ -513,7 +513,7 @@ std::vector<uint32_t> GraphModel::getDependentsForNode (unsigned int nodeID)
         if (connection.sourceNode == nodeID)
         {
             if (std::find (std::cbegin (dependentVec), std::cend (dependentVec),
-                           connection.sourceNode) == std::end (dependentVec))
+                           connection.destNode) == std::end (dependentVec))
             {
                 dependentVec.push_back (connection.destNode);
                 dbg ("%d ", connection.destNode);

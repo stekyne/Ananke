@@ -53,6 +53,8 @@ void AppController::loadTestData ()
     graphModel->addConnection (*node2, 1, *node1, 1);
     graphModel->addConnection (*node1, 0, *node3, 0);
     graphModel->addConnection (*node1, 1, *node3, 1);
+    graphModel->addConnection (*node3, 0, *outputNode, 0);
+    graphModel->addConnection (*node3, 1, *outputNode, 1);
 
     graphModel->buildGraph ();
 }
