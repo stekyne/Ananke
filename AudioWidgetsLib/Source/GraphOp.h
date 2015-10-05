@@ -41,7 +41,7 @@ public:
 private:
     InputBufArray audioIn;
     OutputBufArray audioOut;
-    NodeModel* node;
+    NodeModel* const node;
 };
 
 class GeneratorNode : public GraphOp
@@ -67,7 +67,7 @@ public:
 
 private:
     OutputBufArray audioOut;
-    NodeModel* node;
+    NodeModel* const node;
 };
 
 #endif

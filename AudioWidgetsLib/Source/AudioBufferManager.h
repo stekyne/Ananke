@@ -34,7 +34,6 @@ public:
         }
 
         // No free buffers so allocate more
-        // TODO currently returning pointers to vector elements, adding new vector will invalidate all pointers
         return createBuffer ();
     }
 

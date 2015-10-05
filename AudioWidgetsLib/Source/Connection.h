@@ -9,19 +9,19 @@ struct Connection
 {
     Connection () = default;
     Connection (uint32_t sourceNode, uint32_t sourceChannel, 
-                uint32_t destNode, uint32_t destChannel)
-        :   sourceNode (sourceNode),
-            sourceChannel (sourceChannel),
-            destNode (destNode),
-            destChannel (destChannel)
+                uint32_t destNode, uint32_t destChannel) :
+        sourceNode (sourceNode),
+        sourceChannel (sourceChannel),
+        destNode (destNode),
+        destChannel (destChannel)
     {}
 
     Connection (const NodeModel& node1, uint32_t node1Channel,
-                const NodeModel& node2, uint32_t node2Channel)
-                :   sourceNode (node1.getID ()), 
-                    sourceChannel (node1Channel),
-                    destNode (node2.getID ()), 
-                    destChannel (node2Channel)
+                const NodeModel& node2, uint32_t node2Channel) :
+        sourceNode (node1.getID ()), 
+        sourceChannel (node1Channel),
+        destNode (node2.getID ()), 
+        destChannel (node2Channel)
     {}
 
     static friend bool operator== (const Connection& lhs, const Connection& rhs)
@@ -33,6 +33,11 @@ struct Connection
             return true;
 
         return false;
+    }
+
+    static friend bool operator!= (const Connection& lhs, const Connection rhs)
+    {
+        return !(lhs==rhs);
     }
     
     uint32_t sourceNode {0}, destNode {0};

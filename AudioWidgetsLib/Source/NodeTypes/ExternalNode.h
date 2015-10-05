@@ -30,33 +30,31 @@ public:
                   OutputBufArray buffersOut,
                   const uint32_t _numSamples) override
     {
-        //assert (buffers != nullptr);
-        //assert (numSamples == _numSamples);
+        assert (buffers != nullptr);
+        assert (numSamples == _numSamples);
 
-        /*if (type == NodeType::InputType)
+        if (type == NodeType::InputType)
         {
-            assert (audioIn.getChannelCount () == numChannels);
-            assert (audioIn.getSamplesCount () == _numSamples);
+            assert (buffersIn.size () == numChannels);
 
-            for (auto i = 0u; i < audioIn.getChannelCount (); ++i)
+            for (auto i = 0u; i < buffersIn.size (); ++i)
             {
                 auto* bufIn = buffers[i];
-                auto* bufOut = buffersOut.getChannel (i);
-                memcpy (bufOut, bufIn, sizeof (float) * _numSamples);
+                auto* bufOut = buffersOut[i];
+                memcpy (bufOut->getData (), bufIn, sizeof (float) * _numSamples);
             }
         }
         else
         {
-            assert (audioOut.getChannelCount () == numChannels);
-            assert (audioOut.getSamplesCount () == _numSamples);
+            assert (buffersOut.size () == numChannels);
 
-            for (auto i = 0u; i < audioOut.getChannelCount (); ++i)
+            for (auto i = 0u; i < buffersOut.size (); ++i)
             {
-                auto* bufIn = audioIn.getChannel (i);
+                auto* bufIn = buffersIn[i];
                 auto* bufOut = buffers[i];
-                memcpy (bufOut, bufIn, sizeof (float) * _numSamples);
+                memcpy (bufOut, bufIn->getData(), sizeof (float) * _numSamples);
             }
-        }*/
+        }
     }
 
     const char* const getName () const override
@@ -84,7 +82,7 @@ public:
 
 private:
     float** buffers {nullptr};
-    uint32_t numChannels, numSamples;
+    uint32_t numChannels {0}, numSamples {0};
     NodeType type;
 };
 

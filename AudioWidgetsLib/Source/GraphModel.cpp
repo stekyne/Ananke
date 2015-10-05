@@ -506,8 +506,6 @@ std::vector<uint32_t> GraphModel::getDependentsForNode (unsigned int nodeID)
 {
     std::vector<uint32_t> dependentVec;
 
-    dbg ("Dependents: [");
-
     for (const auto& connection : connections)
     {
         if (connection.sourceNode == nodeID)
@@ -516,12 +514,10 @@ std::vector<uint32_t> GraphModel::getDependentsForNode (unsigned int nodeID)
                            connection.destNode) == std::end (dependentVec))
             {
                 dependentVec.push_back (connection.destNode);
-                dbg ("%d ", connection.destNode);
             }
         }
     }
 
-    dbg ("] \n");
     return dependentVec;
 }
 

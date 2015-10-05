@@ -96,16 +96,21 @@ public:
         return numSamples;
     }
 
-    float& operator[] (const int index)
+    SampleType& operator[] (const int index)
     {
         assert (index < numSamples);
         return buffer[index];
     }
 
-    const float& operator[] (const int index) const
+    const SampleType& operator[] (const int index) const
     {
         assert (index < numSamples);
         return buffer[index];
+    }
+
+    SampleType* const getData () const
+    {
+        return buffer;
     }
 
     static AudioBuffer<DSP::SampleType> Empty;
