@@ -11,24 +11,29 @@
 class AppController;
 
 class MainContentComponent   :  public Component,
-                                public MenuBarModel
+                                public MenuBarModel,
+                                public ApplicationCommandTarget
 {
 public:
     MainContentComponent (std::shared_ptr<AppController> appController);
     ~MainContentComponent ();
 
-    void paint (Graphics&);
-    void resized ();
+    void paint (Graphics&) override;
+    void resized () override;
 
 private:
     // Menu Bar Model
     virtual PopupMenu getMenuForIndex (int topLevelMenuIndex,
                                        const String& menuName) override;
-
     virtual void menuItemSelected (int menuItemID,
                                    int topLevelMenuIndex) override;
-
     StringArray getMenuBarNames () override;
+
+    // Application Command Target
+    ApplicationCommandTarget* getNextCommandTarget () override;
+    void getAllCommands (Array<CommandID>& commands) override;
+    void getCommandInfo (CommandID commandID, ApplicationCommandInfo& result) override;
+    bool perform (const InvocationInfo& info) override;
 
 private:
     std::shared_ptr<AppController> appController;

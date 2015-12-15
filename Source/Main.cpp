@@ -26,9 +26,21 @@ public:
 
     void initialise (const String& /*commandLine*/) override
     {
-		LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
+        LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
         appController = std::make_shared<AppController> ();
-        mainWindow = new MainWindow (appController);
+        
+        if (!appController->initialiseAudioDevice ())
+        {
+            AlertWindow::showMessageBoxAsync (
+                AlertWindow::WarningIcon,
+                "Audio Device Error",
+                "Could not open a suitable device or no device present");
+            // TODO shutdown app
+        }
+        else
+        {
+            mainWindow = new MainWindow (appController);
+        }
     }
 
     void shutdown() override
@@ -72,7 +84,7 @@ public:
 private:
     std::shared_ptr<AppController> appController;
     ScopedPointer<MainWindow> mainWindow;    
-	AnankeLookAndFeel lookAndFeel;
+    AnankeLookAndFeel lookAndFeel;
 };
 
 START_JUCE_APPLICATION (AudioWidgetsApplication)
