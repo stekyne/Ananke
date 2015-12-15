@@ -24,12 +24,12 @@ public:
     {
         float sampleRate {44100};
         int blockSize {256};
-		int controlRate {32};
+        int controlRate {32};
 
-        Settings (float sampleRate, int blockSize, int controlRate)
-            :   sampleRate (sampleRate),
-                blockSize (blockSize),
-				controlRate (controlRate)
+        Settings (float sampleRate, int blockSize, int controlRate) :
+            sampleRate (sampleRate),
+            blockSize (blockSize),
+            controlRate (controlRate)
         {
         }
     };
@@ -43,6 +43,7 @@ public:
     ~GraphModel ();
 
     bool addNode (NodeModel* const newNode);
+    bool addNodeWithID (NodeModel* const newNode, uint32_t id);
     bool removeNode (const NodeModel* const node);
     int nodeCount () const;
     const NodeMap& getNodes () const;

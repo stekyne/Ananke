@@ -5,10 +5,8 @@
 
 namespace DSP
 {
-
     // Default sample type will be whatever is defined here
     using SampleType = float;
-
 }
 
 #endif

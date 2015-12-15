@@ -15,10 +15,10 @@ class NodeModel
 public:
     enum IDs
     {
-        InputNodeID = 0x10001,
-        OutputNodeID = 0x20002,
-        MidiInNodeID = 0x30003,
-        MidiOutNodeID = 0x40004
+        InputNodeID = 0x1001,
+        OutputNodeID = 0x2002,
+        MidiInNodeID = 0x3003,
+        MidiOutNodeID = 0x4004
     };
 
 public:

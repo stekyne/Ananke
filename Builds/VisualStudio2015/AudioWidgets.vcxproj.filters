@@ -321,9 +321,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\AudioManager.cpp">
-      <Filter>AudioWidgets\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\View\WidgetWrapper.cpp">
       <Filter>AudioWidgets\Source\View</Filter>
     </ClCompile>
@@ -1512,9 +1509,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AppColours.h">
-      <Filter>AudioWidgets\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\AudioManager.h">
       <Filter>AudioWidgets\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\CommandIDs.h">

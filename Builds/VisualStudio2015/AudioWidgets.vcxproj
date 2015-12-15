@@ -131,7 +131,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\AudioManager.cpp" />
     <ClCompile Include="..\..\Source\View\WidgetWrapper.cpp" />
     <ClCompile Include="..\..\Source\View\Graph\Connector.cpp" />
     <ClCompile Include="..\..\Source\View\Graph\GraphComponent.cpp" />
@@ -1276,7 +1275,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AppColours.h" />
-    <ClInclude Include="..\..\Source\AudioManager.h" />
     <ClInclude Include="..\..\Source\CommandIDs.h" />
     <ClInclude Include="..\..\Source\LookAndFeel.h" />
     <ClInclude Include="..\..\Source\View\WidgetWrapper.h" />

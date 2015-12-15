@@ -73,6 +73,20 @@ bool GraphModel::addNode (NodeModel* const newNode)
     return true;
 }
 
+bool GraphModel::addNodeWithID (NodeModel* const newNode, uint32_t id)
+{
+    if (newNode == nullptr)
+        return false;
+
+    newNode->setID (id);
+    nodes[newNode->getID ()] = newNode;
+
+    for (auto& listener : listeners)
+        listener->newNodeAdded ();
+
+    return true;
+}
+
 bool GraphModel::removeNode (const NodeModel* const node)
 {
     if (node == nullptr)
@@ -312,12 +326,11 @@ void GraphModel::setInputNodeBuffers (const float** const buffers,
         if (inputNodeItr != std::end (nodes))
         {
             auto inputNode = dynamic_cast<ExternalNode*> (inputNodeItr->second);
-            if (inputNode == nullptr)
-                return;
+            
+            if (inputNode != nullptr)
+                inputNode->setExternalBuffers ((float**)buffers, numChannels, numSamples);
         }
     }
-
-    inputNode->setExternalBuffers ((float**)buffers, numChannels, numSamples);
 }
 
 void GraphModel::setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples)
@@ -331,12 +344,11 @@ void GraphModel::setOutputNodeBuffers (float** const buffers, uint32_t numChanne
         if (outputNodeItr != std::end (nodes))
         {
             auto outputNode = dynamic_cast<ExternalNode*> (outputNodeItr->second);
-            if (outputNode == nullptr)
-                return;
+            
+            if (outputNode != nullptr)
+                outputNode->setExternalBuffers (buffers, numChannels, numSamples);
         }
     }
-
-    outputNode->setExternalBuffers (buffers, numChannels, numSamples);
 }
 
 bool GraphModel::topologicalSortUtil (const NodeModel* parentNode, NodeModel* currentNode, 
@@ -344,13 +356,17 @@ bool GraphModel::topologicalSortUtil (const NodeModel* parentNode, NodeModel* cu
                                       std::vector<NodeModel*>& sortedNodes)
 {
     const int currentNodeID = currentNode->getID ();
-    currentNode->setParentID (parentNode->getID ());
+
+    // FIXME: if this is the first node to be processed, it won't have a parentNode. 
+    // Not a strong enough design, needs to be redone
+    if (currentNode->getParentID () != NodeModel::Empty.getID ())
+        currentNode->setParentID (parentNode->getID ());
 
     // Check if current node has been visited (temporary marker) 
     // if so, there is a loop in the graph so just return false as it's not a DAG
     if (visited[currentNodeID].temporaryMark == true)
     {
-        dbg ("Node: %d, already visited, not a DAG \n", currentNodeID);
+        dbg ("Node: %d, already visited, not a DAG, must contain a loop \n", currentNodeID);
         return false;
     }
 
@@ -367,6 +383,13 @@ bool GraphModel::topologicalSortUtil (const NodeModel* parentNode, NodeModel* cu
             {
                 // Node has been visited (permanently marked) already so skip
                 dbg ("Node: %d, already visited so skipping \n", adjacentNode);
+                
+                // If parent node ID hasn't been set, add it now
+                // FIXME: Not sure if this can cause problems
+                auto* const nodeModel = nodes[adjacentNode];
+                assert (nodeModel != nullptr);
+                assert (nodeModel->getID () != NodeModel::Empty);
+                nodeModel->setParentID (currentNodeID);
                 continue;
             }
 
@@ -439,6 +462,8 @@ bool GraphModel::performSort (std::vector<NodeModel*>& sortedNodes)
 void GraphModel::setSettings (Settings settings)
 {
     this->settings = settings;
+
+    // Re-allocate buffers if size has changed
     audioBufferManager.setBlockSize (settings.blockSize);
     
     for (auto& listener : listeners)

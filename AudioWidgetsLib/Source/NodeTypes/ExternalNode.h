@@ -18,7 +18,7 @@ public:
 public:
     ExternalNode () = delete;
     ExternalNode (float positionX, float positionY, NodeType _type) : 
-        NodeModel (type == InputType ? InputNodeID : OutputNodeID, 
+        NodeModel (_type == InputType ? InputNodeID : OutputNodeID,
                    positionX, positionY),
         type (_type)        
     {
@@ -35,7 +35,7 @@ public:
 
         if (type == NodeType::InputType)
         {
-            assert (buffersIn.size () == numChannels);
+            assert (buffersOut.size () == numChannels);
 
             for (auto i = 0u; i < buffersIn.size (); ++i)
             {
@@ -46,7 +46,7 @@ public:
         }
         else
         {
-            assert (buffersOut.size () == numChannels);
+            assert (buffersIn.size () == numChannels);
 
             for (auto i = 0u; i < buffersOut.size (); ++i)
             {
