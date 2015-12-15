@@ -20,8 +20,16 @@ public:
     // Set the number of samples per block allocated
     void setBlockSize (unsigned int _blockSize)
     {
+        // Re-allocate memory if new block size is greater
+        if (_blockSize > blockSize)
+        {
+            for (auto& buffer : buffers)
+            {
+                buffer->setBufferSize (_blockSize);
+            }
+        }
+
         this->blockSize = _blockSize;
-        // TODO reallocate blocks
     }
 
     // Get an unused pre-allocated buffer pointer. Do not delete!
@@ -91,6 +99,7 @@ public:
 
     auto getBufferCount () const { return numberBuffers; }
     auto getFreeBufferCount () const { return numberFreeBuffers; }
+    auto getBlockSize () const { return blockSize; }
 
 private:
     AudioBuffer<DSP::SampleType>* createBuffer ()

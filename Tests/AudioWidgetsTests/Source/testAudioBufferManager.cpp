@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 
+#include <functional>
 #include "AudioBufferManager.h"
 #include "Nodes.h"
 
@@ -43,6 +44,47 @@ namespace AudioWidgetsTests
 
             auto buffer = audioBufferManager.getBufferFromID (bufferEntry->getID ());
             Assert::AreEqual (AudioBufferID (1, 0).getID (), buffer->getID ().getID (), L"ID did not match expected");
+        }
+
+        TEST_METHOD (AudioBufferManager_setBufferSize)
+        {
+            AudioBufferManager audioBufferManager;
+            
+            {
+                const auto blockSize = audioBufferManager.getBlockSize ();
+                const auto buffer = audioBufferManager.getFreeBuffer ();
+                Assert::AreEqual (buffer->getBufferSize (), blockSize, L"Block sizes did not match default");
+            }
+
+            audioBufferManager.setBlockSize (128);
+            
+            {
+                const auto blockSize = audioBufferManager.getBlockSize ();
+                const auto buffer = audioBufferManager.getFreeBuffer ();
+                Assert::AreEqual (buffer->getBufferSize (), blockSize, L"Block sizes did not match resize");
+            }
+
+        }
+
+        TEST_METHOD (AudioBufferManager_GraphUsageTestCast1)
+        {
+            AudioBufferManager audioBufferManager;
+            typedef std::vector<AudioBuffer<>*> Buffer;
+            typedef std::function<void (Buffer, Buffer)> ProcessNode;
+            
+            std::vector<ProcessNode> graph;
+
+            {
+                std::vector<Buffer> buffers;
+                
+                //graph.push_back ([]() {});
+            }
+
+
+            // Create build graph
+            //audioBufferManager.
+
+            // Process graph
         }
 
     private:

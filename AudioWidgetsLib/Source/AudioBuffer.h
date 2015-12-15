@@ -91,18 +91,31 @@ public:
         return isBufferFree; 
     }
 
+    void setBufferSize (uint32_t bufferSize)
+    {
+        if (buffer != nullptr)
+        {
+            delete[] buffer;
+            buffer = nullptr;
+        }
+
+        buffer = new SampleType[bufferSize];
+        memset (buffer, 0, sizeof (SampleType) * bufferSize);
+        numSamples = bufferSize;
+    }
+
     uint32_t getBufferSize () const
     {
         return numSamples;
     }
 
-    SampleType& operator[] (const int index)
+    SampleType& operator[] (const uint32_t index)
     {
         assert (index < numSamples);
         return buffer[index];
     }
 
-    const SampleType& operator[] (const int index) const
+    const SampleType& operator[] (const uint32_t index) const
     {
         assert (index < numSamples);
         return buffer[index];
