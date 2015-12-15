@@ -21,24 +21,32 @@ public:
                   const uint32_t numSamples) override
     {
         NodeModel::process (audioIn, audioOut, numSamples);
+        
+        assert (audioIn.size () == getNumInputChannels ());
+        assert (audioOut.size () == getNumOutputChannels ());
 
         float sr = 44100.f;
         increm = freq / sr;
 
-        for (unsigned int i = 0; i < numSamples; ++i)
+        for (auto chan = 0u; chan < audioOut.size (); ++chan)
         {
-            phasor += increm;
+            auto& output = *audioOut[chan];
 
-            if (phasor > 1.f)
-                phasor = -1.f;
+            for (auto i = 0u; i < numSamples; ++i)
+            {
+                phasor += increm;
 
-            //audioOut[i] = phasor;
+                if (phasor > 1.f)
+                    phasor = -1.f;
+
+                output[i] = phasor;
+            }
         }
     }
 
     const char* const getName () const override
     {
-        return "SawNode";
+        return "Saw OSC";
     }
 
     unsigned int getNumInputChannels () const override
@@ -49,11 +57,6 @@ public:
     unsigned int getNumOutputChannels () const override
     {
         return 2;
-    }
-
-    bool acceptsMidi () const override
-    {
-        return true;
     }
 
     void setFrequency (float _freq)
@@ -67,7 +70,7 @@ public:
     }
 
 private:
-    float phasor {0.f}, freq {440.f}, increm {0.f};
+    float phasor {0.f}, freq {220.f}, increm {0.f};
 };
 
 #endif
