@@ -22,15 +22,24 @@ public:
     {
         NodeModel::process (audioIn, audioOut, numSamples);
 
-        for (unsigned int i = 0; i < numSamples; ++i)
+        assert (audioIn.size () == getNumInputChannels ());
+        assert (audioOut.size () == getNumOutputChannels ());
+
+        for (auto chan = 0u; chan < audioOut.size (); ++chan)
         {
-            //audioOut[i] = audioIn[i] * gain;
+            auto& input  = *audioIn[chan];
+            auto& output = *audioOut[chan];
+
+            for (auto i = 0u; i < numSamples; ++i)
+            {
+                output[i] = input[i] * gain;
+            }
         }
     }
 
     const char* const getName () const override
     {
-        return "GainNode";
+        return "Gain";
     }
 
     unsigned int getNumInputChannels () const override
@@ -41,11 +50,6 @@ public:
     unsigned int getNumOutputChannels () const override
     {
         return 2;
-    }
-
-    bool acceptsMidi () const override
-    {
-        return false;
     }
 
     void setGain (float _gain)
@@ -59,7 +63,7 @@ public:
     }
 
 private:
-    float gain {1.f};
+    float gain {0.5f};
 };
 
 #endif
