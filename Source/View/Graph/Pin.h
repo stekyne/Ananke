@@ -20,47 +20,29 @@ public:
         NumberOfTypes
     };
 
-    //=====================================================================
     Pin () = delete;
-    explicit Pin (Type type, uint32 filterID, int index);
+    Pin (Type type, uint32 filterID, int index, 
+         GraphComponent& graph);
     ~Pin ();
 
     void paint (Graphics& g);
 
-    /** Call begin dragging in graph */
     void mouseDown (const MouseEvent& e);
-
-    /** Call connector dragging in graph */
     void mouseDrag (const MouseEvent& e);
-
-    /** Call stop dragging in graph */
     void mouseUp (const MouseEvent& e);
 
-    const uint32 filterID;
-    const int index;
-    const bool isInput;
+    const uint32 FilterID;
+    const int Index;
+    const bool IsInput;
 
     enum { midi_num = 0x1000 };
-
-private:
-    GraphComponent* getGraph () const
-    {
-        GraphComponent* graphComponent =
-            findParentComponentOfClass<GraphComponent> ();
-
-        if (graphComponent == nullptr)
-        {
-            DBG ("Could not find graph component for pin");
-        }
-
-        return graphComponent;
-    }
 
 private:
     friend class Node;
 
     int	channelNo;
     Type pin_type;
+    GraphComponent& graph;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pin);
 };

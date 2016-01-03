@@ -1,11 +1,13 @@
 #include "Pin.h"
 #include "GraphComponent.h"
 
-Pin::Pin (Type type, uint32 filterID, int index)
-    :   pin_type (type),
-        filterID (filterID),
-        index (index),
-        isInput (type == AudioInput || type == MidiInput)
+Pin::Pin (Type type, uint32 filterID, int index, 
+          GraphComponent& graph) :
+    pin_type (type),
+    FilterID (filterID),
+    Index (index),
+    IsInput (type == AudioInput || type == MidiInput),
+    graph (graph)
 {
     setSize (5, 5);
 }
@@ -39,19 +41,19 @@ void Pin::paint (Graphics& g)
 
 void Pin::mouseDown (const MouseEvent &e)
 {
-    getGraph ()->beginConnector (isInput ? 0 : filterID,
-                                 index,
-                                 isInput ? filterID : 0,
-                                 index,
-                                 e);
+    graph.beginConnector (IsInput ? 0 : FilterID,
+                          Index,
+                          IsInput ? FilterID : 0,
+                          Index,
+                          e);
 }
 
 void Pin::mouseDrag (const MouseEvent &e)
 {
-    getGraph ()->dragConnector (e);
+    graph.dragConnector (e);
 }
 
 void Pin::mouseUp (const MouseEvent &e)
 {
-    getGraph ()->endConnector (e);
+    graph.endConnector (e);
 }
