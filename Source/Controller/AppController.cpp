@@ -28,7 +28,6 @@ bool AppController::initialiseAudioDevice ()
     if (result.isNotEmpty ())
     {
         DBG ("Error: A device could not be opened.");
-        
         return false;
     }
     else
@@ -42,11 +41,12 @@ bool AppController::initialiseAudioDevice ()
 }
 
 void AppController::audioDeviceIOCallback (
-    const float** inputChannelData, int /*totalNumInputChannels*/,
-    float **outputChannelData, int /*totalNumOutputChannels*/,
+    const float** inputChannelData, int totalNumInputChannels,
+    float** outputChannelData, int totalNumOutputChannels,
     int numSamples)
 {
     // If the blockSize does not match the callback, then we must re-allocate memory
+    // TODO offload this task to thread and output silence or perform re-allocation on audio thread?
     if (graphModel->getSettings ().blockSize != numSamples)
     {
         const auto sampleRate = 
@@ -56,7 +56,9 @@ void AppController::audioDeviceIOCallback (
         graphModel->setSettings (GraphModel::Settings (sampleRate, numSamples, 50));
     }
     
-    graphModel->processGraph (inputChannelData, outputChannelData, numSamples);
+    graphModel->processGraph (inputChannelData, totalNumInputChannels, 
+                              outputChannelData, totalNumOutputChannels,
+                              numSamples);
 }
 
 void AppController::audioDeviceAboutToStart (AudioIODevice* device)
@@ -64,7 +66,7 @@ void AppController::audioDeviceAboutToStart (AudioIODevice* device)
     const auto sampleRate = (float)device->getCurrentSampleRate ();
     const auto blockSize = device->getCurrentBufferSizeSamples ();
 
-    graphModel->setSettings (GraphModel::Settings (sampleRate, blockSize, 50));
+    graphModel->setSettings (GraphModel::Settings (sampleRate, blockSize, 50));    
 }
 
 void AppController::audioDeviceStopped ()
@@ -90,15 +92,15 @@ void AppController::changeListenerCallback (ChangeBroadcaster* /*source*/)
 
 void AppController::loadTestData ()
 {
-    auto inputNode = new ExternalNode (0.1f, 0.1f, ExternalNode::InputType);
-    auto outputNode = new ExternalNode (0.9f, 0.9f, ExternalNode::OutputType);
+    //auto inputNode = new ExternalNode (0.1f, 0.1f, ExternalNode::InputType);
+    //auto outputNode = new ExternalNode (0.9f, 0.9f, ExternalNode::OutputType);
 
     auto node1 = DSP::createNode<GainNode> (0.5f, 0.5f);
     auto node2 = DSP::createNode<SawOSCNode> (0.5f, 0.25f);
     auto node3 = DSP::createNode<LowPassNode> (0.5f, 0.75f);
 
-    graphModel->addNodeWithID (inputNode, NodeModel::InputNodeID);
-    graphModel->addNodeWithID (outputNode, NodeModel::OutputNodeID);
+    //graphModel->addNodeWithID (inputNode, NodeModel::InputNodeID);
+    //graphModel->addNodeWithID (outputNode, NodeModel::OutputNodeID);
 
     graphModel->addNode (node1);
     graphModel->addNode (node2);
@@ -109,7 +111,7 @@ void AppController::loadTestData ()
     graphModel->addConnection (*node1, 0, *node3, 0);
     graphModel->addConnection (*node1, 1, *node3, 1);
     graphModel->addConnection (*node3, 0, *outputNode, 0);
-    graphModel->addConnection (*node3, 1, *outputNode, 1);
+    graphModel->addConnection (*node3, 1, *outputNode, 1);   
 
     graphModel->buildGraph ();
 }

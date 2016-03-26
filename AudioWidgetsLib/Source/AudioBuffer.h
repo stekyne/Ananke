@@ -126,6 +126,29 @@ public:
         return buffer;
     }
 
+    void copyDataTo (float* copyToBuffer, uint32_t numSamples)
+    {
+        assert (this->numSamples == numSamples);
+        memcpy (copyToBuffer, buffer, numSamples * sizeof (float));
+    }
+
+    // Copies a single channel worth of audio into this buffer
+    // The buffers must match in length (number of samples)
+    void copyDataFrom (const float* copyFromBuffer, uint32_t numSamples)
+    {
+        assert (this->numSamples == _numSamples);
+        memcpy (buffer, copyFromBuffer, numSamples * sizeof (float));
+    }
+
+    // Set the buffer to use in this class. This assumes that no data will 
+    // be leaked by calling it. Therefore don't call it on an instance 
+    // where it has allocated memory
+    void setBufferToUse (const float** const buffers,
+                         uint32_t numChannels, uint32_t numSamples)
+    {
+
+    }
+
     static AudioBuffer<DSP::SampleType> Empty;
 
 private:
@@ -133,7 +156,6 @@ private:
     uint32_t numSamples {0};
     AudioBufferID id {0, 0};
     bool isBufferFree {false};
-    uint32_t referenceCount {0};
 };
 
 AudioBuffer<DSP::SampleType> AudioBuffer<DSP::SampleType>::Empty (0, {0,0});

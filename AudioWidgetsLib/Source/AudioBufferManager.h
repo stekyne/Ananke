@@ -33,7 +33,7 @@ public:
     }
 
     // Get an unused pre-allocated buffer pointer. Do not delete!
-    AudioBuffer<DSP::SampleType>* getFreeBuffer ()
+    auto getFreeBuffer ()
     {
         for (auto& elem : buffers)
         {
@@ -61,7 +61,7 @@ public:
     }
 
     // Return a buffer from the presented ID
-    AudioBuffer<DSP::SampleType>* getBufferFromID (AudioBufferID bufferId)
+    auto getBufferFromID (AudioBufferID bufferId)
     {
         assert (buffers.size () != 0);
         
@@ -79,7 +79,7 @@ public:
     }
 
     // Find the buffer that is associated with a particular node ID
-    AudioBuffer<DSP::SampleType>* getAssociatedBufferForNodeOutput (const uint32_t id, const uint32_t channel)
+    auto getAssociatedBufferForNodeOutput (const uint32_t id, const uint32_t channel)
     {
         for (auto& elem : buffers)
         {

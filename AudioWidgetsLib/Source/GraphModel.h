@@ -70,7 +70,8 @@ public:
     bool buildGraph ();
 
     // Execute the graph of nodes to generate output
-    void processGraph (const float** audioIn, float** audioOut,
+    void processGraph (const float** audioIn, const uint32_t inputChannelNum, 
+                       float** audioOut, const uint32_t outputChannelNum,
                        const uint32_t blockSize);    
 
     void setSettings (Settings settings);
@@ -131,8 +132,10 @@ private:
     void addFixedNodes ();
 
     // Attach incoming raw buffers to the external nodes
-    void setInputNodeBuffers (const float** const buffers, uint32_t numChannels, uint32_t numSamples);
-    void setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples);
+    void setInputNodeBuffers (const float** const buffers, 
+                              uint32_t numChannels, uint32_t numSamples);
+    void setOutputNodeBuffers (float** const buffers, 
+                               uint32_t numChannels, uint32_t numSamples);
 
 private:
     NodeMap nodes;
@@ -140,8 +143,10 @@ private:
     std::vector<GraphOp*> graphOps;
     std::vector<Listener*> listeners;
     AudioBufferManager audioBufferManager {50};
-    ExternalNode* inputNode {nullptr};
-    ExternalNode* outputNode {nullptr};
+    AudioBuffer<float> inputBuffer;
+    AudioBuffer<float> outputBuffer;
+    uint32_t numberAudioInputs {0};
+    uint32_t numberAudioOutputs {0};
     Settings settings {44100.f, 50, 32};
     unsigned int internalIDcount {0};
 };

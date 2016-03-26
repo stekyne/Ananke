@@ -166,8 +166,8 @@ namespace AudioWidgetsTests
             graph.addConnection (Connection (*node5, 0, *node1, 0));
             graph.addConnection (Connection (*node2, 0, *node3, 0));
 
-            graph.buildGraph ();
-            Logger::WriteMessage (graph.printGraph ().c_str ());
+            const auto result = graph.buildGraph ();
+            Assert::AreEqual (true, result, L"Graph could not be built, invalid configuration");
         }
 
         TEST_METHOD (GraphModel_ProcessGraph)
@@ -231,6 +231,33 @@ namespace AudioWidgetsTests
             Assert::AreEqual (true, result, L"Failed to remove listener");
         }
 
-    private:
+        TEST_METHOD (GraphModel_InOutNodes)
+        {
+            GraphModel graph;
+
+            const int bufferCount = 2;
+            const int blockSize = 64;
+
+            float** inputBuffers = new float*[bufferCount];
+            for (int i = 0; i < bufferCount; ++i)
+                inputBuffers[i] = new float[blockSize];
+
+            float** outputBuffers = new float*[bufferCount];
+            for (int i = 0; i < bufferCount; ++i)
+                outputBuffers[i] = new float[blockSize];
+
+            graph.processGraph (inputBuffers, bufferCount, 
+                                outputBuffers, bufferCount, 
+                                blockSize);
+
+            for (int i = 0; i < bufferCount; ++i)
+                delete[] inputBuffers[i];
+
+            for (int i = 0; i < bufferCount; ++i)
+                delete[] outputBuffers[i];
+
+            delete[] inputBuffers;
+            delete[] outputBuffers;
+        }
     };
 }

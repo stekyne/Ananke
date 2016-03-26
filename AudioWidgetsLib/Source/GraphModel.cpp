@@ -6,7 +6,7 @@
 
 #include "GraphModel.h"
 
-#ifdef _DEBUG
+#if defined (_DEBUG) && defined (_MSC_VER)
 # include <Windows.h>
 
 int dbg (const char* format, ...)
@@ -32,7 +32,7 @@ GraphModel::GraphModel ()
     addFixedNodes ();
 }
 
-GraphModel::GraphModel (Settings settings)  :   
+GraphModel::GraphModel (Settings settings) :   
     settings (settings),
     audioBufferManager (settings.blockSize)
 {
@@ -245,6 +245,8 @@ bool GraphModel::buildGraph ()
 {
     std::vector<NodeModel*> sortedNodes;
     sortedNodes.reserve (nodes.size ());
+
+    // Calculate node dependency order via topological sort
     const auto result = performSort (sortedNodes);
 
     // Graph contained loops so cannot continue
@@ -298,14 +300,25 @@ bool GraphModel::buildGraph ()
         }
     }
 
+#ifdef _DEBUG
+    dbg (printGraph ().c_str ());
+#endif
+
     return true;
 }
 
-void GraphModel::processGraph (const float** audioIn, float** audioOut,
+void GraphModel::processGraph (const float** audioIn, const uint32_t inputChannelNum,
+                               float** audioOut, const uint32_t outputChannelNum,
                                const uint32_t blockSize)
 {
-    setInputNodeBuffers (audioIn, 2, blockSize);
-    setOutputNodeBuffers (audioOut, 2, blockSize);
+    assert (audioIn != nullptr);
+    assert (audioOut != nullptr);
+    assert (blockSize > 0);
+
+    // Number of input and output buffers from device has changed
+    // Alter input and output connections and rebuild graph 
+    setInputNodeBuffers (audioIn, inputChannelNum, blockSize);
+    setOutputNodeBuffers (audioOut, outputChannelNum, blockSize);
 
     for (size_t i = 0u; i < graphOps.size (); ++i)
     {
@@ -317,37 +330,22 @@ void GraphModel::processGraph (const float** audioIn, float** audioOut,
 void GraphModel::setInputNodeBuffers (const float** const buffers, 
                                       uint32_t numChannels, uint32_t numSamples)
 {
-    // Find the node in the map and cache the reference
-    if (inputNode == nullptr)
+    // If number of inputs has changed then we need to re-build the graph to remove
+    // any now invalid connections
+    if (numChannels != numberAudioInputs)
     {
-        // Find input node if it exists
-        auto inputNodeItr = nodes.find (NodeModel::InputNodeID);
 
-        if (inputNodeItr != std::end (nodes))
-        {
-            auto inputNode = dynamic_cast<ExternalNode*> (inputNodeItr->second);
-            
-            if (inputNode != nullptr)
-                inputNode->setExternalBuffers ((float**)buffers, numChannels, numSamples);
-        }
     }
 }
 
-void GraphModel::setOutputNodeBuffers (float** const buffers, uint32_t numChannels, uint32_t numSamples)
+void GraphModel::setOutputNodeBuffers (float** const buffers, 
+                                       uint32_t numChannels, uint32_t numSamples)
 {
-    // Find the node in the map and cache the reference
-    if (outputNode == nullptr)
+    // If number of outputs has changed then we need to re-build the graph to remove
+    // any now invalid connections
+    if (numChannels != numberAudioOutputs)
     {
-        // Find output node if it exists
-        auto outputNodeItr = nodes.find (NodeModel::OutputNodeID);
 
-        if (outputNodeItr != std::end (nodes))
-        {
-            auto outputNode = dynamic_cast<ExternalNode*> (outputNodeItr->second);
-            
-            if (outputNode != nullptr)
-                outputNode->setExternalBuffers (buffers, numChannels, numSamples);
-        }
     }
 }
 
