@@ -35,7 +35,7 @@ void NodeComponent::getPinPos (const int index, const bool isInput, float& x, fl
 
 void NodeComponent::paint (Graphics& g)
 {
-    const auto node = graph.getNodeForID (id);
+    const auto node = graph->getNodeForID (id);
     g.setColour (Colours::lightgrey);
     g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
     g.setColour (Colours::darkgrey);
@@ -99,7 +99,7 @@ void NodeComponent::resized ()
 
 void NodeComponent::update ()
 {
-    const auto node = graph.getNodeForID (id);
+    const auto node = graph->getNodeForID (id);
 
     numIns = node->getNumInputChannels ();
 
@@ -153,7 +153,7 @@ void NodeComponent::update ()
 
         if (node->acceptsMidi())
         {
-            Pin* const midiInPin = new Pin (Pin::MidiInput, id, Pin::midi_num);
+            Pin* const midiInPin = new Pin (Pin::MidiInput, id, Pin::midi_num, *graphComp);
             addAndMakeVisible(midiInPin);
         }
 
@@ -177,7 +177,7 @@ void NodeComponent::mouseDrag (const MouseEvent& e)
 {
     dragger.dragComponent (this, e, nullptr);
 
-    auto node = graph.getNodeForID (id);
+    auto node = graph->getNodeForID (id);
 
     /*node->setPosition (
         std::make_tuple<float, float> (

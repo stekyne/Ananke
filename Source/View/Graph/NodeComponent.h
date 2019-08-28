@@ -32,7 +32,7 @@ public:
 
 private:
     friend class GraphComponent;
-    GraphComponent* Node::getGraph () const;
+    GraphComponent* NodeComponent::getGraph () const;
     mutable GraphComponent* graphComp {nullptr};
 
 private:
