@@ -32,17 +32,18 @@ public:
 
 private:
     friend class GraphComponent;
-    GraphComponent* getGraph () const;
+    GraphComponent* Node::getGraph () const;
+    mutable GraphComponent* graphComp {nullptr};
 
 private:
     ComponentDragger dragger;
     std::vector<Pin*> inputs, outputs;
+    Font font;
     Pin* midiIn {nullptr};
     Pin* midiOut {nullptr};
     std::shared_ptr<APG::Graph> graph;
     int numIns {0}, numOuts {0}, numInputs {0}, numOutputs {0};
     bool acceptsMidi {false}, producesMidi {false};
-    Font font;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NodeComponent);
 };

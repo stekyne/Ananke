@@ -20,14 +20,14 @@ void NodeComponent::getPinPos (const int index, const bool isInput, float& x, fl
 {
     for (int i = 0; i < getNumChildComponents (); ++i)
     {
-        Pin* const pc = dynamic_cast<Pin*>(getChildComponent (i));
+        Pin* const pin = dynamic_cast<Pin*>(getChildComponent (i));
 
-        if (pc != nullptr &&
-            pc->index == index &&
-            isInput == pc->isInput)
+        if (pin != nullptr &&
+            pin->Index == index &&
+            isInput == pin->IsInput)
         {
-            x = getX () + pc->getX () + pc->getWidth () * 0.5f;
-            y = getY () + pc->getY () + pc->getHeight () * 0.5f;
+            x = getX () + pin->getX () + pin->getWidth () * 0.5f;
+            y = getY () + pin->getY () + pin->getHeight () * 0.5f;
             break;
         }
     }
@@ -35,7 +35,7 @@ void NodeComponent::getPinPos (const int index, const bool isInput, float& x, fl
 
 void NodeComponent::paint (Graphics& g)
 {
-    const auto node = graph->getNodeForID (id);
+    const auto node = graph.getNodeForID (id);
     g.setColour (Colours::lightgrey);
     g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
     g.setColour (Colours::darkgrey);
@@ -83,23 +83,23 @@ void NodeComponent::resized ()
 
     for (int i = 0; i < getNumChildComponents (); ++i)
     {
-        Pin* const pc = dynamic_cast<Pin*>(getChildComponent (i));
+        Pin* const pin = dynamic_cast<Pin*>(getChildComponent (i));
 
-        if (pc != nullptr)
+        if (pin != nullptr)
         {
-            const int total = pc->isInput ? numIns : numOuts;
-            const int index = pc->index == Pin::midi_num ? (total - 1) : pc->index;
+            const int total = pin->IsInput ? numIns : numOuts;
+            const int index = (pin->Index == Pin::midi_num) ? (total - 1) : pin->Index;
 
-            pc->setBounds ((int)(proportionOfWidth ((1 + index) / (total + 1.0f)) - 5 / 2.f),
-                           pc->isInput ? 0: (getHeight () - 5),
-                           5, 5);
+            pin->setBounds ((int)(proportionOfWidth ((1 + index) / (total + 1.0f)) - 5 / 2.f),
+                            pin->IsInput ? 0: (getHeight () - 5),
+                            5, 5);
         }
     }
 }
 
 void NodeComponent::update ()
 {
-    const auto node = graph->getNodeForID (id);
+    const auto node = graph.getNodeForID (id);
 
     numIns = node->getNumInputChannels ();
 
@@ -137,16 +137,16 @@ void NodeComponent::update ()
         midiOut = nullptr;
         deleteAllChildren ();
 
-        for (unsigned int i = 0; i < node->getNumInputChannels (); ++i)
+        for (auto i = 0u; i < node->getNumInputChannels (); ++i)
         {
-            Pin* const newPin = new Pin (Pin::AudioInput, id, i);
+            Pin* const newPin = new Pin (Pin::AudioInput, id, i, *graphComp);
             inputs.push_back (newPin);
             addAndMakeVisible (newPin);
         }    
 
-        for (unsigned int i = 0; i < node->getNumOutputChannels (); ++i)
+        for (auto i = 0u; i < node->getNumOutputChannels (); ++i)
         {
-            Pin* const newPin = new Pin (Pin::AudioOutput, id, i);
+            Pin* const newPin = new Pin (Pin::AudioOutput, id, i, *graphComp);
             outputs.push_back (newPin);
             addAndMakeVisible (newPin);
         }
@@ -159,7 +159,7 @@ void NodeComponent::update ()
 
         if (node->producesMidi ())
         {
-            Pin* const midiOutPin = new Pin (Pin::MidiOutput, id, Pin::midi_num);
+            Pin* const midiOutPin = new Pin (Pin::MidiOutput, id, Pin::midi_num, *graphComp);
             addAndMakeVisible (midiOutPin);
         }
 
@@ -177,7 +177,7 @@ void NodeComponent::mouseDrag (const MouseEvent& e)
 {
     dragger.dragComponent (this, e, nullptr);
 
-    auto node = graph->getNodeForID (id);
+    auto node = graph.getNodeForID (id);
 
     /*node->setPosition (
         std::make_tuple<float, float> (
@@ -194,13 +194,14 @@ void NodeComponent::mouseUp (const MouseEvent& /*e*/)
 
 GraphComponent* NodeComponent::getGraph () const
 {
-    GraphComponent* graphComponent =
-        findParentComponentOfClass<GraphComponent> ();
-
-    if (graphComponent == nullptr)
+    if (graphComp == nullptr)
     {
-        DBG ("Could not find graph component for pin");
+        GraphComponent* graphComponent =
+            findParentComponentOfClass<GraphComponent> ();
+
+        assert (graphComponent != nullptr);
+        graphComp = graphComponent;
     }
 
-    return graphComponent;
+    return graphComp;
 }

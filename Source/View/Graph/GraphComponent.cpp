@@ -76,7 +76,7 @@ void GraphComponent::beginConnector (const uint32 sourceFilterID, const int sour
     /** User didnt click on a connector so create a new one */
     if (draggingConnector == nullptr)
     {
-        draggingConnector = new Connector (*graph.get (),
+        draggingConnector = new Connector (graph,
                                            sourceFilterID, sourceFilterChannel,
                                            destFilterID, destFilterChannel);
     }
@@ -112,21 +112,24 @@ void GraphComponent::dragConnector (const MouseEvent& e)
             uint32 dstFilter = draggingConnector->destFilterID;
             int	dstChannel = draggingConnector->destFilterChannel;
 
-            if (srcFilter == 0 && !pin->isInput)
+            if (srcFilter == 0 && !pin->IsInput)
             {
-                srcFilter = pin->filterID;
-                srcChannel = pin->index;
+                srcFilter = pin->FilterID;
+                srcChannel = pin->Index;
             }
-            else if (dstFilter == 0 && pin->isInput)
+            else if (dstFilter == 0 && pin->IsInput)
             {
-                dstFilter = pin->filterID;
-                dstChannel = pin->index;
+                dstFilter = pin->FilterID;
+                dstChannel = pin->Index;
             }
             
             if (graph->canConnect (APG::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
             {
-                x = pin->getParentComponent ()->getX () + pin->getX () + pin->getWidth () / 2;
-                y = pin->getParentComponent ()->getY () + pin->getY () + pin->getHeight () / 2;
+                x = pin->getParentComponent ()->getX () + 
+                    pin->getX () + pin->getWidth () / 2;
+
+                y = pin->getParentComponent ()->getY () + 
+                    pin->getY () + pin->getHeight () / 2;
 
                 //draggingConnector->setTooltip (pin->getTooltip());
             }
@@ -162,19 +165,19 @@ void GraphComponent::endConnector (const MouseEvent& e)
     {
         if (srcFilter == 0)
         {
-            if (pin->isInput)
+            if (pin->IsInput)
                 return;
 
-            srcFilter = pin->filterID;
-            srcChannel = pin->index;
+            srcFilter = pin->FilterID;
+            srcChannel = pin->Index;
         }
         else
         {
-            if (!pin->isInput)
+            if (!pin->IsInput)
                 return;
 
-            dstFilter = pin->filterID;
-            dstChannel = pin->index;
+            dstFilter = pin->FilterID;
+            dstChannel = pin->Index;
         }
 
         if (graph->addConnection (APG::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
@@ -232,7 +235,7 @@ void GraphComponent::updateGraph ()
                                                   cc->destFilterID,
                                                   cc->destFilterChannel);
 
-            if (graph->connectionExists (testConnection) == false)
+            if (graph.connectionExists (testConnection) == false)
             {
                 delete cc;
             }
@@ -243,11 +246,11 @@ void GraphComponent::updateGraph ()
         }
     }
 
-    for (auto& connection : graph->getConnections ())
+    for (auto& connection : graph.getConnections ())
     {
         if (getComponentForConnection (connection) == nullptr)
         {
-            Connector* const conn = new Connector (*graph.get ());
+            Connector* const conn = new Connector (graph);
 
             addAndMakeVisible (conn);
 
@@ -256,7 +259,7 @@ void GraphComponent::updateGraph ()
         }
     }
 
-    for (auto& node : graph->getNodes ())
+    for (auto& node : graph.getNodes ())
     {
         const auto id = node->getID ();
 
