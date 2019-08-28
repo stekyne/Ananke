@@ -4,26 +4,25 @@
 #define GRAPHCOMPONENT_H_INCLUDED
 
 #include <memory>
-#include "../AudioWidgetsLib/Source/Connection.h"
+#include "../Source/AudioProcessingGraph.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class Connector;
-class Node;
+class NodeComponent;
 class Pin;
-class GraphModel;
 
 class GraphComponent : public Component
 {
 public:
-    GraphComponent (std::shared_ptr<GraphModel> graph);
+    GraphComponent (std::shared_ptr<APG::Graph> graph);
     ~GraphComponent ();
 
     void resized ();
     void paint (Graphics& g);
 
-    Node* getComponentForFilter (const uint32 filterID) const;
+    NodeComponent* getComponentForFilter (const uint32 filterID) const;
 
-    Connector* getComponentForConnection (const Connection& connection) const;
+    Connector* getComponentForConnection (const APG::Connection& connection) const;
 
     /** Create new dragging connector if needed or else take hold of the one
     that was clicked on */
@@ -44,7 +43,7 @@ public:
     void updateGraph ();
 
 private:
-    std::shared_ptr<GraphModel> graph;
+    std::shared_ptr<APG::Graph> graph;
     Connector* draggingConnector {nullptr};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);

@@ -3,7 +3,7 @@
 #include "AppController.h"
 
 AppController::AppController () :
-    graphModel (new GraphModel),
+    graphModel (new APG::Graph),
     valueTree (juce::Identifier ("audioWidgets")),
     deviceManager (std::make_unique<AudioDeviceManager> ()),
     formatManager (std::make_unique<AudioFormatManager> ())
@@ -27,7 +27,7 @@ bool AppController::initialiseAudioDevice ()
     // 'result' will be empty if 'initialise' succeeded in opening a device
     if (result.isNotEmpty ())
     {
-        DBG ("Error: A device could not be opened.");
+        DBG ("Error: An audio device could not be opened.");
         return false;
     }
     else
@@ -45,17 +45,6 @@ void AppController::audioDeviceIOCallback (
     float** outputChannelData, int totalNumOutputChannels,
     int numSamples)
 {
-    // If the blockSize does not match the callback, then we must re-allocate memory
-    // TODO offload this task to thread and output silence or perform re-allocation on audio thread?
-    if (graphModel->getSettings ().blockSize != numSamples)
-    {
-        const auto sampleRate = 
-            (float)deviceManager->getCurrentAudioDevice ()->getCurrentSampleRate ();
-
-        // TODO how to adjust control rate?
-        graphModel->setSettings (GraphModel::Settings (sampleRate, numSamples, 50));
-    }
-    
     graphModel->processGraph (inputChannelData, totalNumInputChannels, 
                               outputChannelData, totalNumOutputChannels,
                               numSamples);
@@ -66,7 +55,7 @@ void AppController::audioDeviceAboutToStart (AudioIODevice* device)
     const auto sampleRate = (float)device->getCurrentSampleRate ();
     const auto blockSize = device->getCurrentBufferSizeSamples ();
 
-    graphModel->setSettings (GraphModel::Settings (sampleRate, blockSize, 50));    
+    graphModel->setSettings (APG::Graph::Settings (sampleRate, blockSize, 50));    
 }
 
 void AppController::audioDeviceStopped ()
@@ -92,26 +81,23 @@ void AppController::changeListenerCallback (ChangeBroadcaster* /*source*/)
 
 void AppController::loadTestData ()
 {
-    //auto inputNode = new ExternalNode (0.1f, 0.1f, ExternalNode::InputType);
-    //auto outputNode = new ExternalNode (0.9f, 0.9f, ExternalNode::OutputType);
+    using namespace APG;
 
-    auto node1 = DSP::createNode<GainNode> (0.5f, 0.5f);
-    auto node2 = DSP::createNode<SawOSCNode> (0.5f, 0.25f);
-    auto node3 = DSP::createNode<LowPassNode> (0.5f, 0.75f);
+    auto gainNode = new GainNode (1);
+    auto sawNode = new SawOSCNode (2);
+    auto lowPassNode = new LowPassNode (3);
 
-    //graphModel->addNodeWithID (inputNode, NodeModel::InputNodeID);
-    //graphModel->addNodeWithID (outputNode, NodeModel::OutputNodeID);
+    graphModel->addNode (gainNode);
+    graphModel->addNode (sawNode);
+    graphModel->addNode (lowPassNode);
 
-    graphModel->addNode (node1);
-    graphModel->addNode (node2);
-    graphModel->addNode (node3);
+    graphModel->addConnection (Connection (*sawNode, 0, *gainNode, 0));
+    graphModel->addConnection (Connection (*sawNode, 1, *gainNode, 1));
+    graphModel->addConnection (Connection (*gainNode, 0, *lowPassNode, 0));
+    graphModel->addConnection (Connection (*gainNode, 1, *lowPassNode, 1));
 
-    graphModel->addConnection (*node2, 0, *node1, 0);
-    graphModel->addConnection (*node2, 1, *node1, 1);
-    graphModel->addConnection (*node1, 0, *node3, 0);
-    graphModel->addConnection (*node1, 1, *node3, 1);
-    graphModel->addConnection (*node3, 0, *outputNode, 0);
-    graphModel->addConnection (*node3, 1, *outputNode, 1);   
+    graphModel->addConnection (Connection (lowPassNode->getID (), 0, Graph::AudioOutputID, 0));
+    graphModel->addConnection (Connection (lowPassNode->getID (), 1, Graph::AudioOutputID, 1));
 
     graphModel->buildGraph ();
 }

@@ -57,7 +57,7 @@ private:
     }
 
 private:
-    friend class Node;
+    friend class NodeComponent;
 
     int	channelNo;
     Type pin_type;

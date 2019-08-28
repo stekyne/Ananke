@@ -1,11 +1,11 @@
 #include "GraphComponent.h"
-#include "Node.h"
+#include "NodeComponent.h"
 #include "Connector.h"
 #include "Pin.h"
-#include "../AudioWidgetsLib/Source/GraphModel.h"
+#include "..\Source\AudioProcessingGraph.h"
 
-GraphComponent::GraphComponent (std::shared_ptr<GraphModel> _graph) :
-    graph (_graph)
+GraphComponent::GraphComponent (std::shared_ptr<APG::Graph> graph) :
+    graph (graph)
 {
     setOpaque (true);
     setSize (600, 400);
@@ -26,11 +26,11 @@ void GraphComponent::paint (Graphics& g)
     g.fillAll (Colours::darkgrey);
 }
 
-Node* GraphComponent::getComponentForFilter (const uint32 filterID) const
+NodeComponent* GraphComponent::getComponentForFilter (const uint32 filterID) const
 {
     for (int i = getNumChildComponents (); --i >= 0;)
     {
-        Node* const fc = dynamic_cast <Node*>(getChildComponent (i));
+        NodeComponent* const fc = dynamic_cast <NodeComponent*>(getChildComponent (i));
 
         if (fc != nullptr && fc->id == filterID)
             return fc;
@@ -39,7 +39,7 @@ Node* GraphComponent::getComponentForFilter (const uint32 filterID) const
     return nullptr;
 }
 
-Connector* GraphComponent::getComponentForConnection (const Connection& connection) const
+Connector* GraphComponent::getComponentForConnection (const APG::Connection& connection) const
 {
     for (int i = getNumChildComponents (); --i >= 0;)
     {
@@ -123,7 +123,7 @@ void GraphComponent::dragConnector (const MouseEvent& e)
                 dstChannel = pin->index;
             }
             
-            if (graph->canConnect (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+            if (graph->canConnect (APG::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
             {
                 x = pin->getParentComponent ()->getX () + pin->getX () + pin->getWidth () / 2;
                 y = pin->getParentComponent ()->getY () + pin->getY () + pin->getHeight () / 2;
@@ -177,14 +177,16 @@ void GraphComponent::endConnector (const MouseEvent& e)
             dstChannel = pin->index;
         }
 
-        if (graph->addConnection (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+        if (graph->addConnection (APG::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
         {
-            DBG ("Connection is successful: " + String (srcFilter) + " to " + String (dstFilter));
+            DBG ("Connection is successful: " + String (srcFilter) + 
+                 " to " + String (dstFilter));
             updateGraph ();
         }
         else
         {
-            DBG ("Connection unsuccessful: " + String (srcFilter) + " to " + String (dstFilter));
+            DBG ("Connection unsuccessful: " + String (srcFilter) + 
+                 " to " + String (dstFilter));
         }
     }
 }
@@ -193,7 +195,7 @@ Pin* GraphComponent::findPin (const int x, const int y) const
 {
     for (int i = getNumChildComponents (); --i >= 0;)
     {
-        Node* const fc = dynamic_cast<Node*>(getChildComponent (i));
+        NodeComponent* const fc = dynamic_cast<NodeComponent*>(getChildComponent (i));
 
         if (fc != nullptr)
         {
@@ -213,7 +215,7 @@ void GraphComponent::updateGraph ()
 {
     for (int i = getNumChildComponents (); --i >= 0;)
     {
-        Node* const fc = dynamic_cast<Node*>(getChildComponent (i));
+        NodeComponent* const fc = dynamic_cast<NodeComponent*>(getChildComponent (i));
 
         if (fc != nullptr)
             fc->update ();
@@ -225,10 +227,10 @@ void GraphComponent::updateGraph ()
 
         if (cc != nullptr && cc != draggingConnector)
         {
-            const Connection testConnection (cc->sourceFilterID,
-                                             cc->sourceFilterChannel,
-                                             cc->destFilterID,
-                                             cc->destFilterChannel);
+            const APG::Connection testConnection (cc->sourceFilterID,
+                                                  cc->sourceFilterChannel,
+                                                  cc->destFilterID,
+                                                  cc->destFilterChannel);
 
             if (graph->connectionExists (testConnection) == false)
             {
@@ -256,11 +258,11 @@ void GraphComponent::updateGraph ()
 
     for (auto& node : graph->getNodes ())
     {
-        const auto id = node.first;
+        const auto id = node->getID ();
 
         if (getComponentForFilter (id) == 0)
         {
-            Node* const newNode = new Node (graph, id);
+            NodeComponent* const newNode = new NodeComponent (graph, id);
             addAndMakeVisible (newNode);
             newNode->update ();
         }

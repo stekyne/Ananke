@@ -1,10 +1,10 @@
 #include "Connector.h"
-#include "Node.h"
+#include "NodeComponent.h"
 #include "GraphComponent.h"
-#include "../AudioWidgetsLib/Source/GraphModel.h"
+#include "..\Source\AudioProcessingGraph.h"
 
-Connector::Connector (GraphModel& graph_)
-    :   graph (graph_),
+Connector::Connector (APG::Graph& graph)
+    :   graph (graph),
         sourceFilterID (0),
         sourceFilterChannel (0),
         destFilterID (0),
@@ -16,13 +16,13 @@ Connector::Connector (GraphModel& graph_)
 {
 }
 
-Connector::Connector (GraphModel& graph_,
-                      uint32 srcNode_, int srcChannel_,
-                      uint32 dstNode_, int dstChannel_)
-    :   graph (graph_),
-        sourceFilterID (srcNode_),
+Connector::Connector (APG::Graph& graph,
+                      uint32 srcNodeComponent_, int srcChannel_,
+                      uint32 dstNodeComponent_, int dstChannel_)
+    :   graph (graph),
+        sourceFilterID (srcNodeComponent_),
         sourceFilterChannel (srcChannel_),
-        destFilterID (dstNode_),
+        destFilterID (dstNodeComponent_),
         destFilterChannel (dstChannel_),
         lastx1 (0),
         lastx2 (0),
@@ -97,12 +97,12 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 
     if (hostPanel != nullptr)
     {
-        Node* srcFilterComp = hostPanel->getComponentForFilter (sourceFilterID);
+        NodeComponent* srcFilterComp = hostPanel->getComponentForFilter (sourceFilterID);
 
         if (srcFilterComp != nullptr)
             srcFilterComp->getPinPos (sourceFilterChannel, false, x1, y1);
 
-        Node* dstFilterComp = hostPanel->getComponentForFilter (destFilterID);
+        NodeComponent* dstFilterComp = hostPanel->getComponentForFilter (destFilterID);
 
         if (dstFilterComp != nullptr)
             dstFilterComp->getPinPos (destFilterChannel, true, x2, y2);
@@ -144,10 +144,8 @@ void Connector::resized ()
                        -arrowL, -arrowW,
                        arrowL, 0.0f);
 
-    arrow.applyTransform (AffineTransform::identity
-                          .rotated (float_Pi * 0.5f - (float)atan2 (x2 - x1, y2 - y1))
-                          .translated ((x1 + x2) * 0.5f,
-                          (y1 + y2) * 0.5f));
+    arrow.applyTransform (AffineTransform::rotation (float_Pi * 0.5f - (float)atan2 (x2 - x1, y2 - y1))
+                          .translated ((x1 + x2) * 0.5f, (y1 + y2) * 0.5f));
 
     linePath.addPath (arrow);
     linePath.setUsingNonZeroWinding (true);
@@ -196,8 +194,8 @@ void Connector::mouseDrag (const MouseEvent& e)
     {
         dragging = true;
 
-        graph.removeConnection (Connection(sourceFilterID, sourceFilterChannel, 
-                                            destFilterID, destFilterChannel));
+        graph.removeConnection (APG::Connection(sourceFilterID, sourceFilterChannel, 
+                                                destFilterID, destFilterChannel));
 
         double distanceFromStart, distanceFromEnd;
         getDistancesFromEnds (e.x, e.y, distanceFromStart, distanceFromEnd);

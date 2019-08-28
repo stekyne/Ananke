@@ -3,10 +3,8 @@
 #ifndef APPCONTROLLER_H_INCLUDED
 #define APPCONTROLLER_H_INCLUDED
 
+#include "../Source/AudioProcessingGraph.h"
 #include "../View/WidgetWrapper.h"
-#include "../AudioWidgetsLib/Source/GraphModel.h"
-#include "../AudioWidgetsLib/Source/Nodes.h"
-
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class AppController :   public AudioIODeviceCallback,
@@ -16,7 +14,7 @@ public:
     AppController ();
     ~AppController ();
 
-    std::shared_ptr<GraphModel> getGraphModel () const
+    std::shared_ptr<APG::Graph> getGraphModel () const
     {
         return graphModel;
     }
@@ -41,7 +39,7 @@ private:
 private:
     juce::ValueTree valueTree;
     OwnedArray<WidgetWrapper> widgets;
-    std::shared_ptr<GraphModel> graphModel;
+    std::shared_ptr<APG::Graph> graphModel;
     std::unique_ptr<AudioDeviceManager> deviceManager;
     std::unique_ptr<AudioFormatManager> formatManager;
 };

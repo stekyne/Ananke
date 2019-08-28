@@ -4,22 +4,22 @@
 #define CONNECTOR_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "../Source/AudioProcessingGraph.h"
 
 class GraphComponent;
-class GraphModel;
 
 class Connector : public Component
 {
 public:
     Connector () = delete;
-    Connector (GraphModel& graph);
-    Connector (GraphModel& graph,
-               uint32 srcNode, int srcChannel,
-               uint32 dstNode, int dstChannel);
+    Connector (APG::Graph& graph);
+    Connector (APG::Graph& graph,
+               uint32 srcNodeComponent, int srcChannel,
+               uint32 dstNodeComponent, int dstChannel);
     ~Connector () = default;
 
-    void setInput (const uint32 sourceFilterID_, const uint32 sourceFilterChannel_);
-    void setOutput (const uint32 destFilterID_, const uint32 destFilterChannel_);
+    void setInput (const uint32 sourceFilterID, const uint32 sourceFilterChannel);
+    void setOutput (const uint32 destFilterID, const uint32 destFilterChannel);
 
     void dragStart (int x, int y);
     void dragEnd (int x, int y);
@@ -48,8 +48,8 @@ public:
     void update ();
 
     /** Connection IDs and channels for this object */
-    uint32	sourceFilterID, destFilterID;
-    uint32	sourceFilterChannel, destFilterChannel;
+    uint32 sourceFilterID, destFilterID;
+    uint32 sourceFilterChannel, destFilterChannel;
 
 private:
     GraphComponent* getGraph () const
@@ -83,7 +83,7 @@ private:
     /** Position of the connection on the graph */
     float lastx1, lasty1, lastx2, lasty2;
 
-    GraphModel& graph;
+    APG::Graph& graph;
     bool dragging;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Connector);
