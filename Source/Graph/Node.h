@@ -45,12 +45,12 @@ public:
         return name;
     }
 
-    virtual uint32_t getNumInputChannels () const
+    virtual int getNumInputChannels () const
     {
         return 0;
     }
 
-    virtual uint32_t getNumOutputChannels () const
+    virtual int getNumOutputChannels () const
     {
         return 0;
     }
@@ -65,12 +65,12 @@ public:
         return false;
     }
 
-    void setID (uint32_t _id) { this->id = _id; }
-    uint32_t getID () const { return id; }
+    void setID (int _id) { this->id = _id; }
+    int getID () const { return id; }
 
     virtual void process (const ReadOnlyBufferArray& /*buffersIn*/,
                           const BufferArray& /*buffersOut*/,
-                          const uint32_t numSamples)
+                          const int numSamples)
     {
         assert (numSamples > 0);
         // TODO need this assertion to work but also deal with 'Empty' buffers

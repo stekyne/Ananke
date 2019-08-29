@@ -19,9 +19,7 @@ public:
 
     ~SawOSCNode () = default;
 
-    void process (const ReadOnlyBufferArray& audioIn,
-                  const BufferArray& audioOut,
-                  const uint32_t numSamples) override
+    void process (const ReadOnlyBufferArray& audioIn, const BufferArray& audioOut, const int numSamples) override
     {
         Node::process (audioIn, audioOut, numSamples);
 
@@ -52,12 +50,12 @@ public:
         return "Saw OSC";
     }
 
-    unsigned int getNumInputChannels () const override
+    int getNumInputChannels () const override
     {
         return 0;
     }
 
-    unsigned int getNumOutputChannels () const override
+    int getNumOutputChannels () const override
     {
         return 2;
     }

@@ -32,9 +32,7 @@ public:
 
     ~LowPassNode () = default;
 
-    void process (const ReadOnlyBufferArray& audioIn,
-                    const BufferArray& audioOut,
-                    const uint32_t numSamples) override
+    void process (const ReadOnlyBufferArray& audioIn, const BufferArray& audioOut, const int numSamples) override
     {
         Node::process (audioIn, audioOut, numSamples);
 
@@ -68,12 +66,12 @@ public:
         return "LP Filter";
     }
 
-    unsigned int getNumInputChannels () const override
+    int getNumInputChannels () const override
     {
         return 2;
     }
 
-    unsigned int getNumOutputChannels () const override
+    int getNumOutputChannels () const override
     {
         return 2;
     }

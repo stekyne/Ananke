@@ -331,7 +331,7 @@ bool Graph::buildGraph ()
     if (result == false)
         return false;
 
-    for (int i = (int)sortedNodes.size (); --i >= 0;)
+    for (auto i = sortedNodes.size (); --i >= 0;)
     {
         auto node = sortedNodes[i];
         assert (node != nullptr);
@@ -341,8 +341,7 @@ bool Graph::buildGraph ()
 
         for (auto j = 0u; j < node->getNumOutputChannels (); ++j)
         {
-            auto freeBuffer = 
-                audioBufferManager.getFreeBuffer (AudioBufferID (node->getID (), j));
+            auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (node->getID (), j));
             nodeOutputBuffers.push_back (freeBuffer);
         }
 
@@ -351,18 +350,17 @@ bool Graph::buildGraph ()
 
         if (node->getNumInputChannels () > 0)
         {
-            for (auto nodeChan = 0u; nodeChan < node->getNumOutputChannels (); ++nodeChan)
+            for (auto nodeChan = 0; nodeChan < node->getNumOutputChannels (); ++nodeChan)
             {
                 std::vector<AudioBuffer<DSP::SampleType>*> buffers;
 
                 for (auto& connection : connections)
                 {
-                    if (connection.destNode == node->getID () &&
-                        connection.destChannel == nodeChan)
+                    if (connection.destNode == node->getID () && connection.destChannel == nodeChan)
                     {
-                        auto bufferPtr =
-                            audioBufferManager.getBufferFromID (AudioBufferID (connection.sourceNode,
-                                                                               connection.sourceChannel));
+                        auto bufferPtr = audioBufferManager.getBufferFromID (
+							AudioBufferID (connection.sourceNode, connection.sourceChannel));
+
                         assert (bufferPtr != nullptr);
                         buffers.push_back (bufferPtr);
                     }

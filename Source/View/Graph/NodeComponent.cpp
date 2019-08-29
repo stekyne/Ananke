@@ -137,14 +137,14 @@ void NodeComponent::update ()
         midiOut = nullptr;
         deleteAllChildren ();
 
-        for (auto i = 0u; i < node->getNumInputChannels (); ++i)
+        for (auto i = 0; i < node->getNumInputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioInput, id, i, *graphComp);
             inputs.push_back (newPin);
             addAndMakeVisible (newPin);
         }    
 
-        for (auto i = 0u; i < node->getNumOutputChannels (); ++i)
+        for (auto i = 0; i < node->getNumOutputChannels (); ++i)
         {
             Pin* const newPin = new Pin (Pin::AudioOutput, id, i, *graphComp);
             outputs.push_back (newPin);

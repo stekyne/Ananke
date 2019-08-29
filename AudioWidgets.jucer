@@ -5,6 +5,31 @@
               jucerVersion="5.4.4">
   <MAINGROUP id="ztJ27y" name="AudioWidgets">
     <GROUP id="{A8E72126-27BC-3EA5-58BE-824B5598C7FF}" name="Source">
+      <GROUP id="{A89611A3-18FF-8395-FA46-FD6DC212E790}" name="Graph">
+        <GROUP id="{E12F1A82-191B-DC3B-991F-002092F4F2ED}" name="NodeTypes">
+          <FILE id="NzADjS" name="GainNode.h" compile="0" resource="0" file="Source/Graph/NodeTypes/GainNode.h"/>
+          <FILE id="JZwCGe" name="LowPass.h" compile="0" resource="0" file="Source/Graph/NodeTypes/LowPass.h"/>
+          <FILE id="D6CQvJ" name="SawOsc.h" compile="0" resource="0" file="Source/Graph/NodeTypes/SawOsc.h"/>
+        </GROUP>
+        <FILE id="tIdLF1" name="AudioBuffer.h" compile="0" resource="0" file="Source/Graph/AudioBuffer.h"/>
+        <FILE id="LfB5iD" name="AudioBufferManager.cpp" compile="1" resource="0"
+              file="Source/Graph/AudioBufferManager.cpp"/>
+        <FILE id="FDjSD6" name="AudioBufferManager.h" compile="0" resource="0"
+              file="Source/Graph/AudioBufferManager.h"/>
+        <FILE id="Aiz4xA" name="Connection.h" compile="0" resource="0" file="Source/Graph/Connection.h"/>
+        <FILE id="Z4deEy" name="ConnectionManager.h" compile="0" resource="0"
+              file="Source/Graph/ConnectionManager.h"/>
+        <FILE id="KytA2H" name="DSP.h" compile="0" resource="0" file="Source/Graph/DSP.h"/>
+        <FILE id="ZS9K9K" name="Graph.cpp" compile="1" resource="0" file="Source/Graph/Graph.cpp"/>
+        <FILE id="de8AH8" name="Graph.h" compile="0" resource="0" file="Source/Graph/Graph.h"/>
+        <FILE id="JwZyHK" name="GraphOp.h" compile="0" resource="0" file="Source/Graph/GraphOp.h"/>
+        <FILE id="Ss4yhy" name="Node.cpp" compile="1" resource="0" file="Source/Graph/Node.cpp"/>
+        <FILE id="tlgQYf" name="Node.h" compile="0" resource="0" file="Source/Graph/Node.h"/>
+        <FILE id="WyMUc4" name="Nodes.h" compile="0" resource="0" file="Source/Graph/Nodes.h"/>
+        <FILE id="JxbZ9I" name="Utilities.h" compile="0" resource="0" file="Source/Graph/Utilities.h"/>
+      </GROUP>
+      <FILE id="rhvaiO" name="AudioProcessingGraph.h" compile="0" resource="0"
+            file="Source/AudioProcessingGraph.h"/>
       <FILE id="xwxq78" name="AppColours.h" compile="0" resource="0" file="Source/AppColours.h"/>
       <FILE id="XMHQDH" name="CommandIDs.h" compile="0" resource="0" file="Source/CommandIDs.h"/>
       <FILE id="Fpa3vu" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
@@ -25,7 +50,6 @@
           <FILE id="lONogQ" name="Pin.cpp" compile="1" resource="0" file="Source/View/Graph/Pin.cpp"/>
           <FILE id="jwvXnC" name="Pin.h" compile="0" resource="0" file="Source/View/Graph/Pin.h"/>
         </GROUP>
-        <GROUP id="{EC0D44D6-2232-958E-36B4-9EBC3792C05B}" name="Widgets"/>
       </GROUP>
       <GROUP id="{42B9F758-4FBB-460D-5D45-B08B9B402240}" name="Controller">
         <FILE id="KUjzDE" name="AppController.cpp" compile="1" resource="0"
