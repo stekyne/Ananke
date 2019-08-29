@@ -4,7 +4,7 @@
 #include "Pin.h"
 #include "..\Source\AudioProcessingGraph.h"
 
-GraphComponent::GraphComponent (std::shared_ptr<APG::Graph> graph) :
+GraphComponent::GraphComponent (APG::Graph& graph) :
     graph (graph)
 {
     setOpaque (true);
@@ -76,7 +76,7 @@ void GraphComponent::beginConnector (const uint32 sourceFilterID, const int sour
     /** User didnt click on a connector so create a new one */
     if (draggingConnector == nullptr)
     {
-        draggingConnector = new Connector (*graph,
+        draggingConnector = new Connector (graph,
                                            sourceFilterID, sourceFilterChannel,
                                            destFilterID, destFilterChannel);
     }
@@ -123,7 +123,7 @@ void GraphComponent::dragConnector (const MouseEvent& e)
                 dstChannel = pin->Index;
             }
             
-            if (graph->canConnect (APG::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+            if (graph.canConnect (APG::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
             {
                 x = pin->getParentComponent ()->getX () + 
                     pin->getX () + pin->getWidth () / 2;
@@ -180,7 +180,7 @@ void GraphComponent::endConnector (const MouseEvent& e)
             dstChannel = pin->Index;
         }
 
-        if (graph->addConnection (APG::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
+        if (graph.addConnection (APG::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
         {
             DBG ("Connection is successful: " + String (srcFilter) + 
                  " to " + String (dstFilter));
@@ -235,7 +235,7 @@ void GraphComponent::updateGraph ()
                                                   cc->destFilterID,
                                                   cc->destFilterChannel);
 
-            if (graph->connectionExists (testConnection) == false)
+            if (graph.connectionExists (testConnection) == false)
             {
                 delete cc;
             }
@@ -246,11 +246,11 @@ void GraphComponent::updateGraph ()
         }
     }
 
-    for (auto& connection : graph->getConnections ())
+    for (auto& connection : graph.getConnections ())
     {
         if (getComponentForConnection (connection) == nullptr)
         {
-            Connector* const conn = new Connector (*graph);
+            Connector* const conn = new Connector (graph);
 
             addAndMakeVisible (conn);
 
@@ -259,7 +259,7 @@ void GraphComponent::updateGraph ()
         }
     }
 
-    for (auto& node : graph->getNodes ())
+    for (auto& node : graph.getNodes ())
     {
         const auto id = node->getID ();
 

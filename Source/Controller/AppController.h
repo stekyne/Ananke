@@ -14,7 +14,7 @@ public:
     AppController ();
     ~AppController ();
 
-    std::shared_ptr<APG::Graph> getGraphModel () const
+    APG::Graph& getGraphModel ()
     {
         return graphModel;
     }
@@ -25,6 +25,7 @@ public:
         const float** inputChannelData, int totalNumInputChannels,
         float **outputChannelData, int totalNumOutputChannels,
         int numSamples) override;
+
     void audioDeviceAboutToStart (AudioIODevice* device) override;
     void audioDeviceStopped () override;
 
@@ -39,7 +40,7 @@ private:
 private:
     juce::ValueTree valueTree;
     OwnedArray<WidgetWrapper> widgets;
-    std::shared_ptr<APG::Graph> graphModel;
+    APG::Graph graphModel;
     std::unique_ptr<AudioDeviceManager> deviceManager;
     std::unique_ptr<AudioFormatManager> formatManager;
 };

@@ -7,7 +7,7 @@ namespace Ananke
 {
     enum Colours
     {
-        BackgroundMain      = 0x000000
+        BackgroundMain = 0x000000
     };
 }
 

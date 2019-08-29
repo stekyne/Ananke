@@ -15,7 +15,7 @@ class NodeComponent : public Component
 {
 public:
     NodeComponent () = delete;
-    NodeComponent (std::shared_ptr<APG::Graph> graph, uint32 id);
+    NodeComponent (APG::Graph& graph, uint32 id);
     ~NodeComponent ();
 
     void getPinPos (const int index, const bool isInput, float& x, float& y);
@@ -41,7 +41,7 @@ private:
     Font font;
     Pin* midiIn {nullptr};
     Pin* midiOut {nullptr};
-    std::shared_ptr<APG::Graph> graph;
+    APG::Graph& graph;
     int numIns {0}, numOuts {0}, numInputs {0}, numOutputs {0};
     bool acceptsMidi {false}, producesMidi {false};
 

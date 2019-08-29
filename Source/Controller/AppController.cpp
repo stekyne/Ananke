@@ -3,7 +3,6 @@
 #include "AppController.h"
 
 AppController::AppController () :
-    graphModel (new APG::Graph),
     valueTree (juce::Identifier ("audioWidgets")),
     deviceManager (std::make_unique<AudioDeviceManager> ()),
     formatManager (std::make_unique<AudioFormatManager> ())
@@ -45,9 +44,9 @@ void AppController::audioDeviceIOCallback (
     float** outputChannelData, int totalNumOutputChannels,
     int numSamples)
 {
-    graphModel->processGraph (inputChannelData, totalNumInputChannels, 
-                              outputChannelData, totalNumOutputChannels,
-                              numSamples);
+    graphModel.processGraph (inputChannelData, totalNumInputChannels, 
+                             outputChannelData, totalNumOutputChannels,
+                             numSamples);
 }
 
 void AppController::audioDeviceAboutToStart (AudioIODevice* device)
@@ -55,7 +54,7 @@ void AppController::audioDeviceAboutToStart (AudioIODevice* device)
     const auto sampleRate = (float)device->getCurrentSampleRate ();
     const auto blockSize = device->getCurrentBufferSizeSamples ();
 
-    graphModel->setSettings (APG::Graph::Settings (sampleRate, blockSize, 50));    
+    graphModel.setSettings (APG::Graph::Settings (sampleRate, blockSize, 50));    
 }
 
 void AppController::audioDeviceStopped ()
@@ -87,17 +86,17 @@ void AppController::loadTestData ()
     auto sawNode = new SawOSCNode (2);
     auto lowPassNode = new LowPassNode (3);
 
-    graphModel->addNode (gainNode);
-    graphModel->addNode (sawNode);
-    graphModel->addNode (lowPassNode);
+    graphModel.addNode (gainNode);
+    graphModel.addNode (sawNode);
+    graphModel.addNode (lowPassNode);
 
-    graphModel->addConnection (Connection (*sawNode, 0, *gainNode, 0));
-    graphModel->addConnection (Connection (*sawNode, 1, *gainNode, 1));
-    graphModel->addConnection (Connection (*gainNode, 0, *lowPassNode, 0));
-    graphModel->addConnection (Connection (*gainNode, 1, *lowPassNode, 1));
+    graphModel.addConnection (Connection (*sawNode, 0, *gainNode, 0));
+    graphModel.addConnection (Connection (*sawNode, 1, *gainNode, 1));
+    graphModel.addConnection (Connection (*gainNode, 0, *lowPassNode, 0));
+    graphModel.addConnection (Connection (*gainNode, 1, *lowPassNode, 1));
 
-    graphModel->addConnection (Connection (lowPassNode->getID (), 0, Graph::AudioOutputID, 0));
-    graphModel->addConnection (Connection (lowPassNode->getID (), 1, Graph::AudioOutputID, 1));
+    graphModel.addConnection (Connection (lowPassNode->getID (), 0, Graph::AudioOutputID, 0));
+    graphModel.addConnection (Connection (lowPassNode->getID (), 1, Graph::AudioOutputID, 1));
 
-    graphModel->buildGraph ();
+    graphModel.buildGraph ();
 }

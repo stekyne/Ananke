@@ -41,9 +41,8 @@ public:
     void initialise (const String& /*commandLine*/) override
     {
         LookAndFeel::setDefaultLookAndFeel (&lookAndFeel);
-        appController = std::make_shared<AppController> ();
         
-        if (!appController->initialiseAudioDevice ())
+        if (!appController.initialiseAudioDevice ())
         {
             AlertWindow::showMessageBoxAsync (
                 AlertWindow::WarningIcon,
@@ -53,14 +52,13 @@ public:
         }
         else
         {
-            mainWindow = new MainWindow (appController);
+            mainWindow = std::make_unique<MainWindow> (appController);
         }
     }
 
     void shutdown() override
     {
         mainWindow = nullptr;
-        appController.reset ();
 
 #ifdef _DEBUG
         _CrtDumpMemoryLeaks ();
@@ -79,7 +77,7 @@ public:
     class MainWindow : public DocumentWindow
     {
     public:
-        MainWindow (std::shared_ptr<AppController>& _appController)  : 
+        MainWindow (AppController& _appController)  : 
             DocumentWindow ("Ananke",
                             Colours::lightgrey,
                             DocumentWindow::allButtons)
@@ -100,8 +98,8 @@ public:
     };
 
 private:
-    std::shared_ptr<AppController> appController;
-    ScopedPointer<MainWindow> mainWindow;    
+    AppController appController;
+    std::unique_ptr<MainWindow> mainWindow;
     AnankeLookAndFeel lookAndFeel;
 };
 

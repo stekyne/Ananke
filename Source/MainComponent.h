@@ -15,7 +15,7 @@ class MainContentComponent   :  public Component,
                                 public ApplicationCommandTarget
 {
 public:
-    MainContentComponent (std::shared_ptr<AppController> appController);
+    MainContentComponent (AppController& appController);
     ~MainContentComponent ();
 
     void paint (Graphics&) override;
@@ -23,10 +23,8 @@ public:
 
 private:
     // Menu Bar Model
-    virtual PopupMenu getMenuForIndex (int topLevelMenuIndex,
-                                       const String& menuName) override;
-    virtual void menuItemSelected (int menuItemID,
-                                   int topLevelMenuIndex) override;
+    virtual PopupMenu getMenuForIndex (int topLevelMenuIndex, const String& menuName) override;
+    virtual void menuItemSelected (int menuItemID, int topLevelMenuIndex) override;
     StringArray getMenuBarNames () override;
 
     // Application Command Target
@@ -36,7 +34,7 @@ private:
     bool perform (const InvocationInfo& info) override;
 
 private:
-    std::shared_ptr<AppController> appController;
+    AppController& appController;
     GraphComponent graph;
     ApplicationCommandManager commandManager;
     MidiKeyboardState midiKeyboardState;

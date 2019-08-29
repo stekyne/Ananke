@@ -4,10 +4,9 @@
 #include "MainComponent.h"
 #include "CommandIDs.h"
 
-MainContentComponent::MainContentComponent (
-    std::shared_ptr<AppController> appController) :   
+MainContentComponent::MainContentComponent (AppController& appController) :
     appController (appController),
-    graph (appController->getGraphModel ()),
+    graph (appController.getGraphModel ()),
     midiKeyboard (midiKeyboardState, MidiKeyboardComponent::horizontalKeyboard),
     menuBar (this)
 {
@@ -86,7 +85,10 @@ void MainContentComponent::menuItemSelected (int menuItemID, int /*topLevelMenuI
 StringArray MainContentComponent::getMenuBarNames ()
 {
     return StringArray ({ 
-        "File", "Edit", "Settings", "Help", 
+        "File", 
+		"Edit", 
+		"Settings", 
+		"Help", 
     });
 }
 
@@ -147,7 +149,7 @@ bool MainContentComponent::perform (const InvocationInfo& info)
 
     case Ananke::menuSettingsOption: 
     {
-        auto selector = appController->getSelector ();
+        auto selector = appController.getSelector ();
 
         DialogWindow::LaunchOptions o;
         o.content.setNonOwned (selector.get ());

@@ -14,7 +14,7 @@ class Pin;
 class GraphComponent : public Component
 {
 public:
-    GraphComponent (std::shared_ptr<APG::Graph> graph);
+    GraphComponent (APG::Graph& graph);
     ~GraphComponent ();
 
     void resized ();
@@ -34,7 +34,7 @@ public:
     void updateGraph ();
 
 private:
-    std::shared_ptr<APG::Graph> graph;
+    APG::Graph& graph;
     Connector* draggingConnector {nullptr};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
