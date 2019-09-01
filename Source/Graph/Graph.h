@@ -40,10 +40,10 @@ public:
         int controlRate {32};
 
         // Number of input channels for the graph
-        uint32_t numberInputChannels {2};
+        int numberInputChannels {2};
 
         // Number of output channels for the graph
-        uint32_t numberOutputChannels {2};
+        int numberOutputChannels {2};
 
         Settings (float sampleRate, int blockSize, int controlRate) :
             sampleRate (sampleRate),
@@ -70,7 +70,7 @@ public:
     int nodeCount () const;
     const std::vector<Node*>& getNodes () const { return nodes; }
 
-    Node* const getNodeForID (uint32_t id);
+    Node* const getNodeForID (int id);
 
     // Adds new Connection to graph if valid
     bool addConnection (const Connection& newConnection);
@@ -101,9 +101,9 @@ public:
     // Execute the graph of nodes to generate output
     // Returns true if the graph has reconfigured due to incoming parameter changes
     // i.e. number of inputs/outputs has changed or block size changed
-    bool processGraph (const float** audioIn, const uint32_t inputChannelNum, 
-                       float** audioOut, const uint32_t outputChannelNum,
-                       const uint32_t blockSize);
+    bool processGraph (const float** audioIn, const int inputChannelNum, 
+                       float** audioOut, const int outputChannelNum,
+                       const int blockSize);
 
     void setSettings (Settings settings);
     const Settings& getSettings () const;
@@ -145,13 +145,13 @@ private:
     // Returns true if graph can be sorted with no loops
     bool performSort (std::vector<Node*>& sortedNodes);
 
-    std::vector<uint32_t> getDependentsForNode (uint32_t nodeID);
-    void clearConnectionsForNode (uint32_t nodeID);
+    std::vector<int> getDependentsForNode (int nodeID);
+    void clearConnectionsForNode (int nodeID);
 
     // Attach external audio buffers to graph
-    bool setIONodeBuffers (const float** const inBuffers, uint32_t inputChannels,
-                           float** const outBuffers, uint32_t outputChannels, 
-                           uint32_t numSamples);
+    bool setIONodeBuffers (const float** const inBuffers, int inputChannels,
+                           float** const outBuffers, int outputChannels, 
+                           int numSamples);
 
 private:
     std::vector<Node*> nodes;

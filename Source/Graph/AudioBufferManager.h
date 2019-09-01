@@ -16,13 +16,13 @@ public:
     AudioBufferManager () = delete;
     ~AudioBufferManager () = default;
 
-    explicit AudioBufferManager (uint32_t bufferSize) :
+    explicit AudioBufferManager (int bufferSize) :
         bufferSize (bufferSize)
     {
     }
 
     // Set the number of samples per block allocated
-    void setBufferSize (uint32_t _bufferSize)
+    void setBufferSize (int _bufferSize)
     {
         // Re-allocate memory if new block size is greater
         for (auto& buffer : buffers)
@@ -33,9 +33,9 @@ public:
         this->bufferSize = _bufferSize;
     }
 
-    void allocateBuffers (uint32_t numberBuffers)
+    void allocateBuffers (int numberBuffers)
     {
-        for (auto i = 0u; i < numberBuffers; ++i)
+        for (auto i = 0; i < numberBuffers; ++i)
         {
             createBuffer ();
         }
@@ -93,7 +93,7 @@ public:
     }
 
     // Free's all buffers associated with node ID
-    void markFreeByID (uint32_t id)
+    void markFreeByID (int id)
     {
         for (const auto& buffer : buffers)
         {
@@ -107,7 +107,7 @@ public:
 
     auto getFreeBufferCount () const 
     { 
-        uint32_t numberFreeBuffers = 0;
+        int numberFreeBuffers = 0;
         
         for (const auto& buffer : buffers)
         {
@@ -135,8 +135,8 @@ private:
     using BufferPtr = std::unique_ptr<AudioBuffer<DSP::SampleType>>;
 
     std::vector<BufferPtr> buffers;
-    uint32_t ids {0};
-    uint32_t bufferSize {0};
+    int ids {0};
+    int bufferSize {0};
 };
 
 }

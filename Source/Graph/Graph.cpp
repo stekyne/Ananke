@@ -41,7 +41,7 @@ Graph::Graph (Settings settings) :
 
 Graph::~Graph ()
 {
-    for (unsigned int i = 0; i < graphOps.size (); ++i)
+    for (auto i = 0; i < graphOps.size (); ++i)
     {
         if (graphOps[i] != nullptr)
         {
@@ -62,8 +62,7 @@ Graph::~Graph ()
 
 bool Graph::isEmpty () const
 {
-    return nodes.size () == 0 && 
-           connections.size () == 0;
+    return nodes.size () == 0 && connections.size () == 0;
 }
 
 bool Graph::addNode (Node* const newNode)
@@ -114,11 +113,12 @@ int Graph::nodeCount () const
     return (int)nodes.size ();
 }
 
-Node* const Graph::getNodeForID (uint32_t id)
+Node* const Graph::getNodeForID (int id)
 {
-    const auto result = 
-        std::find_if (std::cbegin (nodes), std::cend (nodes), 
-                      [&](Node* n) { return n->getID () == id; });
+	// TODO need to find graph fixed nodes, audio in/out, midi
+
+    const auto result = std::find_if (std::cbegin (nodes), std::cend (nodes), 
+		[&](Node* n) { return n->getID () == id; });
 
     if (result != std::cend (nodes))
         return *result;
@@ -192,10 +192,7 @@ bool Graph::canConnect (const Connection& newConnection)
 
 bool Graph::removeConnection (const Connection& connection)
 {
-    auto iterator = 
-        std::remove (connections.begin (), 
-                     connections.end (), 
-                     connection);
+    auto iterator = std::remove (connections.begin (), connections.end (), connection);
 
     if (iterator != std::end (connections))
     {
@@ -220,9 +217,8 @@ int Graph::connectionCount () const
 
 bool Graph::connectionExists (const Connection& testConnection) const
 {
-    return std::find (connections.cbegin (), 
-                      connections.cend (), 
-                      testConnection) != connections.cend ();
+    return std::find (connections.cbegin (), connections.cend (), 
+		testConnection) != connections.cend ();
 }
 
 bool Graph::isValidNewConnection (const Connection& testConnection) const
@@ -331,15 +327,15 @@ bool Graph::buildGraph ()
     if (result == false)
         return false;
 
-    for (auto i = sortedNodes.size (); --i >= 0;)
+    for (auto i = (int)sortedNodes.size (); --i >= 0;)
     {
-        auto node = sortedNodes[i];
+        auto& node = sortedNodes[i];
         assert (node != nullptr);
 
         // Associate this node's output with free buffers
         BufferArray nodeOutputBuffers;
 
-        for (auto j = 0u; j < node->getNumOutputChannels (); ++j)
+        for (auto j = 0; j < node->getNumOutputChannels (); ++j)
         {
             auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (node->getID (), j));
             nodeOutputBuffers.push_back (freeBuffer);
@@ -398,9 +394,9 @@ bool Graph::buildGraph ()
     return true;
 }
 
-bool Graph::processGraph (const float** audioIn, const uint32_t numAudioInputs,
-                          float** audioOut, const uint32_t numAudioOutputs,
-                          const uint32_t blockSize)
+bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
+                          float** audioOut, const int numAudioOutputs,
+                          const int blockSize)
 {
     assert (audioIn != nullptr);
     assert (audioOut != nullptr);
@@ -444,9 +440,9 @@ bool Graph::processGraph (const float** audioIn, const uint32_t numAudioInputs,
     return hasUpdated;
 }
 
-bool Graph::setIONodeBuffers (const float** const inBuffers, uint32_t inputChannels,
-                              float** const outBuffers, uint32_t outputChannels,
-                              uint32_t numSamples)
+bool Graph::setIONodeBuffers (const float** const inBuffers, int inputChannels,
+                              float** const outBuffers, int outputChannels,
+                              int numSamples)
 {
     bool hasChanged = false;
 
@@ -460,11 +456,10 @@ bool Graph::setIONodeBuffers (const float** const inBuffers, uint32_t inputChann
         audioBufferManager.markFreeByID (Graph::AudioInputID);
 
         // Add new buffers to audio manager
-        for (auto chan = 0u; chan < inputChannels; ++chan)
+        for (auto chan = 0; chan < inputChannels; ++chan)
         {
             // This will register a buffer with the appropriate ID
-            auto freeBuffer = 
-                audioBufferManager.getFreeBuffer (AudioBufferID (Graph::AudioInputID, chan));
+            auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (Graph::AudioInputID, chan));
             assert (freeBuffer != nullptr);
         }
         
@@ -472,11 +467,10 @@ bool Graph::setIONodeBuffers (const float** const inBuffers, uint32_t inputChann
     }
 
     // Assign incoming buffer pointers to graph buffers
-    for (auto chan = 0u; chan < inputChannels; ++chan)
+    for (auto chan = 0; chan < inputChannels; ++chan)
     {
         // Map incoming buffer pointers to existing IO buffers
-        auto buffer = audioBufferManager.getBufferFromID (
-                            AudioBufferID (Graph::AudioInputID, chan));
+        auto buffer = audioBufferManager.getBufferFromID (AudioBufferID (Graph::AudioInputID, chan));
         assert (buffer != nullptr);
         buffer->setBufferToUse (inBuffers[chan], numSamples);
     }
@@ -484,15 +478,13 @@ bool Graph::setIONodeBuffers (const float** const inBuffers, uint32_t inputChann
     if (settings.numberOutputChannels != outputChannels)
     {
         settings.numberOutputChannels = outputChannels;
-        
         audioBufferManager.markFreeByID (Graph::AudioOutputID);
 
         // Add new buffers to audio manager
-        for (auto chan = 0u; chan < outputChannels; ++chan)
+        for (auto chan = 0; chan < outputChannels; ++chan)
         {
             // This will register a buffer with the appropriate ID
-            auto freeBuffer = 
-                audioBufferManager.getFreeBuffer (AudioBufferID (Graph::AudioOutputID, chan));
+            auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (Graph::AudioOutputID, chan));
             assert (freeBuffer != nullptr);
         }
 
@@ -500,10 +492,9 @@ bool Graph::setIONodeBuffers (const float** const inBuffers, uint32_t inputChann
     }
 
     // Assign incoming buffer pointers to graph buffers
-    for (auto chan = 0u; chan < outputChannels; ++chan)
+    for (auto chan = 0; chan < outputChannels; ++chan)
     {
-        auto buffer = audioBufferManager.getBufferFromID (
-            AudioBufferID (Graph::AudioOutputID, chan));
+        auto buffer = audioBufferManager.getBufferFromID (AudioBufferID (Graph::AudioOutputID, chan));
         assert (buffer != nullptr);
         buffer->setBufferToUse (outBuffers[chan], numSamples);
     }
@@ -514,9 +505,8 @@ bool Graph::setIONodeBuffers (const float** const inBuffers, uint32_t inputChann
     return hasChanged;
 }
 
-bool Graph::topologicalSortUtil (Node* currentNode, 
-                                 std::unordered_map<int, Markers>& visited, 
-                                 std::vector<Node*>& sortedNodes)
+bool Graph::topologicalSortUtil (Node* currentNode, std::unordered_map<int, Markers>& visited, 
+	std::vector<Node*>& sortedNodes)
 {
     const int currentNodeID = currentNode->getID ();
 
@@ -550,8 +540,7 @@ bool Graph::topologicalSortUtil (Node* currentNode,
             dbg ("Node: %d, attempting to visit node: %d \n", 
                  currentNodeID, adjacentNode->getID ());
 
-            const auto result = 
-                topologicalSortUtil (adjacentNode, visited, sortedNodes);
+            const auto result = topologicalSortUtil (adjacentNode, visited, sortedNodes);
 
             if (result == false)
                 return false;
@@ -629,17 +618,21 @@ std::string Graph::printGraph () const
     std::stringstream buffer;
     buffer << "____________________" << std::endl;
     buffer << "Graph Connections: " << std::endl;
+
     for (const auto& connection : connections)
     {
         buffer << "Src: (" << connection.sourceNode << ", " << connection.sourceChannel 
                << ") -> Dst: (" << connection.destNode << ", " << connection.destChannel << ")";
         buffer << std::endl;
     }
+
     buffer << std::endl << "Operations: " << std::endl;
+
     for (size_t x = 0; x < graphOps.size (); ++x)
     {
         buffer << graphOps[x]->getName () << std::endl;
     }
+
     buffer << "____________________" << std::endl;
     return buffer.str ();
 }
@@ -648,10 +641,7 @@ bool Graph::addListener (Listener* const newListener)
 {
     assert (newListener != nullptr);
 
-    const auto result = 
-        std::find (std::cbegin (listeners), 
-                   std::cend (listeners), 
-                   newListener);
+    const auto result = std::find (std::cbegin (listeners), std::cend (listeners), newListener);
 
     // Didn't find the listener so add it
     if (result == std::cend (listeners))
@@ -667,10 +657,7 @@ bool Graph::removeListener (const Listener* listener)
 {
     assert (listener != nullptr);
 
-    const auto result =
-        std::find (std::cbegin (listeners), 
-                   std::cend (listeners), 
-                   listener);
+	const auto result = std::find (std::cbegin (listeners), std::cend (listeners), listener);
     
     if (result != std::cend (listeners))
     {
@@ -681,16 +668,16 @@ bool Graph::removeListener (const Listener* listener)
     return false;
 }
 
-std::vector<uint32_t> Graph::getDependentsForNode (uint32_t nodeID)
+std::vector<int> Graph::getDependentsForNode (int nodeID)
 {
-    std::vector<uint32_t> dependentVec;
+    std::vector<int> dependentVec;
 
     for (const auto& connection : connections)
     {
         if (connection.sourceNode == nodeID)
         {
             if (std::find (std::cbegin (dependentVec), std::cend (dependentVec),
-                           connection.destNode) == std::end (dependentVec))
+					connection.destNode) == std::end (dependentVec))
             {
                 dependentVec.push_back (connection.destNode);
             }
@@ -700,7 +687,7 @@ std::vector<uint32_t> Graph::getDependentsForNode (uint32_t nodeID)
     return dependentVec;
 }
 
-void Graph::clearConnectionsForNode (uint32_t nodeID)
+void Graph::clearConnectionsForNode (int nodeID)
 {
     auto result = std::remove_if (connections.begin (), connections.end (), 
         [&](const Connection& conn) { 

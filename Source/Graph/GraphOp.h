@@ -22,9 +22,7 @@ private:
 class ProcessNodeOp : public GraphOp
 {
 public:
-    ProcessNodeOp (ReadOnlyBufferArray&& audioIn,
-                   BufferArray&& audioOut,
-                   Node* node) :
+    ProcessNodeOp (ReadOnlyBufferArray&& audioIn, BufferArray&& audioOut, Node* node) :
         audioIn (std::forward<ReadOnlyBufferArray>(audioIn)),
         audioOut (std::forward<BufferArray>(audioOut)),
         node (node)

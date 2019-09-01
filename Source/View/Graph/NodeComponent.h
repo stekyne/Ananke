@@ -15,7 +15,7 @@ class NodeComponent : public Component
 {
 public:
     NodeComponent () = delete;
-    NodeComponent (APG::Graph& graph, uint32 id);
+    NodeComponent (APG::Graph& graph, int id);
     ~NodeComponent ();
 
     void getPinPos (const int index, const bool isInput, float& x, float& y);

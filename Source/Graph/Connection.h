@@ -10,24 +10,24 @@ namespace APG {
 struct Connection
 {
     Connection () = default;
-    Connection (uint32_t sourceNode, uint32_t sourceChannel, 
-                uint32_t destNode, uint32_t destChannel) :
+    Connection (int sourceNode, int sourceChannel,
+                int destNode, int destChannel) :
         sourceNode (sourceNode),
         sourceChannel (sourceChannel),
         destNode (destNode),
         destChannel (destChannel)
     {}
 
-    Connection (const Node& node1, uint32_t node1Channel,
-                const Node& node2, uint32_t node2Channel) :
+    Connection (const Node& node1, int node1Channel,
+                const Node& node2, int node2Channel) :
         sourceNode (node1.getID ()), 
         sourceChannel (node1Channel),
         destNode (node2.getID ()), 
         destChannel (node2Channel)
     {}
 
-    Connection (const Node* const node1, uint32_t node1Channel,
-                const Node* const node2, uint32_t node2Channel) :
+    Connection (const Node* const node1, int node1Channel,
+                const Node* const node2, int node2Channel) :
         sourceNode (node1->getID ()),
         sourceChannel (node1Channel),
         destNode (node2->getID ()),
@@ -51,8 +51,8 @@ struct Connection
         return !(lhs==rhs);
     }
     
-    uint32_t sourceNode {0}, destNode {0};
-    uint32_t sourceChannel {0}, destChannel {0};
+    int sourceNode {0}, destNode {0};
+    int sourceChannel {0}, destChannel {0};
 };
 
 }

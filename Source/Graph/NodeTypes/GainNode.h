@@ -32,7 +32,7 @@ public:
             auto& input = *audioIn[chan];
             auto& output = *audioOut[chan];
 
-            for (auto i = 0u; i < output.getSize (); ++i)
+            for (auto i = 0; i < output.getSize (); ++i)
             {
                 output[i] = input[i] * gain;
             }

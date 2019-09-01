@@ -13,7 +13,7 @@ namespace APG {
 
 struct AudioBufferID
 {
-    AudioBufferID (const uint32_t id, const uint32_t channelNumber) :
+    AudioBufferID (const int id, const int channelNumber) :
         id (id),
         channelNumber (channelNumber)
     {
@@ -60,8 +60,8 @@ struct AudioBufferID
     const static AudioBufferID Empty;
 
 private:
-    uint32_t id {0};
-    uint32_t channelNumber {0};
+    int id {0};
+    int channelNumber {0};
     std::vector<AudioBufferID> bufferIDs;
     bool isComposite {false};
 };
@@ -77,7 +77,7 @@ public:
     AudioBuffer& operator= (const AudioBuffer<SampleType>& other) = delete;
     AudioBuffer& operator= (AudioBuffer<SampleType>&& other) = delete;
 
-    AudioBuffer (uint32_t numSamples, AudioBufferID id) :
+    AudioBuffer (int numSamples, AudioBufferID id) :
         numSamples (numSamples),
         id (id),
         isBufferFree (id == AudioBufferID::Empty ? true : false)
@@ -86,7 +86,7 @@ public:
         buffer = new SampleType[numSamples];
     }
 
-    AudioBuffer (SampleType* buffer, uint32_t numSamples, AudioBufferID id) :
+    AudioBuffer (SampleType* buffer, int numSamples, AudioBufferID id) :
         buffer (buffer),
         numSamples (numSamples),
         id (id),
@@ -113,7 +113,7 @@ public:
         memset (buffer, 0, sizeof (SampleType) * numSamples);
     }
 
-    uint32_t getSize () const
+    int getSize () const
     {
         return numSamples;
     }
@@ -121,8 +121,7 @@ public:
     void setID (const AudioBufferID& _id)
     {
         this->id = _id;
-        isBufferFree = 
-            (id == AudioBufferID::Empty) ? true : false;
+        isBufferFree = (id == AudioBufferID::Empty) ? true : false;
     }
 
     AudioBufferID getID () const
@@ -135,7 +134,7 @@ public:
         return isBufferFree; 
     }
 
-    void setSize (uint32_t newBufferSize)
+    void setSize (int newBufferSize)
     {
         // Don't reallocate for smaller sizes
         if (newBufferSize <= numSamples)
@@ -156,13 +155,13 @@ public:
         numSamples = newBufferSize;
     }
 
-    SampleType& operator[] (const uint32_t index)
+    SampleType& operator[] (const int index)
     {
         assert (index < numSamples);
         return buffer[index];
     }
 
-    const SampleType& operator[] (const uint32_t index) const
+    const SampleType& operator[] (const int index) const
     {
         assert (index < numSamples);
         return buffer[index];
@@ -173,7 +172,7 @@ public:
         return buffer;
     }
 
-    void copyDataTo (DSP::SampleType* copyToBuffer, uint32_t _numSamples)
+    void copyDataTo (DSP::SampleType* copyToBuffer, int _numSamples)
     {
         assert (this->numSamples == _numSamples);
         memcpy (copyToBuffer, buffer, numSamples * sizeof (float));
@@ -181,7 +180,7 @@ public:
 
     // Copies a single channel worth of audio into this buffer
     // The buffers must match in length (number of samples)
-    void copyDataFrom (const DSP::SampleType* copyFromBuffer, uint32_t _numSamples)
+    void copyDataFrom (const DSP::SampleType* copyFromBuffer, int _numSamples)
     {
         assert (this->numSamples == _numSamples);
         assert (isReadOnly == false);
@@ -195,7 +194,7 @@ public:
         assert (otherBuffer->buffer != nullptr);
         assert (isReadOnly == false);
 
-        for (auto i = 0u; i < numSamples; ++i)
+        for (auto i = 0; i < numSamples; ++i)
         {
             this->buffer[i] += (*otherBuffer)[i];
         }
@@ -205,7 +204,7 @@ public:
     // be leaked by calling it. Therefore don't call it on an instance 
     // where it has allocated memory
     // Returns previously held buffer pointer incase it needs deletion
-    SampleType* setBufferToUse (SampleType* newBuffer, uint32_t _numSamples)
+    SampleType* setBufferToUse (SampleType* newBuffer, int _numSamples)
     {
         assert (newBuffer != nullptr);
         auto oldBuffer = buffer;
@@ -217,7 +216,7 @@ public:
         return oldBuffer;
     }
 
-    SampleType* setBufferToUse (const SampleType* newBuffer, uint32_t _numSamples)
+    SampleType* setBufferToUse (const SampleType* newBuffer, int _numSamples)
     {
         assert (newBuffer != nullptr);
 
@@ -236,7 +235,7 @@ public:
 
 private:
     SampleType* buffer {nullptr};
-    uint32_t numSamples {0};
+    int numSamples {0};
     AudioBufferID id {0, 0};
     bool isBufferFree {true};
     bool isReadOnly {false};

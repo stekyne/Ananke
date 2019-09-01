@@ -3,10 +3,10 @@
 #include "GraphComponent.h"
 #include "../Source/AudioProcessingGraph.h"
 
-NodeComponent::NodeComponent (APG::Graph& graph, uint32 id)
-    :   graph (graph),
-        id (id),
-        font (13.0f, Font::bold)
+NodeComponent::NodeComponent (APG::Graph& graph, int id) : 
+	graph (graph),
+    id (id),
+    font (13.0f, Font::bold)
 {
     setSize (120, 35);
 }
@@ -22,9 +22,7 @@ void NodeComponent::getPinPos (const int index, const bool isInput, float& x, fl
     {
         Pin* const pin = dynamic_cast<Pin*>(getChildComponent (i));
 
-        if (pin != nullptr &&
-            pin->Index == index &&
-            isInput == pin->IsInput)
+        if (pin != nullptr && pin->Index == index && isInput == pin->IsInput)
         {
             x = getX () + pin->getX () + pin->getWidth () * 0.5f;
             y = getY () + pin->getY () + pin->getHeight () * 0.5f;

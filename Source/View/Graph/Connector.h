@@ -14,12 +14,12 @@ public:
     Connector () = delete;
     Connector (APG::Graph& graph);
     Connector (APG::Graph& graph,
-               uint32 srcNodeComponent, int srcChannel,
-               uint32 dstNodeComponent, int dstChannel);
+               int srcNodeComponent, int srcChannel,
+               int dstNodeComponent, int dstChannel);
     ~Connector () = default;
 
-    void setInput (const uint32 sourceFilterID, const uint32 sourceFilterChannel);
-    void setOutput (const uint32 destFilterID, const uint32 destFilterChannel);
+    void setInput (const int sourceFilterID, const int sourceFilterChannel);
+    void setOutput (const int destFilterID, const int destFilterChannel);
 
     void dragStart (int x, int y);
     void dragEnd (int x, int y);
@@ -48,8 +48,8 @@ public:
     void update ();
 
     /** Connection IDs and channels for this object */
-    uint32 sourceFilterID, destFilterID;
-    uint32 sourceFilterChannel, destFilterChannel;
+    int sourceFilterID, destFilterID;
+    int sourceFilterChannel, destFilterChannel;
 
 private:
     GraphComponent* getGraph () const

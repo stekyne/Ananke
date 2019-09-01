@@ -47,7 +47,7 @@ public:
 
             FilterState& state = (chan == 0) ? lpLeft : lpRight;
 
-            for (auto i = 1u; i < output.getSize (); ++i)
+            for (auto i = 1; i < output.getSize (); ++i)
             {
                 output[i] = (float)((state.mA0 * input[i]) + (state.mA1 * state.mX1) +
                                     (state.mA2 * state.mX2) - (state.mB1 * state.mY1) -

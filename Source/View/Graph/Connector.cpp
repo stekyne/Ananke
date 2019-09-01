@@ -17,8 +17,8 @@ Connector::Connector (APG::Graph& graph)
 }
 
 Connector::Connector (APG::Graph& graph,
-                      uint32 srcNodeComponent_, int srcChannel_,
-                      uint32 dstNodeComponent_, int dstChannel_)
+                      int srcNodeComponent_, int srcChannel_,
+                      int dstNodeComponent_, int dstChannel_)
     :   graph (graph),
         sourceFilterID (srcNodeComponent_),
         sourceFilterChannel (srcChannel_),
@@ -32,7 +32,7 @@ Connector::Connector (APG::Graph& graph,
     setAlwaysOnTop (true);
 }
 
-void Connector::setInput (const uint32 sourceFilterID_, const uint32 sourceFilterChannel_)
+void Connector::setInput (const int sourceFilterID_, const int sourceFilterChannel_)
 {
     if (sourceFilterID != sourceFilterID_ || sourceFilterChannel != sourceFilterChannel_)
     {
@@ -42,7 +42,7 @@ void Connector::setInput (const uint32 sourceFilterID_, const uint32 sourceFilte
     }
 }
 
-void Connector::setOutput (const uint32 destFilterID_, const uint32 destFilterChannel_)
+void Connector::setOutput (const int destFilterID_, const int destFilterChannel_)
 {
     if (destFilterID != destFilterID_ || destFilterChannel != destFilterChannel_)
     {
