@@ -156,10 +156,8 @@ void Connector::update ()
     float x1, y1, x2, y2;
     getPoints (x1, y1, x2, y2);
 
-    if (lastx1 != x1 ||
-        lasty1 != y1 ||
-        lastx2 != x2 ||
-        lasty2 != y2)
+    if (lastx1 != x1 || lasty1 != y1 ||
+        lastx2 != x2 || lasty2 != y2)
     {
         resizeToFit ();
     }

@@ -54,8 +54,7 @@ public:
 private:
     GraphComponent* getGraph () const
     {
-        GraphComponent* graphComponent =
-            findParentComponentOfClass<GraphComponent> ();
+        GraphComponent* graphComponent = findParentComponentOfClass<GraphComponent> ();
 
         if (graphComponent == nullptr)
         {
@@ -65,9 +64,7 @@ private:
         return graphComponent;
     }
 
-    void getDistancesFromEnds (int x, int y,
-                               double& distanceFromStart,
-                               double& distanceFromEnd) const
+    void getDistancesFromEnds (int x, int y, double& distanceFromStart, double& distanceFromEnd) const
     {
         float x1, y1, x2, y2;
         getPoints (x1, y1, x2, y2);

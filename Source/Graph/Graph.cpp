@@ -29,14 +29,23 @@ namespace APG {
     int dbg (const char* format, ...) {}
 #endif
 
-Graph::Graph ()
+Graph::Graph () :
+	audioIn (AudioInputID),
+	audioOut (AudioOutputID)
 {
+	addNode (&audioIn);
+	addNode (&audioOut);
 }
 
 Graph::Graph (Settings settings) :   
     settings (settings),
-    audioBufferManager (settings.blockSize)
+    audioBufferManager (settings.blockSize),
+	audioIn (AudioInputID),
+	audioOut (AudioOutputID)
 {
+	addNode (&audioIn);
+	addNode (&audioOut);
+	// TODO add midi nodes
 }
 
 Graph::~Graph ()
@@ -116,6 +125,13 @@ int Graph::nodeCount () const
 Node* const Graph::getNodeForID (int id)
 {
 	// TODO need to find graph fixed nodes, audio in/out, midi
+	if (id == AudioOutputID)
+		return &audioOut;
+
+	if (id == AudioInputID)
+		return &audioIn;
+
+	// TODO add midi nodes
 
     const auto result = std::find_if (std::cbegin (nodes), std::cend (nodes), 
 		[&](Node* n) { return n->getID () == id; });
@@ -382,9 +398,7 @@ bool Graph::buildGraph ()
 
         // Bind new graph operation to process node with incoming/outgoing buffers
         // and node processing algorithm
-        graphOps.push_back (new ProcessNodeOp (std::move (nodeInputBuffers), 
-                                               std::move (nodeOutputBuffers), 
-                                               node));
+        graphOps.push_back (new ProcessNodeOp (std::move (nodeInputBuffers), std::move (nodeOutputBuffers), node));
     }
 
 #ifdef _DEBUG
@@ -433,9 +447,7 @@ bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
     }
 
     for (auto& op : graphOps)
-    {
         op->perform (blockSize);
-    }
 
     return hasUpdated;
 }

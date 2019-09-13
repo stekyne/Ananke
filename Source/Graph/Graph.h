@@ -13,6 +13,8 @@
 #include "DSP.h"
 #include "GraphOp.h"
 #include "Node.h"
+#include "../Graph/NodeTypes/AudioInputNode.h"
+#include "../Graph/NodeTypes/AudioOutputNode.h"
 
 namespace APG {
 
@@ -162,6 +164,8 @@ private:
     AudioBufferManager audioBufferManager {50};
     Settings settings {44100.f, 32, 16};
     std::vector<Listener*> listeners;
+	AudioInputNode audioIn;
+	AudioOutputNode audioOut;
 
     friend struct GraphVerifier;
 };

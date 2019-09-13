@@ -45,6 +45,9 @@ public:
         return name;
     }
 
+	void setID (int _id) { this->id = _id; }
+	int getID () const { return id; }
+
     virtual int getNumInputChannels () const
     {
         return 0;
@@ -64,9 +67,6 @@ public:
     {
         return false;
     }
-
-    void setID (int _id) { this->id = _id; }
-    int getID () const { return id; }
 
     virtual void process (const ReadOnlyBufferArray& /*buffersIn*/,
                           const BufferArray& /*buffersOut*/,
