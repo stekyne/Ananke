@@ -30,21 +30,21 @@ namespace Ananke {
 #endif
 
 Graph::Graph () :
-	audioIn (AudioInputID),
-	audioOut (AudioOutputID)
+	audioInNode (AudioInputID),
+	audioOutNode (AudioOutputID)
 {
-	addNode (&audioIn);
-	addNode (&audioOut);
+	addNode (&audioInNode);
+	addNode (&audioOutNode);
 }
 
 Graph::Graph (Settings settings) :   
     settings (settings),
     audioBufferManager (settings.blockSize),
-	audioIn (AudioInputID),
-	audioOut (AudioOutputID)
+	audioInNode (AudioInputID),
+	audioOutNode (AudioOutputID)
 {
-	addNode (&audioIn);
-	addNode (&audioOut);
+	addNode (&audioInNode);
+	addNode (&audioOutNode);
 	// TODO add midi nodes
 }
 
@@ -126,10 +126,10 @@ Node* const Graph::getNodeForID (int id)
 {
 	// TODO need to find graph fixed nodes, audio in/out, midi
 	if (id == AudioOutputID)
-		return &audioOut;
+		return &audioOutNode;
 
 	if (id == AudioInputID)
-		return &audioIn;
+		return &audioInNode;
 
 	// TODO add midi nodes
 

@@ -163,8 +163,8 @@ private:
     AudioBufferManager audioBufferManager {50};
     Settings settings {44100.f, 32, 16};
     std::vector<Listener*> listeners;
-	AudioInputNode audioIn;
-	AudioOutputNode audioOut;
+	AudioInputNode audioInNode;
+	AudioOutputNode audioOutNode;
 
     friend struct GraphVerifier;
 };
