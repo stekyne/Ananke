@@ -4442,6 +4442,9 @@
     <ClInclude Include="..\..\Source\Graph\NodeTypes\AudioInputNode.h">
       <Filter>AudioWidgets\Source\Graph\NodeTypes</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Graph\NodeTypes\AudioOutputNode.h">
+      <Filter>AudioWidgets\Source\Graph\NodeTypes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_audio_formats\codecs\flac\Flac Licence.txt">
