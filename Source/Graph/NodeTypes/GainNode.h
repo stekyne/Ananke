@@ -5,7 +5,7 @@
 
 #include "..\Node.h"
 
-namespace APG 
+namespace Ananke 
 {
 
 class GainNode : public Node

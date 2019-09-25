@@ -8,7 +8,7 @@
 
 #include "AudioBuffer.h"
 
-namespace APG {
+namespace Ananke {
 
 class Node
 {

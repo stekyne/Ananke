@@ -6,7 +6,7 @@
 
 #include "Connection.h"
 
-namespace APG {
+namespace Ananke {
 
 // TODO experimental connection manager alternative
 template <typename Type>

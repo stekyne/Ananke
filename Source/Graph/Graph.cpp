@@ -7,7 +7,7 @@
 
 #include "Graph.h"
 
-namespace APG {
+namespace Ananke {
 
 #if defined (_DEBUG) && defined (_MSC_VER)
 # include <Windows.h>

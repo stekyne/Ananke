@@ -3,7 +3,7 @@
 #include "GraphComponent.h"
 #include "../Source/AudioProcessingGraph.h"
 
-NodeComponent::NodeComponent (APG::Graph& graph, int id) : 
+NodeComponent::NodeComponent (Ananke::Graph& graph, int id) : 
 	graph (graph),
     id (id),
     font (13.0f, Font::bold)

@@ -16,7 +16,7 @@
 #include "../Graph/NodeTypes/AudioInputNode.h"
 #include "../Graph/NodeTypes/AudioOutputNode.h"
 
-namespace APG {
+namespace Ananke {
 
 class Graph
 {
@@ -71,7 +71,6 @@ public:
     bool removeNode (const Node* const node);
     int nodeCount () const;
     const std::vector<Node*>& getNodes () const { return nodes; }
-
     Node* const getNodeForID (int id);
 
     // Adds new Connection to graph if valid

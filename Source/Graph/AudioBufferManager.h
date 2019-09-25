@@ -8,7 +8,7 @@
 #include "AudioBuffer.h"
 #include "DSP.h"
 
-namespace APG {
+namespace Ananke {
 
 class AudioBufferManager
 {

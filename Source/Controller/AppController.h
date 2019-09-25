@@ -14,7 +14,7 @@ public:
     AppController ();
     ~AppController ();
 
-    APG::Graph& getGraphModel ()
+    Ananke::Graph& getGraphModel ()
     {
         return graphModel;
     }
@@ -40,7 +40,7 @@ private:
 private:
     juce::ValueTree valueTree;
     OwnedArray<WidgetWrapper> widgets;
-    APG::Graph graphModel;
+    Ananke::Graph graphModel;
     std::unique_ptr<AudioDeviceManager> deviceManager;
     std::unique_ptr<AudioFormatManager> formatManager;
 };

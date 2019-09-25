@@ -3,7 +3,7 @@
 #ifndef DSP_H_INCLUDED
 #define DSP_H_INCLUDED
 
-namespace APG
+namespace Ananke
 {
 namespace DSP
 {

@@ -1,6 +1,6 @@
 #include "Node.h"
 
-namespace APG {
+namespace Ananke {
 
 Node Node::Empty = Node (-99);
 

@@ -6,7 +6,7 @@
 #include "..\Node.h"
 #include "..\DSP.h"
 
-namespace APG
+namespace Ananke
 {
 
 class LowPassNode : public Node

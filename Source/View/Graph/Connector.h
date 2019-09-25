@@ -12,8 +12,8 @@ class Connector : public Component
 {
 public:
     Connector () = delete;
-    Connector (APG::Graph& graph);
-    Connector (APG::Graph& graph,
+    Connector (Ananke::Graph& graph);
+    Connector (Ananke::Graph& graph,
                int srcNodeComponent, int srcChannel,
                int dstNodeComponent, int dstChannel);
     ~Connector () = default;
@@ -80,7 +80,7 @@ private:
     /** Position of the connection on the graph */
     float lastx1, lasty1, lastx2, lasty2;
 
-    APG::Graph& graph;
+    Ananke::Graph& graph;
     bool dragging;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Connector);

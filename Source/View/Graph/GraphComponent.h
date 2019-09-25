@@ -14,7 +14,7 @@ class Pin;
 class GraphComponent : public Component
 {
 public:
-    GraphComponent (APG::Graph& graph);
+    GraphComponent (Ananke::Graph& graph);
     ~GraphComponent ();
 
     void resized ();
@@ -22,7 +22,7 @@ public:
 
     NodeComponent* getComponentForFilter (const uint32 filterID) const;
 
-    Connector* getComponentForConnection (const APG::Connection& connection) const;
+    Connector* getComponentForConnection (const Ananke::Connection& connection) const;
 
     void beginConnector (const uint32 sourceFilterID, const int sourceFilterChannel,
                          const uint32 destFilterID, const int destFilterChannel,
@@ -34,7 +34,7 @@ public:
     void updateGraph ();
 
 private:
-    APG::Graph& graph;
+    Ananke::Graph& graph;
     Connector* draggingConnector {nullptr};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);

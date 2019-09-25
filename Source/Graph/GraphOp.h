@@ -5,7 +5,7 @@
 
 #include "AudioBuffer.h"
 
-namespace APG {
+namespace Ananke {
 
 // Interface for a graph operation
 struct GraphOp

@@ -5,7 +5,7 @@
 
 #include "AudioBuffer.h"
 
-namespace APG
+namespace Ananke
 {
     namespace Utilities
     {

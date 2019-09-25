@@ -4,7 +4,7 @@
 #include "Pin.h"
 #include "..\Source\AudioProcessingGraph.h"
 
-GraphComponent::GraphComponent (APG::Graph& graph) :
+GraphComponent::GraphComponent (Ananke::Graph& graph) :
     graph (graph)
 {
     setOpaque (true);
@@ -39,7 +39,7 @@ NodeComponent* GraphComponent::getComponentForFilter (const uint32 filterID) con
     return nullptr;
 }
 
-Connector* GraphComponent::getComponentForConnection (const APG::Connection& connection) const
+Connector* GraphComponent::getComponentForConnection (const Ananke::Connection& connection) const
 {
     for (int i = getNumChildComponents (); --i >= 0;)
     {
@@ -123,7 +123,7 @@ void GraphComponent::dragConnector (const MouseEvent& e)
                 dstChannel = pin->Index;
             }
             
-            if (graph.canConnect (APG::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+            if (graph.canConnect (Ananke::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
             {
                 x = pin->getParentComponent ()->getX () + 
                     pin->getX () + pin->getWidth () / 2;
@@ -180,7 +180,7 @@ void GraphComponent::endConnector (const MouseEvent& e)
             dstChannel = pin->Index;
         }
 
-        if (graph.addConnection (APG::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
+        if (graph.addConnection (Ananke::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
         {
             DBG ("Connection is successful: " + String (srcFilter) + 
                  " to " + String (dstFilter));
@@ -230,7 +230,7 @@ void GraphComponent::updateGraph ()
 
         if (cc != nullptr && cc != draggingConnector)
         {
-            const APG::Connection testConnection (cc->sourceFilterID,
+            const Ananke::Connection testConnection (cc->sourceFilterID,
                                                   cc->sourceFilterChannel,
                                                   cc->destFilterID,
                                                   cc->destFilterChannel);

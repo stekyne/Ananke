@@ -1,6 +1,6 @@
 #include "AudioBufferManager.h"
 
-namespace APG {
+namespace Ananke {
 	
 const AudioBufferID AudioBufferID::Empty (0, 0);
 

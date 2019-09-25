@@ -54,7 +54,7 @@ void AppController::audioDeviceAboutToStart (AudioIODevice* device)
     const auto sampleRate = (float)device->getCurrentSampleRate ();
     const auto blockSize = device->getCurrentBufferSizeSamples ();
 
-    graphModel.setSettings (APG::Graph::Settings (sampleRate, blockSize, 50));    
+    graphModel.setSettings (Ananke::Graph::Settings (sampleRate, blockSize, 50));    
 }
 
 void AppController::audioDeviceStopped ()
@@ -80,7 +80,7 @@ void AppController::changeListenerCallback (ChangeBroadcaster* /*source*/)
 
 void AppController::loadTestData ()
 {
-    using namespace APG;
+    using namespace Ananke;
 
     auto gainNode = new GainNode (1);
     auto sawNode = new SawOSCNode (2);

@@ -9,7 +9,7 @@
 
 #include "DSP.h"
 
-namespace APG {
+namespace Ananke {
 
 struct AudioBufferID
 {

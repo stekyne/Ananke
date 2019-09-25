@@ -3,7 +3,7 @@
 #include "GraphComponent.h"
 #include "..\Source\AudioProcessingGraph.h"
 
-Connector::Connector (APG::Graph& graph)
+Connector::Connector (Ananke::Graph& graph)
     :   graph (graph),
         sourceFilterID (0),
         sourceFilterChannel (0),
@@ -16,7 +16,7 @@ Connector::Connector (APG::Graph& graph)
 {
 }
 
-Connector::Connector (APG::Graph& graph,
+Connector::Connector (Ananke::Graph& graph,
                       int srcNodeComponent_, int srcChannel_,
                       int dstNodeComponent_, int dstChannel_)
     :   graph (graph),
@@ -192,7 +192,7 @@ void Connector::mouseDrag (const MouseEvent& e)
     {
         dragging = true;
 
-        graph.removeConnection (APG::Connection(sourceFilterID, sourceFilterChannel, 
+        graph.removeConnection (Ananke::Connection(sourceFilterID, sourceFilterChannel, 
                                                 destFilterID, destFilterChannel));
 
         double distanceFromStart, distanceFromEnd;
