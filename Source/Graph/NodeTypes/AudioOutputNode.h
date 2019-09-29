@@ -41,7 +41,7 @@ public:
 	void process (const ReadOnlyBufferArray& buffersIn, const BufferArray& buffersOut,
 		const int numSamples) override
 	{
-		for (int i = 0; i < buffersIn.size(); ++i)
+		for (int i = 0; i < numSamples; ++i)
 		{
 			// TODO fix this ugly syntax
 			if (i < buffersOut.size ())

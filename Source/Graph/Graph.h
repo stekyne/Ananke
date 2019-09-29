@@ -112,6 +112,14 @@ public:
     // Pretty print of the current graph showing connections and node processing order
     std::string printGraph () const;
 
+	template <typename T>
+	Node* createNode (int id)
+	{
+		auto newNode = new T (id);
+		newNode->setParentGraph (this);
+		return newNode;
+	}
+
 public:
     struct Listener
     {

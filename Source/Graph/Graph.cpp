@@ -432,11 +432,11 @@ bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
     }
     
     // Hook up external buffers to graph input and output buffers
-    if (setIONodeBuffers (audioIn, numAudioInputs,
-                          audioOut, numAudioOutputs, blockSize))
-    {
-        hasUpdated = true;
-    }
+    //if (setIONodeBuffers (audioIn, numAudioInputs,
+    //                      audioOut, numAudioOutputs, blockSize))
+    //{
+    //    hasUpdated = true;
+    //}
 
     // Check if graph Ops have been recalculated and swap if so
     if (hasGraphOpsChanged)
@@ -446,8 +446,14 @@ bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
         // graphOps = 
     }
 
-    for (auto& op : graphOps)
-        op->perform (blockSize);
+	// TODO process read only input buffers which copies audio to internal buffers to be used by graph
+	// audioInNode.process()
+
+    //for (auto& op : graphOps)
+    //    op->perform (blockSize);
+
+	// TODO finally collect all internal audio processing and output to external buffers via output node
+	// audioOutNode.process ();
 
     return hasUpdated;
 }

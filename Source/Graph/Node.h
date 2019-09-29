@@ -10,15 +10,22 @@
 
 namespace Ananke {
 
+class Graph;
+
 class Node
 {
 public:
     Node () = default;
 
-    Node (int id) : 
+    Node (int id) :
         id (id)
     {
     }
+
+	void setParentGraph (Graph* graph_) 
+	{
+		this->graph = graph_;
+	}
 
     virtual ~Node () = default;
 
@@ -80,11 +87,9 @@ public:
                     buffersOut[0]->getSize () == numSamples : true);*/
     }
 
-    // An empty instance of this class
-    static Node Empty;
-
 private:
-    int id {0};
+    int id = -1;
+	Graph* graph = nullptr;
 };
 
 }

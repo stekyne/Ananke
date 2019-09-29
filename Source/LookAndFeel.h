@@ -5,9 +5,13 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+namespace Ananke {
+
 class AnankeLookAndFeel : public LookAndFeel_V3
 {
-    
+
 };
+
+}
 
 #endif

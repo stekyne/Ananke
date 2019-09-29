@@ -40,8 +40,8 @@ public:
 		return false;
 	}
 
-	void process (const ReadOnlyBufferArray& buffersIn, const BufferArray& buffersOut, 
-		const int numSamples) override
+	void process (const ReadOnlyBufferArray& /*buffersIn*/, const BufferArray& /*buffersOut*/, 
+		const int /*numSamples*/) override
 	{
 		// TODO need this assertion to work but also deal with 'Empty' buffers
 		/*assert (buffersIn.size () > 0 && buffersIn[0] != AudioBuff?

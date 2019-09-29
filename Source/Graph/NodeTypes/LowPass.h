@@ -8,7 +8,6 @@
 
 namespace Ananke
 {
-
 class LowPassNode : public Node
 {
 public:
@@ -23,11 +22,11 @@ public:
         const double c2 = (0.5 + c1) * cos (3.14159265359 * cutoff);
         const double c3 = (0.5 + c1 - c2) * 0.25;
 
-        lpRight.mA0 = lpLeft.mA0 = 2 * c3;
-        lpRight.mA1 = lpLeft.mA1 = 2 * 2 * c3;
-        lpRight.mA2 = lpLeft.mA2 = 2 * c3;
-        lpRight.mB1 = lpLeft.mB1 = 2 * -c2;
-        lpRight.mB2 = lpLeft.mB2 = 2 * c1;
+        lpRight.mA0 = lpLeft.mA0 = 2. * c3;
+        lpRight.mA1 = lpLeft.mA1 = 2. * 2. * c3;
+        lpRight.mA2 = lpLeft.mA2 = 2. * c3;
+        lpRight.mB1 = lpLeft.mB1 = 2. * -c2;
+        lpRight.mB2 = lpLeft.mB2 = 2. * c1;
     }
 
     ~LowPassNode () = default;

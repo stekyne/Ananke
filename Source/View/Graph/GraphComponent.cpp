@@ -2,272 +2,275 @@
 #include "NodeComponent.h"
 #include "Connector.h"
 #include "Pin.h"
-#include "..\Source\AudioProcessingGraph.h"
+#include "../Source/Graph/Connection.h"
 
-GraphComponent::GraphComponent (Ananke::Graph& graph) :
-    graph (graph)
+namespace Ananke {
+
+GraphComponent::GraphComponent (Graph& graph) :
+	graph (graph)
 {
-    setOpaque (true);
-    setSize (600, 400);
+	setOpaque (true);
+	setSize (600, 400);
 }
 
 GraphComponent::~GraphComponent ()
 {
-    deleteAllChildren ();
+	deleteAllChildren ();
 }
 
 void GraphComponent::resized ()
 {
-    updateGraph ();
+	updateGraph ();
 }
 
 void GraphComponent::paint (Graphics& g)
 {
-    g.fillAll (Colours::darkgrey);
+	g.fillAll (Colours::darkgrey);
 }
 
-NodeComponent* GraphComponent::getComponentForFilter (const uint32 filterID) const
+NodeComponent* GraphComponent::getComponentForFilter (const int filterID) const
 {
-    for (int i = getNumChildComponents (); --i >= 0;)
-    {
-        NodeComponent* const fc = dynamic_cast <NodeComponent*>(getChildComponent (i));
+	for (int i = getNumChildComponents (); --i >= 0;)
+	{
+		auto const fc = dynamic_cast<NodeComponent*> (getChildComponent (i));
 
-        if (fc != nullptr && fc->id == filterID)
-            return fc;
-    }
+		if (fc != nullptr && fc->id == filterID)
+			return fc;
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
-Connector* GraphComponent::getComponentForConnection (const Ananke::Connection& connection) const
+Connector* GraphComponent::getComponentForConnection (const Connection& connection) const
 {
-    for (int i = getNumChildComponents (); --i >= 0;)
-    {
-        Connector* const c = dynamic_cast<Connector*>(getChildComponent (i));
+	for (int i = getNumChildComponents (); --i >= 0;)
+	{
+		Connector* const c = dynamic_cast<Connector*>(getChildComponent (i));
 
-        if (c == nullptr) 
-            continue;
+		if (c == nullptr)
+			continue;
 
-        if (c->sourceFilterID == connection.sourceNode &&
-            c->destFilterID == connection.destNode &&
-            c->sourceFilterChannel == connection.sourceChannel &&
-            c->destFilterChannel == connection.destChannel)
-        {
-            return c;
-        }
-    }
+		if (c->sourceFilterID == connection.sourceNode &&
+			c->destFilterID == connection.destNode &&
+			c->sourceFilterChannel == connection.sourceChannel &&
+			c->destFilterChannel == connection.destChannel)
+		{
+			return c;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
-void GraphComponent::beginConnector (const uint32 sourceFilterID, const int sourceFilterChannel,
-                                     const uint32 destFilterID, const int destFilterChannel,
-                                     const MouseEvent& e)
+void GraphComponent::beginConnector (const int sourceFilterID, const int sourceFilterChannel,
+	const int destFilterID, const int destFilterChannel, const MouseEvent& e)
 {
-    /** Delete previous connector if it exists, get a pointer to the connector
-    if the user clicked on one */
-    if (draggingConnector != nullptr)
-    {
-        delete draggingConnector;
-    }
+	/** Delete previous connector if it exists, get a pointer to the connector
+	if the user clicked on one */
+	if (draggingConnector != nullptr)
+	{
+		delete draggingConnector;
+	}
 
-    draggingConnector = dynamic_cast<Connector*> (e.originalComponent);
+	draggingConnector = dynamic_cast<Connector*> (e.originalComponent);
 
-    /** User didnt click on a connector so create a new one */
-    if (draggingConnector == nullptr)
-    {
-        draggingConnector = new Connector (graph,
-                                           sourceFilterID, sourceFilterChannel,
-                                           destFilterID, destFilterChannel);
-    }
+	/** User didnt click on a connector so create a new one */
+	if (draggingConnector == nullptr)
+	{
+		draggingConnector = new Connector (graph,
+			sourceFilterID, sourceFilterChannel,
+			destFilterID, destFilterChannel);
+	}
 
-    /** Set inital position of the connector */
-    draggingConnector->setInput (sourceFilterID, sourceFilterChannel);
-    draggingConnector->setOutput (destFilterID, destFilterChannel);
+	/** Set inital position of the connector */
+	draggingConnector->setInput (sourceFilterID, sourceFilterChannel);
+	draggingConnector->setOutput (destFilterID, destFilterChannel);
 
-    addAndMakeVisible (draggingConnector);
-    draggingConnector->toFront (false);
+	addAndMakeVisible (draggingConnector);
+	draggingConnector->toFront (false);
 
-    dragConnector (e);
+	dragConnector (e);
 }
 
 void GraphComponent::dragConnector (const MouseEvent& e)
 {
-    const MouseEvent e2 (e.getEventRelativeTo (this));
+	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-    if (draggingConnector != nullptr)
-    {
-        //draggingConnector->setTooltip( String::empty );
+	if (draggingConnector != nullptr)
+	{
+		//draggingConnector->setTooltip( String::empty );
 
-        int x = e2.x;
-        int y = e2.y;
+		int x = e2.x;
+		int y = e2.y;
 
-        Pin* const pin = findPin (x, y);
+		auto const pin = findPin (x, y);
 
-        if (pin != nullptr)
-        {
-            uint32 srcFilter = draggingConnector->sourceFilterID;
-            int	srcChannel = draggingConnector->sourceFilterChannel;
+		if (pin != nullptr)
+		{
+			uint32 srcFilter = draggingConnector->sourceFilterID;
+			int	srcChannel = draggingConnector->sourceFilterChannel;
 
-            uint32 dstFilter = draggingConnector->destFilterID;
-            int	dstChannel = draggingConnector->destFilterChannel;
+			uint32 dstFilter = draggingConnector->destFilterID;
+			int	dstChannel = draggingConnector->destFilterChannel;
 
-            if (srcFilter == 0 && !pin->IsInput)
-            {
-                srcFilter = pin->FilterID;
-                srcChannel = pin->Index;
-            }
-            else if (dstFilter == 0 && pin->IsInput)
-            {
-                dstFilter = pin->FilterID;
-                dstChannel = pin->Index;
-            }
-            
-            if (graph.canConnect (Ananke::Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
-            {
-                x = pin->getParentComponent ()->getX () + 
-                    pin->getX () + pin->getWidth () / 2;
+			if (srcFilter == 0 && !pin->IsInput)
+			{
+				srcFilter = pin->FilterID;
+				srcChannel = pin->Index;
+			}
+			else if (dstFilter == 0 && pin->IsInput)
+			{
+				dstFilter = pin->FilterID;
+				dstChannel = pin->Index;
+			}
 
-                y = pin->getParentComponent ()->getY () + 
-                    pin->getY () + pin->getHeight () / 2;
+			if (graph.canConnect (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+			{
+				x = pin->getParentComponent ()->getX () +
+					pin->getX () + pin->getWidth () / 2;
 
-                //draggingConnector->setTooltip (pin->getTooltip());
-            }
-        }
+				y = pin->getParentComponent ()->getY () +
+					pin->getY () + pin->getHeight () / 2;
 
-        if (draggingConnector->sourceFilterID == 0)
-            draggingConnector->dragStart (x, y);
-        else
-            draggingConnector->dragEnd (x, y);
-    }
+				//draggingConnector->setTooltip (pin->getTooltip());
+			}
+		}
+
+		if (draggingConnector->sourceFilterID == 0)
+			draggingConnector->dragStart (x, y);
+		else
+			draggingConnector->dragEnd (x, y);
+	}
 }
 
 void GraphComponent::endConnector (const MouseEvent& e)
 {
-    if (draggingConnector == nullptr)
-        return;
+	if (draggingConnector == nullptr)
+		return;
 
-    //draggingConnector->setTooltip( String::empty );
+	//draggingConnector->setTooltip( String::empty );
 
-    const MouseEvent e2 (e.getEventRelativeTo (this));
+	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-    uint32 srcFilter = draggingConnector->sourceFilterID;
-    int	srcChannel = draggingConnector->sourceFilterChannel;
+	uint32 srcFilter = draggingConnector->sourceFilterID;
+	int	srcChannel = draggingConnector->sourceFilterChannel;
 
-    uint32 dstFilter = draggingConnector->destFilterID;
-    int dstChannel = draggingConnector->destFilterChannel;
+	uint32 dstFilter = draggingConnector->destFilterID;
+	int dstChannel = draggingConnector->destFilterChannel;
 
-    deleteAndZero (draggingConnector);
+	deleteAndZero (draggingConnector);
 
-    Pin* const pin = findPin (e2.x, e2.y);
+	Pin* const pin = findPin (e2.x, e2.y);
 
-    if (pin != nullptr)
-    {
-        if (srcFilter == 0)
-        {
-            if (pin->IsInput)
-                return;
+	if (pin != nullptr)
+	{
+		if (srcFilter == 0)
+		{
+			if (pin->IsInput)
+				return;
 
-            srcFilter = pin->FilterID;
-            srcChannel = pin->Index;
-        }
-        else
-        {
-            if (!pin->IsInput)
-                return;
+			srcFilter = pin->FilterID;
+			srcChannel = pin->Index;
+		}
+		else
+		{
+			if (!pin->IsInput)
+				return;
 
-            dstFilter = pin->FilterID;
-            dstChannel = pin->Index;
-        }
+			dstFilter = pin->FilterID;
+			dstChannel = pin->Index;
+		}
 
-        if (graph.addConnection (Ananke::Connection (srcFilter, srcChannel,dstFilter, dstChannel)))
-        {
-            DBG ("Connection is successful: " + String (srcFilter) + 
-                 " to " + String (dstFilter));
-            updateGraph ();
-        }
-        else
-        {
-            DBG ("Connection unsuccessful: " + String (srcFilter) + 
-                 " to " + String (dstFilter));
-        }
-    }
+		if (graph.addConnection (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+		{
+			DBG ("Connection is successful: " + String (srcFilter) +
+				" to " + String (dstFilter));
+			updateGraph ();
+		}
+		else
+		{
+			DBG ("Connection unsuccessful: " + String (srcFilter) +
+				" to " + String (dstFilter));
+		}
+	}
 }
 
 Pin* GraphComponent::findPin (const int x, const int y) const
 {
-    for (int i = getNumChildComponents (); --i >= 0;)
-    {
-        NodeComponent* const fc = dynamic_cast<NodeComponent*>(getChildComponent (i));
+	for (int i = getNumChildComponents (); --i >= 0;)
+	{
+		auto const fc = dynamic_cast<NodeComponent*>(getChildComponent (i));
 
-        if (fc != nullptr)
-        {
-            Pin* const pin = dynamic_cast<Pin*>(
-                fc->getComponentAt (x - fc->getX (),
-                y - fc->getY ()));
+		if (fc != nullptr)
+		{
+			auto const pin = dynamic_cast<Pin*> (
+				fc->getComponentAt (x - fc->getX (),
+					y - fc->getY ()));
 
-            if (pin != nullptr)
-                return pin;
-        }
-    }
+			if (pin != nullptr)
+				return pin;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 void GraphComponent::updateGraph ()
 {
-    for (int i = getNumChildComponents (); --i >= 0;)
-    {
-        NodeComponent* const fc = dynamic_cast<NodeComponent*>(getChildComponent (i));
+	for (int i = getNumChildComponents (); --i >= 0;)
+	{
+		auto const fc = dynamic_cast<NodeComponent*> (getChildComponent (i));
 
-        if (fc != nullptr)
-            fc->update ();
-    }
+		if (fc != nullptr)
+			fc->update ();
+	}
 
-    for (int i = getNumChildComponents (); --i >= 0;)
-    {
-        Connector* const cc = dynamic_cast<Connector*>(getChildComponent (i));
+	for (int i = getNumChildComponents (); --i >= 0;)
+	{
+		auto const cc = dynamic_cast<Connector*> (getChildComponent (i));
 
-        if (cc != nullptr && cc != draggingConnector)
-        {
-            const Ananke::Connection testConnection (cc->sourceFilterID,
-                                                  cc->sourceFilterChannel,
-                                                  cc->destFilterID,
-                                                  cc->destFilterChannel);
+		if (cc != nullptr && cc != draggingConnector)
+		{
+			const Connection testConnection (cc->sourceFilterID,
+				cc->sourceFilterChannel,
+				cc->destFilterID,
+				cc->destFilterChannel);
 
-            if (graph.connectionExists (testConnection) == false)
-            {
-                delete cc;
-            }
-            else
-            {
-                cc->update ();
-            }
-        }
-    }
+			if (graph.connectionExists (testConnection) == false)
+			{
+				delete cc;
+			}
+			else
+			{
+				cc->update ();
+			}
+		}
+	}
 
-    for (auto& connection : graph.getConnections ())
-    {
-        if (getComponentForConnection (connection) == nullptr)
-        {
-            Connector* const conn = new Connector (graph);
+	for (auto& connection : graph.getConnections ())
+	{
+		if (getComponentForConnection (connection) == nullptr)
+		{
+			auto const conn = new Connector (graph);
 
-            addAndMakeVisible (conn);
+			addAndMakeVisible (conn);
 
-            conn->setInput (connection.sourceNode, connection.sourceChannel);
-            conn->setOutput (connection.destNode, connection.destChannel);
-        }
-    }
+			conn->setInput (connection.sourceNode, connection.sourceChannel);
+			conn->setOutput (connection.destNode, connection.destChannel);
+		}
+	}
 
-    for (auto& node : graph.getNodes ())
-    {
-        const auto id = node->getID ();
+	for (auto& node : graph.getNodes ())
+	{
+		const auto id = node->getID ();
 
-        if (getComponentForFilter (id) == 0)
-        {
-            NodeComponent* const newNode = new NodeComponent (graph, id);
-            addAndMakeVisible (newNode);
-            newNode->update ();
-        }
-    }
+		if (getComponentForFilter (id) == 0)
+		{
+			NodeComponent* const newNode = new NodeComponent (graph, id);
+			addAndMakeVisible (newNode);
+			newNode->update ();
+		}
+	}
+}
+
 }
