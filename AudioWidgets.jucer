@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="Q1i7m3" name="AudioWidgets" projectType="guiapp" version="1.0.0"
+<JUCERPROJECT id="Q1i7m3" name="Ananke" projectType="guiapp" version="1.0.0"
               bundleIdentifier="com.stevesoft.AudioWidgets" includeBinaryInAppConfig="1"
-              jucerVersion="5.4.4">
-  <MAINGROUP id="ztJ27y" name="AudioWidgets">
+              jucerVersion="5.4.4" cppLanguageStandard="latest">
+  <MAINGROUP id="ztJ27y" name="Ananke">
     <GROUP id="{A8E72126-27BC-3EA5-58BE-824B5598C7FF}" name="Source">
       <GROUP id="{A89611A3-18FF-8395-FA46-FD6DC212E790}" name="Graph">
         <GROUP id="{E12F1A82-191B-DC3B-991F-002092F4F2ED}" name="NodeTypes">
+          <FILE id="UGCHxM" name="AudioInputNode.h" compile="0" resource="0"
+                file="Source/Graph/NodeTypes/AudioInputNode.h"/>
+          <FILE id="A9YGdQ" name="AudioOutputNode.h" compile="0" resource="0"
+                file="Source/Graph/NodeTypes/AudioOutputNode.h"/>
           <FILE id="NzADjS" name="GainNode.h" compile="0" resource="0" file="Source/Graph/NodeTypes/GainNode.h"/>
           <FILE id="JZwCGe" name="LowPass.h" compile="0" resource="0" file="Source/Graph/NodeTypes/LowPass.h"/>
           <FILE id="D6CQvJ" name="SawOsc.h" compile="0" resource="0" file="Source/Graph/NodeTypes/SawOsc.h"/>
@@ -23,13 +27,10 @@
         <FILE id="ZS9K9K" name="Graph.cpp" compile="1" resource="0" file="Source/Graph/Graph.cpp"/>
         <FILE id="de8AH8" name="Graph.h" compile="0" resource="0" file="Source/Graph/Graph.h"/>
         <FILE id="JwZyHK" name="GraphOp.h" compile="0" resource="0" file="Source/Graph/GraphOp.h"/>
-        <FILE id="Ss4yhy" name="Node.cpp" compile="1" resource="0" file="Source/Graph/Node.cpp"/>
         <FILE id="tlgQYf" name="Node.h" compile="0" resource="0" file="Source/Graph/Node.h"/>
         <FILE id="WyMUc4" name="Nodes.h" compile="0" resource="0" file="Source/Graph/Nodes.h"/>
         <FILE id="JxbZ9I" name="Utilities.h" compile="0" resource="0" file="Source/Graph/Utilities.h"/>
       </GROUP>
-      <FILE id="rhvaiO" name="AudioProcessingGraph.h" compile="0" resource="0"
-            file="Source/AudioProcessingGraph.h"/>
       <FILE id="xwxq78" name="AppColours.h" compile="0" resource="0" file="Source/AppColours.h"/>
       <FILE id="XMHQDH" name="CommandIDs.h" compile="0" resource="0" file="Source/CommandIDs.h"/>
       <FILE id="Fpa3vu" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
@@ -69,20 +70,19 @@
         <CONFIGURATION isDebug="0" name="Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_video"/>
-        <MODULEPATH id="juce_opengl"/>
-        <MODULEPATH id="juce_gui_extra"/>
-        <MODULEPATH id="juce_gui_basics"/>
-        <MODULEPATH id="juce_graphics"/>
-        <MODULEPATH id="juce_events"/>
-        <MODULEPATH id="juce_data_structures"/>
-        <MODULEPATH id="juce_cryptography"/>
-        <MODULEPATH id="juce_core"/>
-        <MODULEPATH id="juce_audio_utils"/>
-        <MODULEPATH id="juce_audio_processors"/>
-        <MODULEPATH id="juce_audio_formats"/>
-        <MODULEPATH id="juce_audio_devices"/>
+        <MODULEPATH id="juce_opengl" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="G:\Programming\GitHub\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="G:\Programming\GitHub\JUCE\modules"/>
         <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_dsp" path="G:\Programming\GitHub\JUCE\modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
@@ -93,14 +93,13 @@
     <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_audio_utils" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="1" useGlobalPath="0"/>
     <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
     <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_video" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
   <JUCEOPTIONS/>
   <LIVE_SETTINGS>

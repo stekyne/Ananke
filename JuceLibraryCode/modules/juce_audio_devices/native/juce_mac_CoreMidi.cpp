@@ -60,7 +60,16 @@ namespace CoreMidiHelpers
         SInt32 objectID = 0;
 
         if (CHECK_ERROR (MIDIObjectGetIntegerProperty (entity, kMIDIPropertyUniqueID, &objectID)))
+        {
             info.identifier = String (objectID);
+        }
+        else
+        {
+            ScopedCFString str;
+
+            if (CHECK_ERROR (MIDIObjectGetStringProperty (entity, kMIDIPropertyUniqueID, &str.cfString)))
+                info.identifier = String::fromCFString (str.cfString);
+        }
 
         return info;
     }
@@ -375,7 +384,7 @@ namespace CoreMidiHelpers
     static Array<MIDIEndpointRef> getEndpoints (bool isInput)
     {
         Array<MIDIEndpointRef> endpoints;
-        auto numDevices = (isInput ? MIDIGetNumberOfSources() : MIDIGetNumberOfDevices());
+        auto numDevices = (isInput ? MIDIGetNumberOfSources() : MIDIGetNumberOfDestinations());
 
         for (ItemCount i = 0; i < numDevices; ++i)
             endpoints.add (isInput ? MIDIGetSource (i) : MIDIGetDestination (i));

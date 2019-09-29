@@ -13,9 +13,9 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "FileDescription",  "AudioWidgets\0"
+      VALUE "FileDescription",  "Ananke\0"
       VALUE "FileVersion",  "1.0.0\0"
-      VALUE "ProductName",  "AudioWidgets\0"
+      VALUE "ProductName",  "Ananke\0"
       VALUE "ProductVersion",  "1.0.0\0"
     END
   END
