@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="Q1i7m3" name="Ananke" projectType="guiapp" version="1.0.0"
               bundleIdentifier="com.stevesoft.AudioWidgets" includeBinaryInAppConfig="1"
-              jucerVersion="5.4.4" cppLanguageStandard="latest">
+              jucerVersion="5.4.5" cppLanguageStandard="latest">
   <MAINGROUP id="ztJ27y" name="Ananke">
     <GROUP id="{A8E72126-27BC-3EA5-58BE-824B5598C7FF}" name="Source">
       <GROUP id="{A89611A3-18FF-8395-FA46-FD6DC212E790}" name="Graph">
