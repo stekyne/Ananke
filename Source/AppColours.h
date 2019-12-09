@@ -5,10 +5,12 @@
 
 namespace Ananke
 {
-    enum Colours
-    {
-        BackgroundMain = 0x000000
-    };
+
+enum Colours
+{
+    BackgroundMain = 0x000000
+};
+
 }
 
 #endif

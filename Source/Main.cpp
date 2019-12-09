@@ -1,6 +1,6 @@
 #include "vld.h"
 #include "../JuceLibraryCode/JuceHeader.h"
-#define _CRTDBG_MAP_ALLOC
+//#define _CRTDBG_MAP_ALLOC
 #include "MainComponent.h"
 #include "Controller\AppController.h"
 #include "LookAndFeel.h"
@@ -14,7 +14,7 @@ public:
 
 	const String getApplicationName () override { return ProjectInfo::projectName; }
 	const String getApplicationVersion () override { return ProjectInfo::versionString; }
-	bool moreThanOneInstanceAllowed () override { return true; }
+	bool moreThanOneInstanceAllowed () override { return false; }
 
 	void initialise (const String& /*commandLine*/) override
 	{
@@ -39,7 +39,7 @@ public:
 		mainWindow = nullptr;
 
 #ifdef _DEBUG
-		_CrtDumpMemoryLeaks ();
+		//_CrtDumpMemoryLeaks ();
 #endif
 	}
 
