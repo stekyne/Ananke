@@ -80,7 +80,7 @@ public:
     AudioBuffer (int numSamples, AudioBufferID id) :
         numSamples (numSamples),
         id (id),
-        isBufferFree (id == AudioBufferID::Empty ? true : false)
+        isBufferFree (id == AudioBufferID::Empty)
     {
         assert (numSamples != 0);
         buffer = new SampleType[numSamples];
@@ -120,8 +120,8 @@ public:
 
     void setID (const AudioBufferID& _id)
     {
-        this->id = _id;
-        isBufferFree = (id == AudioBufferID::Empty) ? true : false;
+        id = _id;
+        isBufferFree = (id == AudioBufferID::Empty);
     }
 
     AudioBufferID getID () const
@@ -175,16 +175,16 @@ public:
     void copyDataTo (DSP::SampleType* copyToBuffer, int _numSamples)
     {
         assert (this->numSamples == _numSamples);
-        memcpy (copyToBuffer, buffer, numSamples * sizeof (float));
+        memcpy (copyToBuffer, buffer, numSamples * sizeof (DSP::SampleType));
     }
 
     // Copies a single channel worth of audio into this buffer
     // The buffers must match in length (number of samples)
-    void copyDataFrom (const DSP::SampleType* copyFromBuffer, int _numSamples)
+    void copyDataFrom (const float* copyFromBuffer, int _numSamples)
     {
         assert (this->numSamples == _numSamples);
         assert (isReadOnly == false);
-        memcpy (buffer, copyFromBuffer, _numSamples * sizeof (float));
+        memcpy (buffer, copyFromBuffer, _numSamples * sizeof (DSP::SampleType));
     }
 
     // Add the passed in buffers signal to this buffers signal
@@ -234,12 +234,11 @@ public:
     static AudioBuffer<DSP::SampleType> Empty;
 
 private:
-    SampleType* buffer {nullptr};
-    int numSamples {0};
-    AudioBufferID id {0, 0};
-    bool isBufferFree {true};
-    bool isReadOnly {false};
-    bool shouldDelete {true};
+    SampleType* buffer = nullptr;
+	AudioBufferID id;
+	int numSamples = 0;
+    bool isBufferFree = true;
+    bool isReadOnly = false;
 };
 
 AudioBuffer<DSP::SampleType> AudioBuffer<DSP::SampleType>::Empty (1, {0,0});

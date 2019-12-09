@@ -12,11 +12,8 @@ struct GraphOp
 {
     virtual ~GraphOp () {};
     // TODO remove block size argument? requires graph to be rebuilt anyway
-    virtual void perform (const uint32_t blockSize) = 0;
+    virtual void perform (const int blockSize) = 0;
     virtual std::string getName () const = 0;
-
-private:
-    static uint32_t count;
 };
 
 class ProcessNodeOp : public GraphOp
@@ -29,7 +26,7 @@ public:
     {
     }
 
-    void perform (const uint32_t blockSize) override
+    void perform (const int blockSize) override
     {
         // TODO Convert call to template function and see if that can replace the virtual function call
         node->process (audioIn, audioOut, blockSize);
@@ -76,7 +73,7 @@ public:
         return name;
     }
 
-    uint32_t getNodeId () const
+    int getNodeId () const
     {
         return node->getID ();
     }
@@ -105,14 +102,12 @@ public:
         outputBuffer->setID (AudioBufferID (std::move (nodeIDs)));
     }
 
-    void perform (const uint32_t) override
+    void perform (const int) override
     {
         outputBuffer->clear ();
 
         for (auto& buffer : inputBuffers)
-        {
             outputBuffer->addDataFrom (buffer);
-        }
     }
 
     std::string getName () const override

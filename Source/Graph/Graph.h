@@ -33,19 +33,19 @@ public:
     struct Settings
     {
         // This is the expected sampling rate that the audio interface is using
-        float sampleRate {44100};
+        float sampleRate = 44100;
 
         // This is the expected block size that the audio callback will ask for
-        int blockSize {256};
+        int blockSize = 128;
 
         // This is the internal rate at which control signals will update
-        int controlRate {32};
+        int controlRate = 32;
 
-        // Number of input channels for the graph
-        int numberInputChannels {2};
+        // Number of input channels for the graph - set by the audio interface
+        int numberInputChannels = -1;
 
-        // Number of output channels for the graph
-        int numberOutputChannels {2};
+        // Number of output channels for the graph - set by the audio inteface
+        int numberOutputChannels = -1;
 
         Settings (float sampleRate, int blockSize, int controlRate) :
             sampleRate (sampleRate),
@@ -74,7 +74,7 @@ public:
     Node* const getNodeForID (int id);
 
     // Adds new Connection to graph if valid
-    bool addConnection (const Connection& newConnection);
+    bool addConnection (const Connection newConnection);
     bool addConnection (std::vector<Connection> newConnections);
     bool canConnect (const Connection& newConnection);
     bool removeConnection (const Connection& connection);

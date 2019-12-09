@@ -10,12 +10,12 @@ namespace Ananke {
 struct Connection
 {
     Connection () = default;
-    Connection (int sourceNode, int sourceChannel,
-                int destNode, int destChannel) :
-        sourceNode (sourceNode),
-        sourceChannel (sourceChannel),
-        destNode (destNode),
-        destChannel (destChannel)
+    Connection (int sourceNode_, int sourceChannel_,
+                int destNode_, int destChannel_) :
+        sourceNode (sourceNode_),
+        sourceChannel (sourceChannel_),
+        destNode (destNode_),
+        destChannel (destChannel_)
     {}
 
     Connection (const Node& node1, int node1Channel,
@@ -51,8 +51,10 @@ struct Connection
         return !(lhs==rhs);
     }
     
-    int sourceNode {0}, destNode {0};
-    int sourceChannel {0}, destChannel {0};
+	int sourceNode = -1;
+	int destNode = -1;
+	int sourceChannel = -1;
+	int destChannel = -1;
 };
 
 }

@@ -20,14 +20,12 @@ public:
 
 	int getNumInputChannels () const override
 	{
-		// TODO adjust to audio interface
-		return 2;
+		return numberInputChannels;
 	}
 
 	int getNumOutputChannels () const override
 	{
-		// TODO adjust to audio interface
-		return 2;
+		return numberInputChannels;
 	}
 
 	bool acceptsMidi () const override
@@ -49,6 +47,9 @@ public:
 		assert (buffersOut.size () > 0 ?
 					buffersOut[0]->getSize () == numSamples : true);*/
 	}
+
+private:
+	int numberInputChannels = -1;
 };
 
 }

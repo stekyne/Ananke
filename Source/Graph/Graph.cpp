@@ -142,7 +142,7 @@ Node* const Graph::getNodeForID (int id)
     return nullptr;
 }
 
-bool Graph::addConnection (const Connection& newConnection)
+bool Graph::addConnection (const Connection newConnection)
 {
     if (connectionExists (newConnection))
         return false;
@@ -615,12 +615,13 @@ bool Graph::performSort (std::vector<Node*>& sortedNodes)
     return true;
 }
 
-void Graph::setSettings (Settings _settings)
+void Graph::setSettings (Settings settings_)
 {
-    this->settings = _settings;
+    this->settings = settings_;
+
 
     // Re-allocate buffers if size has changed
-    audioBufferManager.setBufferSize (_settings.blockSize);
+    audioBufferManager.setBufferSize (settings_.blockSize);
     
     for (auto& listener : listeners)
         listener->graphSettingsChanged ();
