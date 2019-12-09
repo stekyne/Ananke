@@ -18,6 +18,16 @@ public:
 	{
 	}
 
+	void setChannelCount (int count)
+	{
+		numberInputChannels = count;
+		// TODO inform graph of update?
+	}
+
+	std::string getName () const override {
+		return "Audio In";
+	}
+
 	int getNumInputChannels () const override
 	{
 		return numberInputChannels;
@@ -38,14 +48,10 @@ public:
 		return false;
 	}
 
-	void process (const ReadOnlyBufferArray& /*buffersIn*/, const BufferArray& /*buffersOut*/, 
+	void process (const BufferArray& /*buffersIn*/, const BufferArray& /*buffersOut*/, 
 		const int /*numSamples*/) override
 	{
-		// TODO need this assertion to work but also deal with 'Empty' buffers
-		/*assert (buffersIn.size () > 0 && buffersIn[0] != AudioBuff?
-					buffersIn[0]->getSize () == numSamples : true);
-		assert (buffersOut.size () > 0 ?
-					buffersOut[0]->getSize () == numSamples : true);*/
+		// TODO implement node process
 	}
 
 private:

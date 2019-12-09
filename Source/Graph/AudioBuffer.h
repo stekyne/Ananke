@@ -19,13 +19,6 @@ struct AudioBufferID
     {
     }
 
-    // TODO probably not the right way to express this
-    AudioBufferID (std::vector<AudioBufferID>&& bufferIDs) :
-        bufferIDs (bufferIDs),
-        isComposite (true)
-    {
-    }
-
     auto getID () const { return id; }
     auto getChanelNumber () const { return channelNumber; }
 
@@ -63,7 +56,6 @@ private:
     int id {0};
     int channelNumber {0};
     std::vector<AudioBufferID> bufferIDs;
-    bool isComposite {false};
 };
 
 template <typename SampleType = DSP::SampleType>
@@ -72,10 +64,6 @@ class AudioBuffer
 public:
     // Can't support 0 sized buffer so delete default constructor
     AudioBuffer () = delete;
-    AudioBuffer (const AudioBuffer<SampleType>& other) = delete;
-    AudioBuffer (AudioBuffer<SampleType>&& other) = delete;
-    AudioBuffer& operator= (const AudioBuffer<SampleType>& other) = delete;
-    AudioBuffer& operator= (AudioBuffer<SampleType>&& other) = delete;
 
     AudioBuffer (int numSamples, AudioBufferID id) :
         numSamples (numSamples),
@@ -86,20 +74,8 @@ public:
         buffer = new SampleType[numSamples];
     }
 
-    AudioBuffer (SampleType* buffer, int numSamples, AudioBufferID id) :
-        buffer (buffer),
-        numSamples (numSamples),
-        id (id),
-        isBufferFree (id == AudioBufferID::Empty ? true : false)
-    {
-        assert (numSamples != 0);
-    }
-
     ~AudioBuffer () 
     {        
-        if (shouldDelete == false)
-            return;
-
         if (buffer == nullptr) 
             return;
 
@@ -200,39 +176,6 @@ public:
         }
     }
 
-    // Set the buffer to use in this class. This assumes that no data will 
-    // be leaked by calling it. Therefore don't call it on an instance 
-    // where it has allocated memory
-    // Returns previously held buffer pointer incase it needs deletion
-    SampleType* setBufferToUse (SampleType* newBuffer, int _numSamples)
-    {
-        assert (newBuffer != nullptr);
-        auto oldBuffer = buffer;
-
-        this->buffer = newBuffer;
-        this->numSamples = _numSamples;
-        this->shouldDelete = false;
-
-        return oldBuffer;
-    }
-
-    SampleType* setBufferToUse (const SampleType* newBuffer, int _numSamples)
-    {
-        assert (newBuffer != nullptr);
-
-        auto oldBuffer = buffer;
-
-        // TODO need a better solution, awful
-        this->buffer = const_cast<SampleType*> (newBuffer);
-        this->numSamples = _numSamples;
-        this->isReadOnly = true;
-        this->shouldDelete = false;
-
-        return oldBuffer;
-    }
-
-    static AudioBuffer<DSP::SampleType> Empty;
-
 private:
     SampleType* buffer = nullptr;
 	AudioBufferID id;
@@ -241,9 +184,6 @@ private:
     bool isReadOnly = false;
 };
 
-AudioBuffer<DSP::SampleType> AudioBuffer<DSP::SampleType>::Empty (1, {0,0});
-
-using ReadOnlyBufferArray = std::vector<const AudioBuffer<DSP::SampleType>*>;
 using BufferArray = std::vector<AudioBuffer<DSP::SampleType>*>;
 
 }

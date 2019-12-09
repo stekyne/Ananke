@@ -31,7 +31,7 @@ public:
 
     ~LowPassNode () = default;
 
-    void process (const ReadOnlyBufferArray& audioIn, const BufferArray& audioOut, const int numSamples) override
+    void process (const BufferArray& audioIn, const BufferArray& audioOut, const int numSamples) override
     {
         Node::process (audioIn, audioOut, numSamples);
 

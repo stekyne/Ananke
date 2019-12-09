@@ -358,7 +358,7 @@ bool Graph::buildGraph ()
         }
 
         // Find all incoming buffers required by this node
-        ReadOnlyBufferArray nodeInputBuffers;
+        BufferArray nodeInputBuffers;
 
         if (node->getNumInputChannels () > 0)
         {

@@ -75,7 +75,7 @@ public:
         return false;
     }
 
-    virtual void process (const ReadOnlyBufferArray& /*buffersIn*/,
+    virtual void process (const BufferArray& /*buffersIn*/,
                           const BufferArray& /*buffersOut*/,
                           const int numSamples)
     {

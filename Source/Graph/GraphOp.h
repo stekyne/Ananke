@@ -19,8 +19,8 @@ struct GraphOp
 class ProcessNodeOp : public GraphOp
 {
 public:
-    ProcessNodeOp (ReadOnlyBufferArray&& audioIn, BufferArray&& audioOut, Node* node) :
-        audioIn (std::forward<ReadOnlyBufferArray>(audioIn)),
+    ProcessNodeOp (BufferArray&& audioIn, BufferArray&& audioOut, Node* node) :
+        audioIn (std::forward<BufferArray>(audioIn)),
         audioOut (std::forward<BufferArray>(audioOut)),
         node (node)
     {
@@ -28,7 +28,7 @@ public:
 
     void perform (const int blockSize) override
     {
-        // TODO Convert call to template function and see if that can replace the virtual function call
+        // TODO get audio points for audiobuffer IDs and call process
         node->process (audioIn, audioOut, blockSize);
     }
 
@@ -79,7 +79,7 @@ public:
     }
 
 private:
-    ReadOnlyBufferArray audioIn;
+    BufferArray audioIn;
     BufferArray audioOut;
     Node* const node;
 };
@@ -87,19 +87,10 @@ private:
 class SumBuffersOp : public GraphOp
 {
 public:
-    SumBuffersOp (BufferArray&& inputBuffers, 
-                  AudioBuffer<DSP::SampleType>* outputBuffer) :
+    SumBuffersOp (BufferArray&& inputBuffers, AudioBuffer<DSP::SampleType>* outputBuffer) :
         inputBuffers (inputBuffers),
         outputBuffer (outputBuffer)
     {
-        std::vector<AudioBufferID> nodeIDs;
-
-        for (const auto& inputBuffer : inputBuffers)
-        {
-            nodeIDs.push_back (inputBuffer->getID ());
-        }
-
-        outputBuffer->setID (AudioBufferID (std::move (nodeIDs)));
     }
 
     void perform (const int) override
