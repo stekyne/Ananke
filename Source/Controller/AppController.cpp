@@ -12,7 +12,6 @@ AppController::AppController () :
 	deviceManager (std::make_unique<AudioDeviceManager> ()),
 	formatManager (std::make_unique<AudioFormatManager> ())
 {
-	loadTestData ();
 }
 
 AppController::~AppController ()
@@ -58,13 +57,15 @@ void AppController::audioDeviceAboutToStart (AudioIODevice* device)
 {
 	const auto sampleRate = (float)device->getCurrentSampleRate ();
 	const auto blockSize = device->getCurrentBufferSizeSamples ();
+	const auto inputChannels = device->getActiveInputChannels ().getHighestBit () + 1;
+	const auto outputChannels = device->getActiveOutputChannels ().getHighestBit () + 1;
 
-	graphModel.setSettings (Ananke::Graph::Settings (sampleRate, blockSize, 50));    
+	graphModel.setSettings (Graph::Settings (sampleRate, blockSize, 32, inputChannels, outputChannels));
+	loadTestData ();
 }
 
 void AppController::audioDeviceStopped ()
 {
-
 }
 
 std::unique_ptr<AudioDeviceSelectorComponent> AppController::getSelector (
@@ -87,13 +88,9 @@ void AppController::loadTestData ()
 {
 	using namespace Ananke;
 
-	auto gainNode = graphModel.createNode<GainNode> (1);
-	auto sawNode = graphModel.createNode<SawOSCNode> (2);
-	auto lowPassNode = graphModel.createNode<LowPassNode> (3);
-
-	graphModel.addNode (gainNode);
-	graphModel.addNode (sawNode);
-	graphModel.addNode (lowPassNode);
+	auto gainNode = graphModel.createNode<GainNode> ();
+	auto sawNode = graphModel.createNode<SawOSCNode> ();
+	auto lowPassNode = graphModel.createNode<LowPassNode> ();
 
 	graphModel.addConnection (Connection (*sawNode, 0, *gainNode, 0));
 	graphModel.addConnection (Connection (*sawNode, 1, *gainNode, 1));

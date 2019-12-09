@@ -47,10 +47,13 @@ public:
         // Number of output channels for the graph - set by the audio inteface
         int numberOutputChannels = -1;
 
-        Settings (float sampleRate, int blockSize, int controlRate) :
+        Settings (float sampleRate, int blockSize, int controlRate, 
+			int numInputChannels, int numOutputChannels) :
             sampleRate (sampleRate),
             blockSize (blockSize),
-            controlRate (controlRate)
+            controlRate (controlRate),
+			numberInputChannels (numInputChannels),
+			numberOutputChannels (numOutputChannels)
         {
         }
     };
@@ -63,8 +66,23 @@ public:
     // Returns true if the graph has no nodes or connections present
     bool isEmpty () const;
 
-    // Adds new Node to the graph and takes ownership if held by graph
-    // at the time of graph destruction
+	// Create a new node using the type specified
+	template <typename T>
+	T* createNode ()
+	{
+		static_assert (std::is_base_of<Node, T>::value, "Cannot add node type that does not derive from type Node");
+
+		auto newNode = new T (idCount++);
+		newNode->setParentGraph (this);
+		nodes.push_back (newNode);
+
+		for (auto& listener : listeners)
+			listener->newNodeAdded (newNode);
+
+		return newNode;
+	}
+
+    // Adds new Node to the graph and takes ownership of node object
     bool addNode (Node* const newNode);
 
     // Removes Node from the graph but does not delete Node
@@ -78,11 +96,13 @@ public:
     bool addConnection (std::vector<Connection> newConnections);
     bool canConnect (const Connection& newConnection);
     bool removeConnection (const Connection& connection);
+	bool removeAnyConnection (const int nodeID, const int channelIndex);
     int connectionCount () const;
 
     // Tests if the provided connection already exists in the graph
     bool connectionExists (const Connection& testConnection) const;
 
+	// Return list of active connections between nodes
     const std::vector<Connection>& getConnections () const { return connections; }
 
     // Tests whether a provided connection is valid
@@ -97,6 +117,7 @@ public:
     // Sort and build the list of operations involved in producing output
     bool buildGraph ();
 
+	// Get the list of graph operations to produce output
     const std::vector<GraphOp*>& Graph::getGraphOps () const { return graphOps; }
 
     // Execute the graph of nodes to generate output
@@ -111,14 +132,6 @@ public:
 
     // Pretty print of the current graph showing connections and node processing order
     std::string printGraph () const;
-
-	template <typename T>
-	Node* createNode (int id)
-	{
-		auto newNode = new T (id);
-		newNode->setParentGraph (this);
-		return newNode;
-	}
 
 public:
     struct Listener
@@ -158,9 +171,7 @@ private:
     void clearConnectionsForNode (int nodeID);
 
     // Attach external audio buffers to graph
-    bool setIONodeBuffers (const float** const inBuffers, int inputChannels,
-                           float** const outBuffers, int outputChannels, 
-                           int numSamples);
+	bool setIONodeBuffers (int inputChannels, int outputChannels);
 
 private:
     std::vector<Node*> nodes;
@@ -168,11 +179,13 @@ private:
     // TODO thread safety, needs to be an atomic reference to pass new graphOps on audio thread
     std::vector<GraphOp*> graphOps;
     std::atomic<bool> hasGraphOpsChanged {false};
-    AudioBufferManager audioBufferManager {50};
-    Settings settings {44100.f, 32, 16};
+    AudioBufferManager audioBufferManager;
+    Settings settings;
     std::vector<Listener*> listeners;
 	AudioInputNode audioInNode;
 	AudioOutputNode audioOutNode;
+	int idCount = 1;
+	bool suspendRebuilding = false;
 
     friend struct GraphVerifier;
 };

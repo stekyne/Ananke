@@ -30,6 +30,8 @@ namespace Ananke {
 #endif
 
 Graph::Graph () :
+	settings(44100.f, 128, 64, 0, 2),
+	audioBufferManager (128),
 	audioInNode (AudioInputID),
 	audioOutNode (AudioOutputID)
 {
@@ -61,6 +63,11 @@ Graph::~Graph ()
 
     for (auto& node : nodes)
     {
+		// FIXME not a great solution
+		if (node->getID () == AudioInputID ||
+			node->getID () == AudioOutputID)
+			continue;
+
         if (node != nullptr)
         {
             delete node;
@@ -104,6 +111,8 @@ bool Graph::removeNode (const Node* const node)
     if (getNodeForID (node->getID ()) == nullptr)
         return false;
 
+	// TODO can't remove fixed nodes (audio in/out, midi in/out)
+
     clearConnectionsForNode (node->getID ());
 
     nodes.erase (
@@ -124,15 +133,6 @@ int Graph::nodeCount () const
 
 Node* const Graph::getNodeForID (int id)
 {
-	// TODO need to find graph fixed nodes, audio in/out, midi
-	if (id == AudioOutputID)
-		return &audioOutNode;
-
-	if (id == AudioInputID)
-		return &audioInNode;
-
-	// TODO add midi nodes
-
     const auto result = std::find_if (std::cbegin (nodes), std::cend (nodes), 
 		[&](Node* n) { return n->getID () == id; });
 
@@ -167,6 +167,7 @@ bool Graph::addConnection (const Connection newConnection)
 
     // Connection isn't valid
     removeConnection (newConnection);
+	// TODO call rebuild graph?
     return false;
 }
 
@@ -196,6 +197,9 @@ bool Graph::addConnection (std::vector<Connection> newConnections)
         return true;
     }
 
+	// TODO remove invalid connections on failure?
+	// TODO rebuild graph?
+
     return false;
 }
 
@@ -223,7 +227,36 @@ bool Graph::removeConnection (const Connection& connection)
     for (auto& listener : listeners)
         listener->connectionRemoved (connection);
 
+	// TODO rebuild graph?
+
     return true;
+}
+
+bool Graph::removeAnyConnection (const int nodeID, const int channelIndex)
+{
+	auto iterator = std::remove_if (connections.begin (), connections.end (),
+		[=](const Connection& conn) {
+			return conn.destNode == nodeID && conn.destChannel == channelIndex ||
+				   conn.sourceNode == nodeID && conn.sourceChannel == channelIndex; 
+		}
+	);
+
+	if (iterator != std::end (connections))
+	{
+		connections.erase (iterator);
+	}
+	else
+	{
+		return false;
+	}
+
+	// TODO add generic graph configuration has changed listener
+	/*for (auto& listener : listeners)
+		listener->*/
+
+	// TODO rebuild graph?
+
+	return true;
 }
 
 int Graph::connectionCount () const
@@ -250,7 +283,7 @@ bool Graph::isValidNewConnection (const Connection& testConnection) const
     for (const auto& node : nodes)
     {
         // Check if connection is refering to graph input / output 
-        if (testConnection.sourceNode == AudioInputID)
+        /*if (testConnection.sourceNode == AudioInputID)
         {
             if (testConnection.sourceChannel >= settings.numberInputChannels)
                 return false;
@@ -290,7 +323,7 @@ bool Graph::isValidNewConnection (const Connection& testConnection) const
 
             if (srcMatched)
                 break;
-        }
+        }*/
 
         if (testConnection.sourceNode == node->getID ())
         {
@@ -332,6 +365,12 @@ void Graph::clearGraph ()
 
 bool Graph::buildGraph ()
 {
+	if (suspendRebuilding)
+	{
+		dbg ("Suspending rebuild of graph");
+		return false;
+	}
+
     std::vector<Node*> sortedNodes;
     sortedNodes.reserve (nodes.size ());
     graphOps.clear ();
@@ -353,8 +392,9 @@ bool Graph::buildGraph ()
 
         for (auto j = 0; j < node->getNumOutputChannels (); ++j)
         {
-            auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (node->getID (), j));
-            nodeOutputBuffers.push_back (freeBuffer);
+			AudioBufferID bufferId (node->getID (), j);
+            auto buffer = audioBufferManager.registerFreeBufferWithID (bufferId);
+            nodeOutputBuffers.push_back (buffer);
         }
 
         // Find all incoming buffers required by this node
@@ -364,7 +404,7 @@ bool Graph::buildGraph ()
         {
             for (auto nodeChan = 0; nodeChan < node->getNumOutputChannels (); ++nodeChan)
             {
-                std::vector<AudioBuffer<DSP::SampleType>*> buffers;
+				BufferArray buffers;
 
                 for (auto& connection : connections)
                 {
@@ -387,9 +427,7 @@ bool Graph::buildGraph ()
                 }
                 else if (buffers.size () > 1)
                 {
-                    // TODO lookup existing buffer IDs to see if this sum op already exists
-                    // How to store sum buffer IDs?
-                    auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (99, 0));
+                    auto freeBuffer = audioBufferManager.registerFreeBufferWithID (AudioBufferID (99, 0));
                     graphOps.push_back (new SumBuffersOp (std::move (buffers), freeBuffer));
                     nodeInputBuffers.push_back (freeBuffer);
                 }
@@ -431,12 +469,9 @@ bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
         hasUpdated = true;
     }
     
-    // Hook up external buffers to graph input and output buffers
-    //if (setIONodeBuffers (audioIn, numAudioInputs,
-    //                      audioOut, numAudioOutputs, blockSize))
-    //{
-    //    hasUpdated = true;
-    //}
+	// Check for audio input / output changes
+    if (setIONodeBuffers (numAudioInputs, numAudioOutputs))
+        hasUpdated = true;
 
     // Check if graph Ops have been recalculated and swap if so
     if (hasGraphOpsChanged)
@@ -446,76 +481,77 @@ bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
         // graphOps = 
     }
 
-	// TODO process read only input buffers which copies audio to internal buffers to be used by graph
-	// audioInNode.process()
+	// Copy incoming audio into graph buffers
+	for (int i = 0; i < numAudioInputs; ++i)
+	{
+		const auto inputBuffer = audioBufferManager.getBufferFromID (AudioBufferID (AudioInputID, i));
+		assert (inputBuffer != nullptr);
+		assert (blockSize <= inputBuffer->getSize ());
+		inputBuffer->copyDataFrom (audioIn[i], blockSize);
+	}
 
-    //for (auto& op : graphOps)
-    //    op->perform (blockSize);
+    for (auto& op : graphOps)
+        op->perform (blockSize);
 
-	// TODO finally collect all internal audio processing and output to external buffers via output node
-	// audioOutNode.process ();
+	// Copy processed audio from graph buffers to audio output
+	for (int i = 0; i < numAudioOutputs; ++i)
+	{
+		const auto outputBuffer = audioBufferManager.getBufferFromID (AudioBufferID (AudioOutputID, i));
+		assert (outputBuffer != nullptr);
+		assert (blockSize <= outputBuffer->getSize ());
+		outputBuffer->copyDataTo (audioOut[i], blockSize);
+	}
 
     return hasUpdated;
 }
 
-bool Graph::setIONodeBuffers (const float** const inBuffers, int inputChannels,
-                              float** const outBuffers, int outputChannels,
-                              int numSamples)
+bool Graph::setIONodeBuffers (int inputChannels,  int outputChannels)
 {
     bool hasChanged = false;
 
-    // If number of inputs has changed then we need to re-build the graph to remove
+    // If number of inputs or outputs has changed then we need to re-build the graph to remove
     // any now invalid connections
     if (settings.numberInputChannels != inputChannels)
     {
+		// Remove any now invalid connections
+		for (int i = inputChannels; i < settings.numberInputChannels; ++i)
+			removeAnyConnection (AudioInputID, i);
+		
         settings.numberInputChannels = inputChannels;
-        
-        // Delete old audio buffers registered in audio manager instance
+		audioInNode.setChannelCount (settings.numberInputChannels);
         audioBufferManager.markFreeByID (Graph::AudioInputID);
 
         // Add new buffers to audio manager
         for (auto chan = 0; chan < inputChannels; ++chan)
         {
             // This will register a buffer with the appropriate ID
-            auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (Graph::AudioInputID, chan));
+            auto freeBuffer = audioBufferManager.registerFreeBufferWithID (AudioBufferID (Graph::AudioInputID, chan));
             assert (freeBuffer != nullptr);
         }
         
         hasChanged = true;
     }
 
-    // Assign incoming buffer pointers to graph buffers
-    for (auto chan = 0; chan < inputChannels; ++chan)
-    {
-        // Map incoming buffer pointers to existing IO buffers
-        auto buffer = audioBufferManager.getBufferFromID (AudioBufferID (Graph::AudioInputID, chan));
-        assert (buffer != nullptr);
-        buffer->setBufferToUse (inBuffers[chan], numSamples);
-    }
+	if (settings.numberOutputChannels != outputChannels)
+	{
+		// Remove any now invalid connections
+		for (int i = outputChannels; i < settings.numberOutputChannels; ++i)
+			removeAnyConnection (AudioOutputID, i);
 
-    if (settings.numberOutputChannels != outputChannels)
-    {
-        settings.numberOutputChannels = outputChannels;
-        audioBufferManager.markFreeByID (Graph::AudioOutputID);
+		settings.numberOutputChannels = outputChannels;
+		audioOutNode.setChannelCount (outputChannels);
+		audioBufferManager.markFreeByID (Graph::AudioOutputID);
 
-        // Add new buffers to audio manager
-        for (auto chan = 0; chan < outputChannels; ++chan)
-        {
-            // This will register a buffer with the appropriate ID
-            auto freeBuffer = audioBufferManager.getFreeBuffer (AudioBufferID (Graph::AudioOutputID, chan));
-            assert (freeBuffer != nullptr);
-        }
+		// Add new buffers to audio manager
+		for (auto chan = 0; chan < outputChannels; ++chan)
+		{
+			// This will register a buffer with the appropriate ID
+			auto freeBuffer = audioBufferManager.registerFreeBufferWithID (AudioBufferID (Graph::AudioOutputID, chan));
+			assert (freeBuffer != nullptr);
+		}
 
-        hasChanged = true;
-    }
-
-    // Assign incoming buffer pointers to graph buffers
-    for (auto chan = 0; chan < outputChannels; ++chan)
-    {
-        auto buffer = audioBufferManager.getBufferFromID (AudioBufferID (Graph::AudioOutputID, chan));
-        assert (buffer != nullptr);
-        buffer->setBufferToUse (outBuffers[chan], numSamples);
-    }
+		hasChanged = true;
+	}
 
     if (hasChanged)
         buildGraph ();
@@ -619,6 +655,9 @@ void Graph::setSettings (Settings settings_)
 {
     this->settings = settings_;
 
+	// Update audio input/output configuration if changed
+	audioInNode.setChannelCount (settings_.numberInputChannels);
+	audioOutNode.setChannelCount (settings_.numberOutputChannels);
 
     // Re-allocate buffers if size has changed
     audioBufferManager.setBufferSize (settings_.blockSize);
