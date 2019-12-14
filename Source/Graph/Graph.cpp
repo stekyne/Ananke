@@ -359,6 +359,7 @@ bool Graph::isValidNewConnection (const Connection& testConnection) const
 
 void Graph::clearGraph ()
 {
+    connections.clear ();
     nodes.clear ();
     graphOps.clear ();
 }
@@ -559,6 +560,15 @@ bool Graph::setIONodeBuffers (int inputChannels,  int outputChannels)
     return hasChanged;
 }
 
+bool Graph::isNodeConnected (Node& node)
+{
+    for (auto& connection : connections)
+        if (connection.destNode == node.getID () || connection.sourceNode == node.getID ())
+            return true;
+
+    return false;
+}
+
 bool Graph::topologicalSortUtil (Node* currentNode, std::unordered_map<int, Markers>& visited, 
 	std::vector<Node*>& sortedNodes)
 {
@@ -603,9 +613,17 @@ bool Graph::topologicalSortUtil (Node* currentNode, std::unordered_map<int, Mark
         visited[currentNodeID].permanentMark = true;
         visited[currentNodeID].temporaryMark = false;
 
-        sortedNodes.push_back (currentNode);
-        dbg ("Node: %d, No more adjacent nodes \n", currentNodeID);
-        dbg ("Node: %d, added to sorted list \n", currentNodeID);
+        if (isNodeConnected(*currentNode))
+        {
+            sortedNodes.push_back (currentNode);
+            dbg ("Node: %d, no more adjacent nodes \n", currentNodeID);
+            dbg ("Node: %d, added to sorted list \n", currentNodeID);
+        }
+        else 
+        {
+            dbg ("Node: %d, unconnected node so not adding to sorted list \n", currentNodeID);
+        }
+        
         return true;
     }
 

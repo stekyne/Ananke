@@ -76,6 +76,7 @@ public:
 		newNode->setParentGraph (this);
 		nodes.push_back (newNode);
 
+        // TODO lock listener list
 		for (auto& listener : listeners)
 			listener->newNodeAdded (newNode);
 
@@ -173,12 +174,15 @@ private:
     // Attach external audio buffers to graph
 	bool setIONodeBuffers (int inputChannels, int outputChannels);
 
+    // Test if node is connected to anything in the graph
+    bool isNodeConnected (Node& node);
+
 private:
     std::vector<Node*> nodes;
     std::vector<Connection> connections;
     // TODO thread safety, needs to be an atomic reference to pass new graphOps on audio thread
     std::vector<GraphOp*> graphOps;
-    std::atomic<bool> hasGraphOpsChanged {false};
+    std::atomic<bool> hasGraphOpsChanged = false;
     AudioBufferManager audioBufferManager;
     Settings settings;
     std::vector<Listener*> listeners;
