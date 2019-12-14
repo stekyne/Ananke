@@ -70,6 +70,7 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 	if (draggingConnector != nullptr)
 	{
 		delete draggingConnector;
+		draggingConnector = nullptr;
 	}
 
 	draggingConnector = dynamic_cast<Connector*> (e.originalComponent);
