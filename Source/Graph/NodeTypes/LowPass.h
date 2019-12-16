@@ -15,18 +15,6 @@ public:
     LowPassNode (int id) :
         Node (id)
     {
-        const float cutoff = 2 * 500.f / 44100.f;
-        const double res = pow (10, 0.05 * -0.0);
-        const double k = 0.5 * res * sin (3.14159265359 * cutoff);
-        const double c1 = 0.5 * (1 - k) / (1 + k);
-        const double c2 = (0.5 + c1) * cos (3.14159265359 * cutoff);
-        const double c3 = (0.5 + c1 - c2) * 0.25;
-
-        lpRight.mA0 = lpLeft.mA0 = 2. * c3;
-        lpRight.mA1 = lpLeft.mA1 = 2. * 2. * c3;
-        lpRight.mA2 = lpLeft.mA2 = 2. * c3;
-        lpRight.mB1 = lpLeft.mB1 = 2. * -c2;
-        lpRight.mB2 = lpLeft.mB2 = 2. * c1;
     }
 
     ~LowPassNode () = default;
@@ -38,6 +26,8 @@ public:
         assert (audioIn.size () == getNumInputChannels ());
         assert (audioOut.size () == getNumOutputChannels ());
         assert (audioIn.size () == audioOut.size ());
+
+        updateFilterCoeffs ();
 
         for (unsigned int chan = 0; chan < audioIn.size (); ++chan)
         {
@@ -60,6 +50,22 @@ public:
         }
     }
 
+    void updateFilterCoeffs () 
+    {
+        const float cutoff = 2 * cutOff / 44100.f;
+        const double res = pow (10, 0.05 * -0.0);
+        const double k = 0.5 * res * sin (3.14159265359 * cutoff);
+        const double c1 = 0.5 * (1 - k) / (1 + k);
+        const double c2 = (0.5 + c1) * cos (3.14159265359 * cutoff);
+        const double c3 = (0.5 + c1 - c2) * 0.25;
+
+        lpRight.mA0 = lpLeft.mA0 = 2. * c3;
+        lpRight.mA1 = lpLeft.mA1 = 2. * 2. * c3;
+        lpRight.mA2 = lpLeft.mA2 = 2. * c3;
+        lpRight.mB1 = lpLeft.mB1 = 2. * -c2;
+        lpRight.mB2 = lpLeft.mB2 = 2. * c1;
+    }
+
     std::string getName () const override
     {
         return "LP Filter";
@@ -73,6 +79,16 @@ public:
     int getNumOutputChannels () const override
     {
         return 2;
+    }
+
+    void setCutoff (float cutoff_) 
+    {
+        cutOff = cutoff_;
+    }
+
+    float getCutoff () const
+    {
+        return cutOff;
     }
 
 private:
@@ -90,6 +106,7 @@ private:
     };
 
     FilterState lpLeft, lpRight;
+    float cutOff = 5000.f;
 };
 
 }
