@@ -92,6 +92,8 @@ void AppController::loadTestData ()
 	auto sawNode = graphModel.createNode<SawOSCNode> ();
 	auto lowPassNode = graphModel.createNode<LowPassNode> ();
 
+	gainNode->setGain (0.4);
+	sawNode->setFrequency (50.f);
 	lowPassNode->setCutoff (500.f);
 
 	graphModel.addConnection (Connection (*sawNode, 0, *gainNode, 0));
