@@ -34,8 +34,8 @@ public:
 
 private:
 	Graph& graph;
-	Connector* draggingConnector{ nullptr };
-
+	std::unique_ptr<Connector> draggingConnector;
+	 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
 };
 

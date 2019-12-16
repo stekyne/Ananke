@@ -68,17 +68,14 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 	/** Delete previous connector if it exists, get a pointer to the connector
 	if the user clicked on one */
 	if (draggingConnector != nullptr)
-	{
-		delete draggingConnector;
-		draggingConnector = nullptr;
-	}
+		draggingConnector.reset ();
 
-	draggingConnector = dynamic_cast<Connector*> (e.originalComponent);
+	const auto connectorComponent = dynamic_cast<Connector*> (e.originalComponent);
 
 	/** User didnt click on a connector so create a new one */
-	if (draggingConnector == nullptr)
+	if (connectorComponent == nullptr)
 	{
-		draggingConnector = new Connector (graph,
+		draggingConnector = std::make_unique <Connector> (graph,
 			sourceFilterID, sourceFilterChannel,
 			destFilterID, destFilterChannel);
 	}
@@ -87,7 +84,7 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 	draggingConnector->setInput (sourceFilterID, sourceFilterChannel);
 	draggingConnector->setOutput (destFilterID, destFilterChannel);
 
-	addAndMakeVisible (draggingConnector);
+	addAndMakeVisible (draggingConnector.get ());
 	draggingConnector->toFront (false);
 
 	dragConnector (e);
@@ -153,15 +150,15 @@ void GraphComponent::endConnector (const MouseEvent& e)
 
 	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-	uint32 srcFilter = draggingConnector->sourceFilterID;
-	int	srcChannel = draggingConnector->sourceFilterChannel;
+	auto srcFilter = draggingConnector->sourceFilterID;
+	auto srcChannel = draggingConnector->sourceFilterChannel;
 
-	uint32 dstFilter = draggingConnector->destFilterID;
-	int dstChannel = draggingConnector->destFilterChannel;
+	auto dstFilter = draggingConnector->destFilterID;
+	auto dstChannel = draggingConnector->destFilterChannel;
 
-	deleteAndZero (draggingConnector);
+	draggingConnector = nullptr;
 
-	Pin* const pin = findPin (e2.x, e2.y);
+	auto const pin = findPin (e2.x, e2.y);
 
 	if (pin != nullptr)
 	{
@@ -230,7 +227,7 @@ void GraphComponent::updateGraph ()
 	{
 		auto const cc = dynamic_cast<Connector*> (getChildComponent (i));
 
-		if (cc != nullptr && cc != draggingConnector)
+		if (cc != nullptr && cc != draggingConnector.get ())
 		{
 			const Connection testConnection (cc->sourceFilterID,
 				cc->sourceFilterChannel,
