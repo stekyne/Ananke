@@ -27,21 +27,15 @@ public:
         assert (audioOut.size () == getNumOutputChannels ());
 
         const float sr = 44100.f;
-        increm = freq / sr;
+        increm = 2 * juce::float_Pi * freq / sr;
 
-        for (auto chan = 0u; chan < audioOut.size (); ++chan)
+        auto& leftChan = *audioOut[0];
+        auto& rightChan = *audioOut[1];
+
+        for (auto i = 0; i < numSamples; ++i)
         {
-            auto& output = *audioOut[chan];
-
-            for (auto i = 0; i < output.getSize (); ++i)
-            {
-                phasor += increm;
-
-                if (phasor > 1.f)
-                    phasor = -1.f;
-
-                output[i] = phasor;
-            }
+            leftChan[i] = rightChan[i] = sinf (phasor);
+            phasor += increm;
         }
     }
 
@@ -71,9 +65,9 @@ public:
     }
 
 private:
-    float phasor {0.f};
-    float freq {220.f};
-    float increm {0.f};
+    float phasor = 0.f;
+    float freq = 220.f;
+    float increm = 0.f;
 };
 
 }
