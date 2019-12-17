@@ -190,8 +190,6 @@ private:
 	AudioOutputNode audioOutNode;
 	int idCount = 1;
 	bool suspendRebuilding = false;
-
-    friend struct GraphVerifier;
 };
 
 }
