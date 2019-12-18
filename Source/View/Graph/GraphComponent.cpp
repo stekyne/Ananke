@@ -57,26 +57,29 @@ Connector* GraphComponent::getComponentForConnection (const Connection& connecti
 void GraphComponent::beginConnector (const int sourceFilterID, const int sourceFilterChannel,
 	const int destFilterID, const int destFilterChannel, const MouseEvent& e)
 {
-	/** Delete previous connector if it exists, get a pointer to the connector
-	if the user clicked on one */
-	if (draggingConnector != nullptr)
-		draggingConnector.reset ();
-
-	const auto connectorComponent = dynamic_cast<Connector*> (e.originalComponent);
-
-	/** User didnt click on a connector so create a new one */
-	if (connectorComponent == nullptr)
+	// Delete previous connector if it exists, get a pointer to the connector
+	// if the user clicked on one
+	if (draggingConnector)
 	{
-		draggingConnector = std::make_unique <Connector> (&graph,
+		delete draggingConnector;
+		draggingConnector = nullptr;
+	}
+
+	draggingConnector = dynamic_cast<Connector*> (e.originalComponent);
+
+	// User didnt click on a connector so create a new one
+	if (draggingConnector == nullptr)
+	{
+		draggingConnector = new Connector (&graph, this,
 			sourceFilterID, sourceFilterChannel,
 			destFilterID, destFilterChannel);
 	}
 
-	/** Set inital position of the connector */
+	// Set inital position of the connector
 	draggingConnector->setInput (sourceFilterID, sourceFilterChannel);
 	draggingConnector->setOutput (destFilterID, destFilterChannel);
 
-	addAndMakeVisible (draggingConnector.get ());
+	addAndMakeVisible (draggingConnector);
 	draggingConnector->toFront (false);
 
 	dragConnector (e);
@@ -84,12 +87,11 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 
 void GraphComponent::dragConnector (const MouseEvent& e)
 {
-	const MouseEvent e2 (e.getEventRelativeTo (this));
-
 	if (draggingConnector == nullptr)
 		return;
 
-	//draggingConnector->setTooltip( String::empty );
+	const MouseEvent e2 (e.getEventRelativeTo (this));
+	//draggingConnector->setTooltip (String::empty);
 
 	int x = e2.x;
 	int y = e2.y;
@@ -148,6 +150,7 @@ void GraphComponent::endConnector (const MouseEvent& e)
 	auto dstFilter = draggingConnector->getDestNodeID ();
 	auto dstChannel = draggingConnector->getDestChannel ();
 
+	delete draggingConnector;
 	draggingConnector = nullptr;
 
 	auto const pin = findPin (e2.x, e2.y);
@@ -205,7 +208,7 @@ void GraphComponent::updateGraph ()
 
 	for (auto& connector : connectors)
 	{
-		if (connector.get() == draggingConnector.get ())
+		if (connector.get() == draggingConnector)
 			continue;
 
 		const Connection testConnection (
@@ -220,7 +223,7 @@ void GraphComponent::updateGraph ()
 		}
 		else
 		{
-			connector = nullptr;
+			connector.release ();
 		}
 	}
 
@@ -233,7 +236,7 @@ void GraphComponent::updateGraph ()
 	{
 		if (getComponentForConnection (connection) == nullptr)
 		{
-			auto conn = std::make_unique<Connector> (&graph);
+			auto conn = std::make_unique<Connector> (&graph, this);
 			conn->setInput (connection.sourceNode, connection.sourceChannel);
 			conn->setOutput (connection.destNode, connection.destChannel);
 			addAndMakeVisible (conn.get ());
@@ -245,7 +248,7 @@ void GraphComponent::updateGraph ()
 	{
 		if (getComponentForFilter (node->getID ()) == nullptr)
 		{
-			auto newNode = std::make_unique<NodeComponent> (&graph, node->getID ());
+			auto newNode = std::make_unique<NodeComponent> (&graph, this, node->getID ());
 			newNode->update ();
 			addAndMakeVisible (newNode.get ());
 			nodes.push_back (std::move (newNode));

@@ -36,7 +36,7 @@ private:
 	Graph& graph;
 	std::vector<std::unique_ptr<NodeComponent>> nodes;
 	std::vector<std::unique_ptr<Connector>> connectors;
-	std::unique_ptr<Connector> draggingConnector;
+	Connector* draggingConnector = nullptr;
 	 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
 };

@@ -14,8 +14,9 @@ class Connector : public Component
 {
 public:
 	Connector () = default;
-	Connector (Graph* graph);
-	Connector (Graph* graph, int srcNodeComponent, int srcChannel, int dstNodeComponent, int dstChannel);
+	Connector (Graph* graph, GraphComponent* graphComponent);
+	Connector (Graph* graph, GraphComponent* graphComponent, 
+		int srcNodeComponent, int srcChannel, int dstNodeComponent, int dstChannel);
 	~Connector () = default;
 
 	void setSourceNodeID (int id) { sourceFilterID = id; }
@@ -60,18 +61,6 @@ public:
 	void update ();
 
 private:
-	GraphComponent* getGraph () const
-	{
-		auto graphComponent = findParentComponentOfClass<GraphComponent> ();
-
-		if (graphComponent == nullptr)
-		{
-			DBG ("Could not find graph component for pin");
-		}
-
-		return graphComponent;
-	}
-
 	void getDistancesFromEnds (int x, int y, double& distanceFromStart, double& distanceFromEnd) const
 	{
 		float x1, y1, x2, y2;
@@ -99,6 +88,7 @@ private:
 	int destFilterChannel = 0;
 
 	Graph* graph = nullptr;
+	GraphComponent* graphComponent = nullptr;
 	bool dragging = false;
 
 	JUCE_LEAK_DETECTOR (Connector);

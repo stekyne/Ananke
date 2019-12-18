@@ -5,21 +5,21 @@
 
 namespace Ananke {
 
-Connector::Connector (Graph* graph) :
-	graph (graph)
+Connector::Connector (Graph* graph, GraphComponent* graphComponent) :
+	graph (graph),
+	graphComponent (graphComponent)
 {
-	setAlwaysOnTop (true);
 }
 
-Connector::Connector (Graph* graph, int srcNodeComponent, int srcChannel,
+Connector::Connector (Graph* graph, GraphComponent* graphComponent, int srcNodeComponent, int srcChannel,
 	int dstNodeComponent, int dstChannel) :
 	graph (graph),
+	graphComponent (graphComponent),
 	sourceFilterID (srcNodeComponent),
 	sourceFilterChannel (srcChannel),
 	destFilterID (dstNodeComponent),
 	destFilterChannel (dstChannel)
 {
-	setAlwaysOnTop (true);
 }
 
 void Connector::setInput (const int sourceFilterID_, const int sourceFilterChannel_)
@@ -78,21 +78,21 @@ bool Connector::hitTest (int x, int y)
 
 void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 {
+	jassert (graphComponent != nullptr);
+
 	x1 = lastx1;
 	y1 = lasty1;
 	x2 = lastx2;
 	y2 = lasty2;
 
-	const auto hostPanel = getGraph ();
-
-	if (hostPanel != nullptr)
+	if (graphComponent != nullptr)
 	{
-		const auto srcFilterComp = hostPanel->getComponentForFilter (sourceFilterID);
+		const auto srcFilterComp = graphComponent->getComponentForFilter (sourceFilterID);
 
 		if (srcFilterComp != nullptr)
 			srcFilterComp->getPinPos (sourceFilterChannel, false, x1, y1);
 
-		const auto dstFilterComp = hostPanel->getComponentForFilter (destFilterID);
+		const auto dstFilterComp = graphComponent->getComponentForFilter (destFilterID);
 
 		if (dstFilterComp != nullptr)
 			dstFilterComp->getPinPos (destFilterChannel, true, x2, y2);
@@ -176,6 +176,8 @@ void Connector::mouseDown (const MouseEvent& /*e*/)
 
 void Connector::mouseDrag (const MouseEvent& e)
 {
+	jassert (graph != nullptr && graphComponent != nullptr);
+
 	if (!dragging && !e.mouseWasClicked ())
 	{
 		dragging = true;
@@ -190,7 +192,7 @@ void Connector::mouseDrag (const MouseEvent& e)
 		getDistancesFromEnds (e.x, e.y, distanceFromStart, distanceFromEnd);
 		const bool isNearerSource = (distanceFromStart < distanceFromEnd);
 
-		getGraph ()->beginConnector (isNearerSource ? 0 : sourceFilterID,
+		graphComponent->beginConnector (isNearerSource ? 0 : sourceFilterID,
 			sourceFilterChannel,
 			isNearerSource ? destFilterID : 0,
 			destFilterChannel,
@@ -198,15 +200,17 @@ void Connector::mouseDrag (const MouseEvent& e)
 	}
 	else if (dragging)
 	{
-		getGraph ()->dragConnector (e);
+		graphComponent->dragConnector (e);
 	}
 }
 
 void Connector::mouseUp (const MouseEvent& e)
 {
+	jassert (graph != nullptr && graphComponent != nullptr);
+
 	if (dragging)
 	{
-		getGraph ()->endConnector (e);
+		graphComponent->endConnector (e);
 	}
 }
 

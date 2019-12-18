@@ -16,7 +16,7 @@ class NodeComponent : public Component
 {
 public:
 	NodeComponent () = default;
-	NodeComponent (Graph* graph, int id);
+	NodeComponent (Graph* graph, GraphComponent* graphComponent, int id);
 	~NodeComponent ();
 
 	void getPinPos (const int index, const bool isInput, float& x, float& y);
@@ -33,8 +33,7 @@ public:
 
 private:
 	friend class GraphComponent;
-	GraphComponent* getGraph () const;
-	mutable GraphComponent* graphComp{ nullptr };
+	GraphComponent* graphComp = nullptr;
 
 private:
 	ComponentDragger dragger;
