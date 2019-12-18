@@ -161,9 +161,8 @@ private:
     };
 
     // Returns false if the current node has already been visited
-    bool topologicalSortUtil (Node* currentNode,
-                              std::unordered_map<int, Markers>& visited,
-                              std::vector<Node*>& sortedNodes);
+    bool topologicalSortUtil (Node* currentNode, std::unordered_map<int, Markers>& visited,
+        std::vector<Node*>& sortedNodes);
     
     // Returns true if graph can be sorted with no loops
     bool performSort (std::vector<Node*>& sortedNodes);

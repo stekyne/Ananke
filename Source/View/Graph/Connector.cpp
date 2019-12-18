@@ -5,30 +5,19 @@
 
 namespace Ananke {
 
-Connector::Connector (Graph& graph) :
-	graph (graph),
-	sourceFilterID (0),
-	sourceFilterChannel (0),
-	destFilterID (0),
-	destFilterChannel (0),
-	lastx1 (0),
-	lastx2 (0),
-	lasty1 (0),
-	lasty2 (0)
+Connector::Connector (Graph* graph) :
+	graph (graph)
 {
+	setAlwaysOnTop (true);
 }
 
-Connector::Connector (Graph& graph, int srcNodeComponent_, int srcChannel_,
-	int dstNodeComponent_, int dstChannel_) :
+Connector::Connector (Graph* graph, int srcNodeComponent, int srcChannel,
+	int dstNodeComponent, int dstChannel) :
 	graph (graph),
-	sourceFilterID (srcNodeComponent_),
-	sourceFilterChannel (srcChannel_),
-	destFilterID (dstNodeComponent_),
-	destFilterChannel (dstChannel_),
-	lastx1 (0),
-	lastx2 (0),
-	lasty1 (0),
-	lasty2 (0)
+	sourceFilterID (srcNodeComponent),
+	sourceFilterChannel (srcChannel),
+	destFilterID (dstNodeComponent),
+	destFilterChannel (dstChannel)
 {
 	setAlwaysOnTop (true);
 }
@@ -94,16 +83,16 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 	x2 = lastx2;
 	y2 = lasty2;
 
-	GraphComponent* const hostPanel = getGraph ();
+	const auto hostPanel = getGraph ();
 
 	if (hostPanel != nullptr)
 	{
-		NodeComponent* srcFilterComp = hostPanel->getComponentForFilter (sourceFilterID);
+		const auto srcFilterComp = hostPanel->getComponentForFilter (sourceFilterID);
 
 		if (srcFilterComp != nullptr)
 			srcFilterComp->getPinPos (sourceFilterChannel, false, x1, y1);
 
-		NodeComponent* dstFilterComp = hostPanel->getComponentForFilter (destFilterID);
+		const auto dstFilterComp = hostPanel->getComponentForFilter (destFilterID);
 
 		if (dstFilterComp != nullptr)
 			dstFilterComp->getPinPos (destFilterChannel, true, x2, y2);
@@ -141,9 +130,7 @@ void Connector::resized ()
 	const float arrowL = 4.0f;
 
 	Path arrow;
-	arrow.addTriangle (-arrowL, arrowW,
-		-arrowL, -arrowW,
-		arrowL, 0.0f);
+	arrow.addTriangle (-arrowL, arrowW, -arrowL, -arrowW, arrowL, 0.0f);
 
 	arrow.applyTransform (AffineTransform::rotation (float_Pi * 0.5f - (float)atan2 (x2 - x1, y2 - y1))
 		.translated ((x1 + x2) * 0.5f, (y1 + y2) * 0.5f));
@@ -193,7 +180,10 @@ void Connector::mouseDrag (const MouseEvent& e)
 	{
 		dragging = true;
 
-		graph.removeConnection (Ananke::Connection (sourceFilterID, sourceFilterChannel,
+		if (graph == nullptr) 
+			return;
+
+		graph->removeConnection (Ananke::Connection (sourceFilterID, sourceFilterChannel,
 			destFilterID, destFilterChannel));
 
 		double distanceFromStart, distanceFromEnd;

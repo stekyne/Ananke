@@ -5,7 +5,7 @@
 
 namespace Ananke {
 
-NodeComponent::NodeComponent (Graph& graph, int id) :
+NodeComponent::NodeComponent (Graph* graph, int id) :
 	graph (graph),
 	id (id),
 	font (13.0f, Font::bold)
@@ -35,7 +35,9 @@ void NodeComponent::getPinPos (const int index, const bool isInput, float& x, fl
 
 void NodeComponent::paint (Graphics& g)
 {
-	const auto node = graph.getNodeForID (id);
+	jassert (graph != nullptr);
+
+	const auto node = graph->getNodeForID (id);
 	g.setColour (Colours::lightgrey);
 	g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
 	g.setColour (Colours::darkgrey);
@@ -99,8 +101,9 @@ void NodeComponent::resized ()
 
 void NodeComponent::update ()
 {
-	const auto node = graph.getNodeForID (id);
+	jassert (graph != nullptr);
 
+	const auto node = graph->getNodeForID (id);
 	numIns = node->getNumInputChannels ();
 
 	if (node->acceptsMidi ())
@@ -175,9 +178,10 @@ void NodeComponent::mouseDown (const MouseEvent& e)
 
 void NodeComponent::mouseDrag (const MouseEvent& e)
 {
-	dragger.dragComponent (this, e, nullptr);
+	jassert (graph != nullptr);
 
-	auto node = graph.getNodeForID (id);
+	dragger.dragComponent (this, e, nullptr);
+	auto node = graph->getNodeForID (id);
 
 	/*node->setPosition (
 		std::make_tuple<float, float> (

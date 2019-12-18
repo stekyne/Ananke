@@ -15,7 +15,6 @@ GraphComponent::GraphComponent (Graph& graph) :
 
 GraphComponent::~GraphComponent ()
 {
-	deleteAllChildren ();
 }
 
 void GraphComponent::resized ()
@@ -30,12 +29,10 @@ void GraphComponent::paint (Graphics& g)
 
 NodeComponent* GraphComponent::getComponentForFilter (const int filterID) const
 {
-	for (int i = getNumChildComponents (); --i >= 0;)
+	for (auto& node : nodes)
 	{
-		auto const fc = dynamic_cast<NodeComponent*> (getChildComponent (i));
-
-		if (fc != nullptr && fc->id == filterID)
-			return fc;
+		if (node->id == filterID)
+			return node.get ();
 	}
 
 	return nullptr;
@@ -43,19 +40,14 @@ NodeComponent* GraphComponent::getComponentForFilter (const int filterID) const
 
 Connector* GraphComponent::getComponentForConnection (const Connection& connection) const
 {
-	for (int i = getNumChildComponents (); --i >= 0;)
+	for (auto& connector : connectors)
 	{
-		Connector* const c = dynamic_cast<Connector*>(getChildComponent (i));
-
-		if (c == nullptr)
-			continue;
-
-		if (c->sourceFilterID == connection.sourceNode &&
-			c->destFilterID == connection.destNode &&
-			c->sourceFilterChannel == connection.sourceChannel &&
-			c->destFilterChannel == connection.destChannel)
+		if (connector->getSourceNodeID () == connection.sourceNode &&
+			connector->getDestNodeID () == connection.destNode &&
+			connector->getSourceChannel () == connection.sourceChannel &&
+			connector->getDestChannel () == connection.destChannel)
 		{
-			return c;
+			return connector.get ();
 		}
 	}
 
@@ -75,7 +67,7 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 	/** User didnt click on a connector so create a new one */
 	if (connectorComponent == nullptr)
 	{
-		draggingConnector = std::make_unique <Connector> (graph,
+		draggingConnector = std::make_unique <Connector> (&graph,
 			sourceFilterID, sourceFilterChannel,
 			destFilterID, destFilterChannel);
 	}
@@ -94,51 +86,51 @@ void GraphComponent::dragConnector (const MouseEvent& e)
 {
 	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-	if (draggingConnector != nullptr)
+	if (draggingConnector == nullptr)
+		return;
+
+	//draggingConnector->setTooltip( String::empty );
+
+	int x = e2.x;
+	int y = e2.y;
+
+	auto const pin = findPin (x, y);
+
+	if (pin != nullptr)
 	{
-		//draggingConnector->setTooltip( String::empty );
+		auto srcFilter = draggingConnector->getSourceNodeID ();
+		auto srcChannel = draggingConnector->getSourceChannel ();
 
-		int x = e2.x;
-		int y = e2.y;
+		auto dstFilter = draggingConnector->getDestNodeID ();
+		auto dstChannel = draggingConnector->getDestChannel ();
 
-		auto const pin = findPin (x, y);
-
-		if (pin != nullptr)
+		if (srcFilter == 0 && !pin->IsInput)
 		{
-			uint32 srcFilter = draggingConnector->sourceFilterID;
-			int	srcChannel = draggingConnector->sourceFilterChannel;
-
-			uint32 dstFilter = draggingConnector->destFilterID;
-			int	dstChannel = draggingConnector->destFilterChannel;
-
-			if (srcFilter == 0 && !pin->IsInput)
-			{
-				srcFilter = pin->FilterID;
-				srcChannel = pin->Index;
-			}
-			else if (dstFilter == 0 && pin->IsInput)
-			{
-				dstFilter = pin->FilterID;
-				dstChannel = pin->Index;
-			}
-
-			if (graph.canConnect (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
-			{
-				x = pin->getParentComponent ()->getX () +
-					pin->getX () + pin->getWidth () / 2;
-
-				y = pin->getParentComponent ()->getY () +
-					pin->getY () + pin->getHeight () / 2;
-
-				//draggingConnector->setTooltip (pin->getTooltip());
-			}
+			srcFilter = pin->FilterID;
+			srcChannel = pin->Index;
+		}
+		else if (dstFilter == 0 && pin->IsInput)
+		{
+			dstFilter = pin->FilterID;
+			dstChannel = pin->Index;
 		}
 
-		if (draggingConnector->sourceFilterID == 0)
-			draggingConnector->dragStart (x, y);
-		else
-			draggingConnector->dragEnd (x, y);
+		if (graph.canConnect (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+		{
+			x = pin->getParentComponent ()->getX () +
+				pin->getX () + pin->getWidth () / 2;
+
+			y = pin->getParentComponent ()->getY () +
+				pin->getY () + pin->getHeight () / 2;
+
+			//draggingConnector->setTooltip (pin->getTooltip());
+		}
 	}
+
+	if (draggingConnector->getSourceNodeID () == 0)
+		draggingConnector->dragStart (x, y);
+	else
+		draggingConnector->dragEnd (x, y);
 }
 
 void GraphComponent::endConnector (const MouseEvent& e)
@@ -150,11 +142,11 @@ void GraphComponent::endConnector (const MouseEvent& e)
 
 	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-	auto srcFilter = draggingConnector->sourceFilterID;
-	auto srcChannel = draggingConnector->sourceFilterChannel;
+	auto srcFilter = draggingConnector->getSourceNodeID ();
+	auto srcChannel = draggingConnector->getSourceChannel ();
 
-	auto dstFilter = draggingConnector->destFilterID;
-	auto dstChannel = draggingConnector->destFilterChannel;
+	auto dstFilter = draggingConnector->getDestNodeID ();
+	auto dstChannel = draggingConnector->getDestChannel ();
 
 	draggingConnector = nullptr;
 
@@ -181,33 +173,24 @@ void GraphComponent::endConnector (const MouseEvent& e)
 
 		if (graph.addConnection (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
 		{
-			DBG ("Connection is successful: " + String (srcFilter) +
-				" to " + String (dstFilter));
+			DBG ("Connection is successful: " + String (srcFilter) + " to " + String (dstFilter));
 			updateGraph ();
 		}
 		else
 		{
-			DBG ("Connection unsuccessful: " + String (srcFilter) +
-				" to " + String (dstFilter));
+			DBG ("Connection unsuccessful: " + String (srcFilter) + " to " + String (dstFilter));
 		}
 	}
 }
 
 Pin* GraphComponent::findPin (const int x, const int y) const
 {
-	for (int i = getNumChildComponents (); --i >= 0;)
+	for (auto& node : nodes)
 	{
-		auto const fc = dynamic_cast<NodeComponent*>(getChildComponent (i));
+		auto const pin = dynamic_cast<Pin*> (node->getComponentAt (x - node->getX (), y - node->getY ()));
 
-		if (fc != nullptr)
-		{
-			auto const pin = dynamic_cast<Pin*> (
-				fc->getComponentAt (x - fc->getX (),
-					y - fc->getY ()));
-
-			if (pin != nullptr)
-				return pin;
-		}
+		if (pin != nullptr)
+			return pin;
 	}
 
 	return nullptr;
@@ -215,58 +198,57 @@ Pin* GraphComponent::findPin (const int x, const int y) const
 
 void GraphComponent::updateGraph ()
 {
-	for (int i = getNumChildComponents (); --i >= 0;)
+	for (auto& node : nodes)
 	{
-		auto const fc = dynamic_cast<NodeComponent*> (getChildComponent (i));
-
-		if (fc != nullptr)
-			fc->update ();
+		node->update ();
 	}
 
-	for (int i = getNumChildComponents (); --i >= 0;)
+	for (auto& connector : connectors)
 	{
-		auto const cc = dynamic_cast<Connector*> (getChildComponent (i));
+		if (connector.get() == draggingConnector.get ())
+			continue;
 
-		if (cc != nullptr && cc != draggingConnector.get ())
+		const Connection testConnection (
+			connector->getSourceNodeID (),
+			connector->getSourceChannel (),
+			connector->getDestNodeID (),
+			connector->getDestChannel ());
+
+		if (graph.connectionExists (testConnection))
 		{
-			const Connection testConnection (cc->sourceFilterID,
-				cc->sourceFilterChannel,
-				cc->destFilterID,
-				cc->destFilterChannel);
-
-			if (graph.connectionExists (testConnection) == false)
-			{
-				delete cc;
-			}
-			else
-			{
-				cc->update ();
-			}
+			connector->update ();
+		}
+		else
+		{
+			connector = nullptr;
 		}
 	}
+
+	connectors.erase (std::remove_if (connectors.begin (), connectors.end (), 
+	[&] (const auto& item) {
+		return item == nullptr;
+	}), connectors.end ());
 
 	for (auto& connection : graph.getConnections ())
 	{
 		if (getComponentForConnection (connection) == nullptr)
 		{
-			auto const conn = new Connector (graph);
-
-			addAndMakeVisible (conn);
-
+			auto conn = std::make_unique<Connector> (&graph);
 			conn->setInput (connection.sourceNode, connection.sourceChannel);
 			conn->setOutput (connection.destNode, connection.destChannel);
+			addAndMakeVisible (conn.get ());
+			connectors.push_back (std::move (conn));
 		}
 	}
 
 	for (auto& node : graph.getNodes ())
 	{
-		const auto id = node->getID ();
-
-		if (getComponentForFilter (id) == 0)
+		if (getComponentForFilter (node->getID ()) == nullptr)
 		{
-			NodeComponent* const newNode = new NodeComponent (graph, id);
-			addAndMakeVisible (newNode);
+			auto newNode = std::make_unique<NodeComponent> (&graph, node->getID ());
 			newNode->update ();
+			addAndMakeVisible (newNode.get ());
+			nodes.push_back (std::move (newNode));
 		}
 	}
 }

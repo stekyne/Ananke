@@ -13,12 +13,22 @@ class Graph;
 class Connector : public Component
 {
 public:
-	Connector () = delete;
-	Connector (Graph& graph);
-	Connector (Graph& graph,
-		int srcNodeComponent, int srcChannel,
-		int dstNodeComponent, int dstChannel);
+	Connector () = default;
+	Connector (Graph* graph);
+	Connector (Graph* graph, int srcNodeComponent, int srcChannel, int dstNodeComponent, int dstChannel);
 	~Connector () = default;
+
+	void setSourceNodeID (int id) { sourceFilterID = id; }
+	int getSourceNodeID () const noexcept { return sourceFilterID; }
+
+	void setSourceChannel (int index) { sourceFilterChannel = index; }
+	int getSourceChannel () const noexcept { return sourceFilterChannel; }
+
+	void setDestNodeID (int id) { destFilterID = id; }
+	int getDestNodeID () const noexcept { return destFilterID; }
+
+	void setDestChannel (int index) { destFilterChannel = index; }
+	int getDestChannel () const noexcept { return destFilterChannel; }
 
 	void setInput (const int sourceFilterID, const int sourceFilterChannel);
 	void setOutput (const int destFilterID, const int destFilterChannel);
@@ -35,28 +45,24 @@ public:
 	void resized ();
 	void resizeToFit ();
 
-	/** When a user clicks within the component, it checks if it hits the path
-	(visual part) and begins dragging the connector if so */
+	// When a user clicks within the component, it checks if it hits the path
+	// (visual part) and begins dragging the connector if so
 	void mouseDown (const MouseEvent& e);
 
-	/** Drag one end of the connector and update its position in the filter */
+	// Drag one end of the connector and update its position in the filter
 	void mouseDrag (const MouseEvent& e);
 
-	/** If dragging previously, check if the position is near a pin, if not,
-	disconnect this connector (delete it). if it is near, check if it can connect
-	and act accordingly */
+	// If dragging previously, check if the position is near a pin, if not,
+	// disconnect this connector (delete it). if it is near, check if it can connect
+	// and act accordingly
 	void mouseUp (const MouseEvent& e);
 
 	void update ();
 
-	/** Connection IDs and channels for this object */
-	int sourceFilterID, destFilterID;
-	int sourceFilterChannel, destFilterChannel;
-
 private:
 	GraphComponent* getGraph () const
 	{
-		GraphComponent* graphComponent = findParentComponentOfClass<GraphComponent> ();
+		auto graphComponent = findParentComponentOfClass<GraphComponent> ();
 
 		if (graphComponent == nullptr)
 		{
@@ -76,17 +82,26 @@ private:
 	}
 
 private:
-	/** Visual path object to represent connector */
+	// Visual path object to represent connector
 	Path linePath;
 	Path hitPath;
 
-	/** Position of the connection on the graph */
-	float lastx1, lasty1, lastx2, lasty2;
+	// Position of the connection on the graph
+	float lastx1 = 0.f;
+	float lasty1 = 0.f; 
+	float lastx2 = 0.f;
+	float lasty2 = 0.f;
 
-	Graph& graph;
+	// Connection IDs and channels for this object
+	int sourceFilterID = 0;
+	int destFilterID = 0;
+	int sourceFilterChannel = 0;
+	int destFilterChannel = 0;
+
+	Graph* graph = nullptr;
 	bool dragging = false;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Connector);
+	JUCE_LEAK_DETECTOR (Connector);
 };
 
 }
