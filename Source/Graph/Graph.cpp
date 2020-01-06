@@ -717,6 +717,7 @@ bool Graph::addListener (Listener* const newListener)
 {
     assert (newListener != nullptr);
 
+    // TODO lock listeners list
     const auto result = std::find (std::cbegin (listeners), std::cend (listeners), newListener);
 
     // Didn't find the listener so add it
