@@ -23,7 +23,7 @@ public:
 	};
 
 	Pin () = delete;
-	Pin (Type type, int filterID, int index, GraphComponent& graph);
+	Pin (Type type, int filterID, int index, GraphComponent* graph);
 	~Pin ();
 
 	void paint (Graphics& g);
@@ -36,28 +36,13 @@ public:
 	const int Index;
 	const bool IsInput;
 
-	enum { midi_num = 0x1000 };
-
-private:
-	GraphComponent* getGraph () const
-	{
-		GraphComponent* graphComponent =
-			findParentComponentOfClass<GraphComponent> ();
-
-		if (graphComponent == nullptr)
-		{
-			DBG ("Could not find graph component for pin");
-		}
-
-		return graphComponent;
-	}
+	enum { MidiNum = 0x1000 };
 
 private:
 	friend class NodeComponent;
 
-	int	channelNo;
-	Type pin_type;
-	GraphComponent& graph;
+	Type pinType;
+	GraphComponent* graph = nullptr;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pin);
 };

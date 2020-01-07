@@ -5,8 +5,7 @@
 
 namespace Ananke {
 
-NodeComponent::NodeComponent (Graph* graph, GraphComponent* graphComponent, int id) :
-	graph (graph),
+NodeComponent::NodeComponent (GraphComponent* graphComponent, int id) :
 	graphComp (graphComponent),
 	id (id),
 	font (13.0f, Font::bold)
@@ -36,21 +35,19 @@ void NodeComponent::getPinPos (const int index, const bool isInput, float& x, fl
 
 void NodeComponent::paint (Graphics& g)
 {
-	jassert (graph != nullptr);
-	const auto node = graph->getNodeForID (id);
+	const auto node = graphComp->getGraph()->getNodeForID (id);
 
 	g.setColour (Colours::lightgrey);
 	g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
 	g.setColour (Colours::darkgrey);
 	g.setFont (Font ("Arial", "Bold", 12.f));
-	g.drawText (node->getName (), 0, 0, getWidth (), getHeight (),
-		Justification::centred, false);
+	g.drawText (node->getName (), 0, 0, getWidth (), getHeight (), Justification::centred, false);
 }
 
 void NodeComponent::resized ()
 {
 	/** Figure out distances between the pins based on the number of them */
-	float x = getWidth () / (float)(inputs.size () + 1);
+	auto x = getWidth () / (float)(inputs.size () + 1);
 
 	/** put pins in correct location */
 	for (auto i = 0; i < (int)inputs.size (); ++i)
@@ -86,25 +83,24 @@ void NodeComponent::resized ()
 
 	for (int i = 0; i < getNumChildComponents (); ++i)
 	{
-		Pin* const pin = dynamic_cast<Pin*>(getChildComponent (i));
+		auto const pin = dynamic_cast<Pin*>(getChildComponent (i));
 
 		if (pin != nullptr)
 		{
 			const int total = pin->IsInput ? numIns : numOuts;
-			const int index = (pin->Index == Pin::midi_num) ? (total - 1) : pin->Index;
+			const int index = (pin->Index == Pin::MidiNum) ? (total - 1) : pin->Index;
 
 			pin->setBounds ((int)(proportionOfWidth ((1 + index) / (total + 1.0f)) - 5 / 2.f),
-				pin->IsInput ? 0 : (getHeight () - 5),
-				5, 5);
+				pin->IsInput ? 0 : (getHeight () - 5), 5, 5);
 		}
 	}
 }
 
 void NodeComponent::update ()
 {
-	jassert (graph != nullptr && graphComp != nullptr);
+	jassert (graphComp != nullptr);
 
-	const auto node = graph->getNodeForID (id);
+	const auto node = graphComp->getGraph()->getNodeForID (id);
 	numIns = node->getNumInputChannels ();
 
 	if (node->acceptsMidi ())
@@ -143,27 +139,27 @@ void NodeComponent::update ()
 
 		for (auto i = 0; i < node->getNumInputChannels (); ++i)
 		{
-			Pin* const newPin = new Pin (Pin::AudioInput, id, i, *graphComp);
+			auto const newPin = new Pin (Pin::AudioInput, id, i, graphComp);
 			inputs.push_back (newPin);
 			addAndMakeVisible (newPin);
 		}
 
 		for (auto i = 0; i < node->getNumOutputChannels (); ++i)
 		{
-			Pin* const newPin = new Pin (Pin::AudioOutput, id, i, *graphComp);
+			auto const newPin = new Pin (Pin::AudioOutput, id, i, graphComp);
 			outputs.push_back (newPin);
 			addAndMakeVisible (newPin);
 		}
 
 		if (node->acceptsMidi ())
 		{
-			Pin* const midiInPin = new Pin (Pin::MidiInput, id, Pin::midi_num, *graphComp);
+			auto const midiInPin = new Pin (Pin::MidiInput, id, Pin::MidiNum, graphComp);
 			addAndMakeVisible (midiInPin);
 		}
 
 		if (node->producesMidi ())
 		{
-			Pin* const midiOutPin = new Pin (Pin::MidiOutput, id, Pin::midi_num, *graphComp);
+			auto const midiOutPin = new Pin (Pin::MidiOutput, id, Pin::MidiNum, graphComp);
 			addAndMakeVisible (midiOutPin);
 		}
 
@@ -179,10 +175,10 @@ void NodeComponent::mouseDown (const MouseEvent& e)
 
 void NodeComponent::mouseDrag (const MouseEvent& e)
 {
-	jassert (graph != nullptr && graphComp != nullptr);
+	jassert (graphComp != nullptr);
 
 	dragger.dragComponent (this, e, nullptr);
-	auto node = graph->getNodeForID (id);
+	auto node = graphComp->getGraph()->getNodeForID (id);
 
 	/*node->setPosition (
 		std::make_tuple<float, float> (

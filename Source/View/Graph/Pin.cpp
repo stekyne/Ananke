@@ -3,8 +3,8 @@
 
 namespace Ananke {
 
-Pin::Pin (Type type, int filterID, int index, GraphComponent& graph) :
-	pin_type (type),
+Pin::Pin (Type type, int filterID, int index, GraphComponent* graph) :
+	pinType (type),
 	FilterID (filterID),
 	Index (index),
 	IsInput (type == AudioInput || type == MidiInput),
@@ -19,7 +19,7 @@ Pin::~Pin ()
 
 void Pin::paint (Graphics& g)
 {
-	switch (pin_type)
+	switch (pinType)
 	{
 	case AudioInput:
 		g.fillAll (Colours::red);
@@ -42,7 +42,9 @@ void Pin::paint (Graphics& g)
 
 void Pin::mouseDown (const MouseEvent& e)
 {
-	graph.beginConnector (IsInput ? 0 : FilterID,
+	jassert (graph != nullptr);
+
+	graph->beginConnector (IsInput ? 0 : FilterID,
 		Index,
 		IsInput ? FilterID : 0,
 		Index,
@@ -51,12 +53,16 @@ void Pin::mouseDown (const MouseEvent& e)
 
 void Pin::mouseDrag (const MouseEvent& e)
 {
-	graph.dragConnector (e);
+	jassert (graph != nullptr);
+
+	graph->dragConnector (e);
 }
 
 void Pin::mouseUp (const MouseEvent& e)
 {
-	graph.endConnector (e);
+	jassert (graph != nullptr);
+
+	graph->endConnector (e);
 }
 
 }

@@ -12,7 +12,7 @@ class Connector;
 class NodeComponent;
 class Pin;
 
-class GraphComponent : public Component
+class GraphComponent : public Component, public Graph::Listener
 {
 public:
 	GraphComponent (Graph& graph);
@@ -31,6 +31,13 @@ public:
 	Pin* findPin (const int x, const int y) const;
 
 	void updateGraph ();
+	Graph* getGraph () noexcept { return &graph; }
+
+private:
+	void newNodeAdded (const Node& newNode) override;
+	void nodeRemoved (const Node& removedNode) override;
+	void newConnectionAdded (const Connection& /*newConnection*/) override;
+	void connectionRemoved (const Connection& /*removedConnection*/) override;
 
 private:
 	Graph& graph;

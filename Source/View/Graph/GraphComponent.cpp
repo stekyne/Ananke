@@ -9,6 +9,13 @@ namespace Ananke {
 GraphComponent::GraphComponent (Graph& graph) :
 	graph (graph)
 {
+	for (const auto& connection : graph.getConnections ())
+		connectors.push_back (std::make_unique<Connector> (this, connection));
+
+	for (const auto& node : graph.getNodes ())
+		nodes.push_back (std::make_unique<NodeComponent> (this, node->getID ()));
+
+	graph.addListener (this);
 	setOpaque (true);
 	setSize (600, 400);
 }
@@ -38,22 +45,6 @@ NodeComponent* GraphComponent::getComponentForFilter (const int filterID) const
 	return nullptr;
 }
 
-Connector* GraphComponent::getComponentForConnection (const Connection& connection) const
-{
-	for (auto& connector : connectors)
-	{
-		if (connector->getSourceNodeID () == connection.sourceNode &&
-			connector->getDestNodeID () == connection.destNode &&
-			connector->getSourceChannel () == connection.sourceChannel &&
-			connector->getDestChannel () == connection.destChannel)
-		{
-			return connector.get ();
-		}
-	}
-
-	return nullptr;
-}
-
 void GraphComponent::beginConnector (const int sourceFilterID, const int sourceFilterChannel,
 	const int destFilterID, const int destFilterChannel, const MouseEvent& e)
 {
@@ -70,7 +61,7 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 	// User didnt click on a connector so create a new one
 	if (draggingConnector == nullptr)
 	{
-		draggingConnector = new Connector (&graph, this,
+		draggingConnector = new Connector (this,
 			sourceFilterID, sourceFilterChannel,
 			destFilterID, destFilterChannel);
 	}
@@ -202,58 +193,57 @@ Pin* GraphComponent::findPin (const int x, const int y) const
 void GraphComponent::updateGraph ()
 {
 	for (auto& node : nodes)
-	{
 		node->update ();
-	}
 
 	for (auto& connector : connectors)
 	{
 		if (connector.get() == draggingConnector)
 			continue;
 
-		const Connection testConnection (
-			connector->getSourceNodeID (),
-			connector->getSourceChannel (),
-			connector->getDestNodeID (),
-			connector->getDestChannel ());
-
-		if (graph.connectionExists (testConnection))
-		{
-			connector->update ();
-		}
-		else
-		{
-			connector.release ();
-		}
+		connector->update ();
 	}
+}
 
-	connectors.erase (std::remove_if (connectors.begin (), connectors.end (), 
-	[&] (const auto& item) {
-		return item == nullptr;
-	}), connectors.end ());
+void GraphComponent::newNodeAdded (const Node& newNode) 
+{
+	nodes.push_back (std::make_unique<NodeComponent> (this, newNode.getID ()));
 
-	for (auto& connection : graph.getConnections ())
-	{
-		if (getComponentForConnection (connection) == nullptr)
-		{
-			auto conn = std::make_unique<Connector> (&graph, this);
-			conn->setInput (connection.sourceNode, connection.sourceChannel);
-			conn->setOutput (connection.destNode, connection.destChannel);
-			addAndMakeVisible (conn.get ());
-			connectors.push_back (std::move (conn));
-		}
-	}
+	updateGraph ();
+}
 
-	for (auto& node : graph.getNodes ())
-	{
-		if (getComponentForFilter (node->getID ()) == nullptr)
-		{
-			auto newNode = std::make_unique<NodeComponent> (&graph, this, node->getID ());
-			newNode->update ();
-			addAndMakeVisible (newNode.get ());
-			nodes.push_back (std::move (newNode));
-		}
-	}
+void GraphComponent::nodeRemoved (const Node& removedNode)
+{
+	nodes.erase (
+		std::remove_if (std::begin (nodes), std::end (nodes), [&](const auto& item) { 
+			return item->id == removedNode.getID ();
+		}),
+		std::end (nodes)
+	);
+
+	updateGraph ();
+}
+
+void GraphComponent::newConnectionAdded (const Connection& newConnection)
+{
+	connectors.push_back (std::make_unique<Connector> (this, newConnection.sourceNode, newConnection.sourceChannel, 
+		newConnection.destNode, newConnection.destChannel));
+
+	updateGraph ();
+}
+
+void GraphComponent::connectionRemoved (const Connection& removedConnection)
+{
+	connectors.erase (
+		std::remove_if (std::begin (connectors), std::end (connectors), [&](const auto& item) {
+			return item->getSourceNodeID () == removedConnection.sourceNode && 
+				item->getDestNodeID () == removedConnection.destNode &&
+				item->getSourceChannel () == removedConnection.sourceChannel &&
+				item->getDestChannel () == removedConnection.destChannel;
+		}),
+		std::end (connectors)
+	);
+
+	updateGraph ();
 }
 
 }

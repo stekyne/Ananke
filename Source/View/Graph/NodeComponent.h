@@ -16,7 +16,7 @@ class NodeComponent : public Component
 {
 public:
 	NodeComponent () = default;
-	NodeComponent (Graph* graph, GraphComponent* graphComponent, int id);
+	NodeComponent (GraphComponent* graphComponent, int id);
 	~NodeComponent ();
 
 	void getPinPos (const int index, const bool isInput, float& x, float& y);
@@ -39,16 +39,15 @@ private:
 	ComponentDragger dragger;
 	std::vector<Pin*> inputs;
 	std::vector<Pin*> outputs;
-	Font font;
 	Pin* midiIn = nullptr;
 	Pin* midiOut = nullptr;
-	Graph* graph = nullptr;
 	int numIns = 0;
 	int numOuts = 0;
 	int numInputs = 0;
 	int numOutputs = 0;
 	bool acceptsMidi = false;
 	bool producesMidi = false;
+	Font font;
 
 	JUCE_LEAK_DETECTOR (NodeComponent);
 };

@@ -97,7 +97,7 @@ bool Graph::addNode (Node* const newNode)
     nodes.push_back (newNode);
     
     for (auto& listener : listeners)
-        listener->newNodeAdded (newNode);
+        listener->newNodeAdded (*newNode);
 
     return true;
 }
@@ -116,12 +116,12 @@ bool Graph::removeNode (const Node* const node)
     clearConnectionsForNode (node->getID ());
 
     nodes.erase (
-        std::remove_if (std::begin (nodes), std::end (nodes),
-                        [&](Node* n) { return n->getID () == node->getID (); }),
+        std::remove_if (std::begin (nodes), std::end (nodes), [&](const Node* n) { 
+            return n->getID () == node->getID (); }),
         std::end (nodes));
 
     for (auto& listener : listeners)
-        listener->nodeRemoved (node);
+        listener->nodeRemoved (*node);
 
     return true;
 }
@@ -171,7 +171,7 @@ bool Graph::addConnection (const Connection newConnection)
     return false;
 }
 
-bool Graph::addConnection (std::vector<Connection> newConnections)
+bool Graph::addConnection (std::vector<Connection>& newConnections)
 {
     for (auto newConnection : newConnections)
     {
@@ -192,7 +192,8 @@ bool Graph::addConnection (std::vector<Connection> newConnections)
     if (result == true)
     {
         for (auto& listener : listeners)
-            listener->newConnectionAdded (newConnections);
+        for (auto& connection : newConnections)
+            listener->newConnectionAdded (connection);
 
         return true;
     }
@@ -235,7 +236,7 @@ bool Graph::removeConnection (const Connection& connection)
 bool Graph::removeAnyConnection (const int nodeID, const int channelIndex)
 {
 	auto iterator = std::remove_if (connections.begin (), connections.end (),
-		[=](const Connection& conn) {
+		[&](const Connection& conn) {
 			return conn.destNode == nodeID && conn.destChannel == channelIndex ||
 				   conn.sourceNode == nodeID && conn.sourceChannel == channelIndex; 
 		}

@@ -9,27 +9,29 @@ namespace Ananke {
 
 class GraphComponent;
 class Graph;
+struct Connection;
 
 class Connector : public Component
 {
 public:
 	Connector () = default;
-	Connector (Graph* graph, GraphComponent* graphComponent);
-	Connector (Graph* graph, GraphComponent* graphComponent, 
+	Connector (GraphComponent* graphComponent);
+	Connector (GraphComponent* graphComponent, 
 		int srcNodeComponent, int srcChannel, int dstNodeComponent, int dstChannel);
+	Connector (GraphComponent* graphComponent, const Connection& connection);
 	~Connector () = default;
 
-	void setSourceNodeID (int id) { sourceFilterID = id; }
-	int getSourceNodeID () const noexcept { return sourceFilterID; }
+	void setSourceNodeID (int id) { sourceNodeID = id; }
+	int getSourceNodeID () const noexcept { return sourceNodeID; }
 
-	void setSourceChannel (int index) { sourceFilterChannel = index; }
-	int getSourceChannel () const noexcept { return sourceFilterChannel; }
+	void setSourceChannel (int index) { sourceChannel = index; }
+	int getSourceChannel () const noexcept { return sourceChannel; }
 
-	void setDestNodeID (int id) { destFilterID = id; }
-	int getDestNodeID () const noexcept { return destFilterID; }
+	void setDestNodeID (int id) { destNodeID = id; }
+	int getDestNodeID () const noexcept { return destNodeID; }
 
-	void setDestChannel (int index) { destFilterChannel = index; }
-	int getDestChannel () const noexcept { return destFilterChannel; }
+	void setDestChannel (int index) { destChannel = index; }
+	int getDestChannel () const noexcept { return destChannel; }
 
 	void setInput (const int sourceFilterID, const int sourceFilterChannel);
 	void setOutput (const int destFilterID, const int destFilterChannel);
@@ -82,12 +84,11 @@ private:
 	float lasty2 = 0.f;
 
 	// Connection IDs and channels for this object
-	int sourceFilterID = 0;
-	int destFilterID = 0;
-	int sourceFilterChannel = 0;
-	int destFilterChannel = 0;
+	int sourceNodeID = 0;
+	int sourceChannel = 0;
+	int destNodeID = 0;
+	int destChannel = 0;
 
-	Graph* graph = nullptr;
 	GraphComponent* graphComponent = nullptr;
 	bool dragging = false;
 

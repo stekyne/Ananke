@@ -45,7 +45,7 @@ bool AppController::initialiseAudioDevice ()
 
 void AppController::audioDeviceIOCallback (
 	const float** inputChannelData, int totalNumInputChannels,
-	float** outputChannelData, int totalNumOutputChannels,
+	float** outputChannelData, int totalNumOutputChannels, 
 	int numSamples)
 {
 	graphModel.processGraph (inputChannelData, totalNumInputChannels,

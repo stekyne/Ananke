@@ -15,10 +15,7 @@ public:
 	AppController ();
 	~AppController ();
 
-	Graph& getGraphModel ()
-	{
-		return graphModel;
-	}
+	Graph& getGraphModel () { return graphModel; }
 
 	bool initialiseAudioDevice ();
 

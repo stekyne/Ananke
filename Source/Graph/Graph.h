@@ -78,7 +78,7 @@ public:
 
         // TODO lock listener list
 		for (auto& listener : listeners)
-			listener->newNodeAdded (newNode);
+			listener->newNodeAdded (*newNode);
 
 		return newNode;
 	}
@@ -94,7 +94,7 @@ public:
 
     // Adds new Connection to graph if valid
     bool addConnection (const Connection newConnection);
-    bool addConnection (std::vector<Connection> newConnections);
+    bool addConnection (std::vector<Connection>& newConnections);
     bool canConnect (const Connection& newConnection);
     bool removeConnection (const Connection& connection);
 	bool removeAnyConnection (const int nodeID, const int channelIndex);
@@ -137,15 +137,9 @@ public:
 public:
     struct Listener
     {
-        Listener () = default;
-        Listener (const Listener&) = delete;
-        Listener& operator= (const Listener&) = delete;
-        virtual ~Listener () = default;
-
-        virtual void newNodeAdded (const Node* const /*newNode*/) {};
-        virtual void nodeRemoved (const Node* const /*removedNode*/) {};
+        virtual void newNodeAdded (const Node& /*newNode*/) {};
+        virtual void nodeRemoved (const Node& /*removedNode*/) {};
         virtual void newConnectionAdded (const Connection& /*newConnection*/) {};
-        virtual void newConnectionAdded (const std::vector<Connection>& /*newConnection*/) {};
         virtual void connectionRemoved (const Connection& /*removedConnection*/) {};
         virtual void graphSettingsChanged () {};
     };

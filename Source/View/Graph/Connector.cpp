@@ -2,42 +2,51 @@
 #include "NodeComponent.h"
 #include "GraphComponent.h"
 #include "../Source/Graph/Graph.h"
+#include "../Source/Graph/Connection.h"
 
 namespace Ananke {
 
-Connector::Connector (Graph* graph, GraphComponent* graphComponent) :
-	graph (graph),
+Connector::Connector (GraphComponent* graphComponent) :
 	graphComponent (graphComponent)
 {
 }
 
-Connector::Connector (Graph* graph, GraphComponent* graphComponent, int srcNodeComponent, int srcChannel,
+Connector::Connector (GraphComponent* graphComponent, int srcNodeComponent, int srcChannel,
 	int dstNodeComponent, int dstChannel) :
-	graph (graph),
 	graphComponent (graphComponent),
-	sourceFilterID (srcNodeComponent),
-	sourceFilterChannel (srcChannel),
-	destFilterID (dstNodeComponent),
-	destFilterChannel (dstChannel)
+	sourceNodeID (srcNodeComponent),
+	sourceChannel (srcChannel),
+	destNodeID (dstNodeComponent),
+	destChannel (dstChannel)
 {
+}
+
+Connector::Connector (GraphComponent* graphComponent, const Connection& connection) :
+	graphComponent (graphComponent),
+	sourceNodeID (connection.sourceNode),
+	sourceChannel (connection.sourceChannel),
+	destNodeID (connection.destNode),
+	destChannel (connection.destChannel)
+{
+
 }
 
 void Connector::setInput (const int sourceFilterID_, const int sourceFilterChannel_)
 {
-	if (sourceFilterID != sourceFilterID_ || sourceFilterChannel != sourceFilterChannel_)
+	if (sourceNodeID != sourceFilterID_ || sourceChannel != sourceFilterChannel_)
 	{
-		sourceFilterID = sourceFilterID_;
-		sourceFilterChannel = sourceFilterChannel_;
+		sourceNodeID = sourceFilterID_;
+		sourceChannel = sourceFilterChannel_;
 		update ();
 	}
 }
 
 void Connector::setOutput (const int destFilterID_, const int destFilterChannel_)
 {
-	if (destFilterID != destFilterID_ || destFilterChannel != destFilterChannel_)
+	if (destNodeID != destFilterID_ || destChannel != destFilterChannel_)
 	{
-		destFilterID = destFilterID_;
-		destFilterChannel = destFilterChannel_;
+		destNodeID = destFilterID_;
+		destChannel = destFilterChannel_;
 		update ();
 	}
 }
@@ -87,15 +96,15 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 
 	if (graphComponent != nullptr)
 	{
-		const auto srcFilterComp = graphComponent->getComponentForFilter (sourceFilterID);
+		const auto srcFilterComp = graphComponent->getComponentForFilter (sourceNodeID);
 
 		if (srcFilterComp != nullptr)
-			srcFilterComp->getPinPos (sourceFilterChannel, false, x1, y1);
+			srcFilterComp->getPinPos (sourceChannel, false, x1, y1);
 
-		const auto dstFilterComp = graphComponent->getComponentForFilter (destFilterID);
+		const auto dstFilterComp = graphComponent->getComponentForFilter (destNodeID);
 
 		if (dstFilterComp != nullptr)
-			dstFilterComp->getPinPos (destFilterChannel, true, x2, y2);
+			dstFilterComp->getPinPos (destChannel, true, x2, y2);
 	}
 }
 
@@ -176,26 +185,23 @@ void Connector::mouseDown (const MouseEvent& /*e*/)
 
 void Connector::mouseDrag (const MouseEvent& e)
 {
-	jassert (graph != nullptr && graphComponent != nullptr);
+	jassert (graphComponent != nullptr);
 
 	if (!dragging && !e.mouseWasClicked ())
 	{
 		dragging = true;
 
-		if (graph == nullptr) 
-			return;
-
-		graph->removeConnection (Ananke::Connection (sourceFilterID, sourceFilterChannel,
-			destFilterID, destFilterChannel));
+		graphComponent->getGraph()->removeConnection (Ananke::Connection (sourceNodeID, sourceChannel,
+			destNodeID, destChannel));
 
 		double distanceFromStart, distanceFromEnd;
 		getDistancesFromEnds (e.x, e.y, distanceFromStart, distanceFromEnd);
 		const bool isNearerSource = (distanceFromStart < distanceFromEnd);
 
-		graphComponent->beginConnector (isNearerSource ? 0 : sourceFilterID,
-			sourceFilterChannel,
-			isNearerSource ? destFilterID : 0,
-			destFilterChannel,
+		graphComponent->beginConnector (isNearerSource ? 0 : sourceNodeID,
+			sourceChannel,
+			isNearerSource ? destNodeID : 0,
+			destChannel,
 			e);
 	}
 	else if (dragging)
@@ -206,7 +212,7 @@ void Connector::mouseDrag (const MouseEvent& e)
 
 void Connector::mouseUp (const MouseEvent& e)
 {
-	jassert (graph != nullptr && graphComponent != nullptr);
+	jassert (graphComponent != nullptr);
 
 	if (dragging)
 	{
