@@ -9,7 +9,7 @@ namespace Ananke {
 
 class GraphComponent;
 
-class Pin : public Component
+class PinComponent : public Component
 {
 public:
 	enum Type
@@ -22,9 +22,9 @@ public:
 		NumberOfTypes
 	};
 
-	Pin () = delete;
-	Pin (Type type, int filterID, int index, GraphComponent* graph);
-	~Pin ();
+	PinComponent () = default;
+	PinComponent (Type type, int nodeId, int index, GraphComponent* graph);
+	~PinComponent () = default;
 
 	void paint (Graphics& g);
 
@@ -32,11 +32,11 @@ public:
 	void mouseDrag (const MouseEvent& e);
 	void mouseUp (const MouseEvent& e);
 
-	const uint32 FilterID;
-	const int Index;
+	const uint32 ParentNodeID;
+	const int ChannelIndex;
 	const bool IsInput;
 
-	enum { MidiNum = 0x1000 };
+	static const int MidiNum = 0x1000;
 
 private:
 	friend class NodeComponent;
@@ -44,7 +44,7 @@ private:
 	Type pinType;
 	GraphComponent* graph = nullptr;
 
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pin);
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PinComponent);
 };
 
 }

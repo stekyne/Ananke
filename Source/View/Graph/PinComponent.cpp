@@ -1,23 +1,19 @@
-#include "Pin.h"
+#include "PinComponent.h"
 #include "GraphComponent.h"
 
 namespace Ananke {
 
-Pin::Pin (Type type, int filterID, int index, GraphComponent* graph) :
+PinComponent::PinComponent (Type type, int nodeId, int index, GraphComponent* graph) :
 	pinType (type),
-	FilterID (filterID),
-	Index (index),
+	ParentNodeID (nodeId),
+	ChannelIndex (index),
 	IsInput (type == AudioInput || type == MidiInput),
 	graph (graph)
 {
 	setSize (5, 5);
 }
 
-Pin::~Pin ()
-{
-}
-
-void Pin::paint (Graphics& g)
+void PinComponent::paint (Graphics& g)
 {
 	switch (pinType)
 	{
@@ -40,25 +36,24 @@ void Pin::paint (Graphics& g)
 	}
 }
 
-void Pin::mouseDown (const MouseEvent& e)
+void PinComponent::mouseDown (const MouseEvent& e)
 {
 	jassert (graph != nullptr);
 
-	graph->beginConnector (IsInput ? 0 : FilterID,
-		Index,
-		IsInput ? FilterID : 0,
-		Index,
-		e);
+	graph->beginConnector (IsInput ? 0 : ParentNodeID,
+		ChannelIndex,
+		IsInput ? ParentNodeID : 0,
+		ChannelIndex, e);
 }
 
-void Pin::mouseDrag (const MouseEvent& e)
+void PinComponent::mouseDrag (const MouseEvent& e)
 {
 	jassert (graph != nullptr);
-
+	
 	graph->dragConnector (e);
 }
 
-void Pin::mouseUp (const MouseEvent& e)
+void PinComponent::mouseUp (const MouseEvent& e)
 {
 	jassert (graph != nullptr);
 

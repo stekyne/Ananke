@@ -26,7 +26,7 @@ namespace Ananke {
         return _Result;
     }
 #else
-    int dbg (const char* format, ...) {}
+    int dbg (const char* format, ...) { return 0; }
 #endif
 
 Graph::Graph () :
@@ -64,8 +64,7 @@ Graph::~Graph ()
     for (auto& node : nodes)
     {
 		// FIXME not a great solution
-		if (node->getID () == AudioInputID ||
-			node->getID () == AudioOutputID)
+		if (node->getID () == AudioInputID || node->getID () == AudioOutputID)
 			continue;
 
         if (node != nullptr)
@@ -131,10 +130,10 @@ int Graph::nodeCount () const
     return (int)nodes.size ();
 }
 
-Node* const Graph::getNodeForID (int id)
+Node* const Graph::getNodeForID (int nodeId)
 {
     const auto result = std::find_if (std::cbegin (nodes), std::cend (nodes), 
-		[&](Node* n) { return n->getID () == id; });
+		[&](Node* n) { return n->getID () == nodeId; });
 
     if (result != std::cend (nodes))
         return *result;
@@ -213,51 +212,50 @@ bool Graph::canConnect (const Connection& newConnection)
 
 bool Graph::removeConnection (const Connection& connection)
 {
-    auto iterator = std::remove (connections.begin (), connections.end (), connection);
+    auto iterator = std::remove (std::begin (connections), std::end (connections), connection);
 
+    // Found the connection so remove it and update listeners
     if (iterator != std::end (connections))
     {
         connections.erase (iterator);
+
+        for (auto& listener : listeners)
+            listener->connectionRemoved (connection);
+
+        // TODO rebuild graph?
+        return true;
     }
-    else
-    {
-        // Nothing to delete, not found
-        return false;
-    }
 
-    for (auto& listener : listeners)
-        listener->connectionRemoved (connection);
-
-	// TODO rebuild graph?
-
-    return true;
+    return false;
 }
 
-bool Graph::removeAnyConnection (const int nodeID, const int channelIndex)
+bool Graph::removeAnyConnection (const int nodeId, const int channelIndex)
 {
-	auto iterator = std::remove_if (connections.begin (), connections.end (),
-		[&](const Connection& conn) {
-			return conn.destNode == nodeID && conn.destChannel == channelIndex ||
-				   conn.sourceNode == nodeID && conn.sourceChannel == channelIndex; 
-		}
-	);
+    auto connectionMatcher = [&](const Connection& conn) {
+        return conn.destNode == nodeId && conn.destChannel == channelIndex ||
+               conn.sourceNode == nodeId && conn.sourceChannel == channelIndex;
+    };
 
+    auto foundElems = std::find_if (std::begin (connections), std::end (connections), connectionMatcher);
+	auto iterator = std::remove_if (std::begin (connections), std::end (connections), connectionMatcher);
+
+    // Notify listeners of deletion first
+    while (foundElems != std::end (connections)) {
+        // TODO add generic graph configuration has changed listener
+        for (auto& listener : listeners)
+            listener->connectionRemoved (*foundElems);
+    }
+
+    // Found one or more connections matching the criteria, delete and update listeners
 	if (iterator != std::end (connections))
 	{
 		connections.erase (iterator);
+        
+        // TODO rebuild graph?
+        return true;
 	}
-	else
-	{
-		return false;
-	}
 
-	// TODO add generic graph configuration has changed listener
-	/*for (auto& listener : listeners)
-		listener->*/
-
-	// TODO rebuild graph?
-
-	return true;
+    return false;
 }
 
 int Graph::connectionCount () const
@@ -267,8 +265,7 @@ int Graph::connectionCount () const
 
 bool Graph::connectionExists (const Connection& testConnection) const
 {
-    return std::find (connections.cbegin (), connections.cend (), 
-		testConnection) != connections.cend ();
+    return std::find (std::cbegin (connections), std::cend (connections), testConnection) != std::cend (connections);
 }
 
 bool Graph::isValidNewConnection (const Connection& testConnection) const
@@ -352,10 +349,7 @@ bool Graph::isValidNewConnection (const Connection& testConnection) const
     }
 
     // Source or destination node does not exist
-    if (srcMatched == false || dstMatched == false)
-        return false;
-
-    return true;
+    return !(srcMatched == false || dstMatched == false);
 }
 
 void Graph::clearGraph ()
@@ -501,7 +495,7 @@ bool Graph::processGraph (const float** audioIn, const int numAudioInputs,
 		const auto outputBuffer = audioBufferManager.getBufferFromID (AudioBufferID (AudioOutputID, i));
 		assert (outputBuffer != nullptr);
 		assert (blockSize <= outputBuffer->getSize ());
-		outputBuffer->copyDataTo (audioOut[i], blockSize);
+		//outputBuffer->copyDataTo (audioOut[i], blockSize);
 	}
 
     return hasUpdated;
@@ -670,16 +664,16 @@ bool Graph::performSort (std::vector<Node*>& sortedNodes)
     return true;
 }
 
-void Graph::setSettings (Settings settings_)
+void Graph::setSettings (Settings newSettings)
 {
-    this->settings = settings_;
+    this->settings = newSettings;
 
 	// Update audio input/output configuration if changed
-	audioInNode.setChannelCount (settings_.numberInputChannels);
-	audioOutNode.setChannelCount (settings_.numberOutputChannels);
+	audioInNode.setChannelCount (newSettings.numberInputChannels);
+	audioOutNode.setChannelCount (newSettings.numberOutputChannels);
 
     // Re-allocate buffers if size has changed
-    audioBufferManager.setBufferSize (settings_.blockSize);
+    audioBufferManager.setBufferSize (newSettings.blockSize);
     
     for (auto& listener : listeners)
         listener->graphSettingsChanged ();
@@ -746,33 +740,33 @@ bool Graph::removeListener (const Listener* listener)
     return false;
 }
 
-std::vector<int> Graph::getDependentsForNode (int nodeID)
+std::vector<int> Graph::getDependentsForNode (int nodeId)
 {
     std::vector<int> dependentVec;
 
     for (const auto& connection : connections)
     {
-        if (connection.sourceNode == nodeID)
+        if (connection.sourceNode != nodeId)
+            continue;
+
+        if (std::find (std::cbegin (dependentVec), std::cend (dependentVec),
+				connection.destNode) == std::end (dependentVec))
         {
-            if (std::find (std::cbegin (dependentVec), std::cend (dependentVec),
-					connection.destNode) == std::end (dependentVec))
-            {
-                dependentVec.push_back (connection.destNode);
-            }
+            dependentVec.push_back (connection.destNode);
         }
     }
 
     return dependentVec;
 }
 
-void Graph::clearConnectionsForNode (int nodeID)
+void Graph::clearConnectionsForNode (int nodeId)
 {
-    auto result = std::remove_if (connections.begin (), connections.end (), 
+    auto result = std::remove_if (std::begin (connections), std::end (connections), 
         [&](const Connection& conn) { 
-            return conn.sourceNode == nodeID || conn.destNode == nodeID;
+            return conn.sourceNode == nodeId || conn.destNode == nodeId;
     });
     
-    connections.erase (result, connections.end ());
+    connections.erase (result, std::end (connections));
 }
 
 }

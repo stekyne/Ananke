@@ -1,7 +1,7 @@
 #include "GraphComponent.h"
 #include "NodeComponent.h"
 #include "Connector.h"
-#include "Pin.h"
+#include "PinComponent.h"
 #include "../Source/Graph/Connection.h"
 
 namespace Ananke {
@@ -10,10 +10,16 @@ GraphComponent::GraphComponent (Graph& graph) :
 	graph (graph)
 {
 	for (const auto& connection : graph.getConnections ())
+	{
 		connectors.push_back (std::make_unique<Connector> (this, connection));
+		addAndMakeVisible (connectors.back ().get ());
+	}
 
 	for (const auto& node : graph.getNodes ())
+	{
 		nodes.push_back (std::make_unique<NodeComponent> (this, node->getID ()));
+		addAndMakeVisible (nodes.back ().get ());
+	}
 
 	graph.addListener (this);
 	setOpaque (true);
@@ -26,7 +32,7 @@ GraphComponent::~GraphComponent ()
 
 void GraphComponent::resized ()
 {
-	updateGraph ();
+	redrawSubComponents ();
 }
 
 void GraphComponent::paint (Graphics& g)
@@ -34,19 +40,19 @@ void GraphComponent::paint (Graphics& g)
 	g.fillAll (Colours::darkgrey);
 }
 
-NodeComponent* GraphComponent::getComponentForFilter (const int filterID) const
+NodeComponent* GraphComponent::getComponentForNode (const int nodeId) const
 {
 	for (auto& node : nodes)
 	{
-		if (node->id == filterID)
+		if (node->id == nodeId)
 			return node.get ();
 	}
 
 	return nullptr;
 }
 
-void GraphComponent::beginConnector (const int sourceFilterID, const int sourceFilterChannel,
-	const int destFilterID, const int destFilterChannel, const MouseEvent& e)
+void GraphComponent::beginConnector (const int sourceNodeId, const int sourceNodeChannel,
+	const int destNodeId, const int destNodeChannel, const MouseEvent& e)
 {
 	// Delete previous connector if it exists, get a pointer to the connector
 	// if the user clicked on one
@@ -61,14 +67,15 @@ void GraphComponent::beginConnector (const int sourceFilterID, const int sourceF
 	// User didnt click on a connector so create a new one
 	if (draggingConnector == nullptr)
 	{
-		draggingConnector = new Connector (this,
-			sourceFilterID, sourceFilterChannel,
-			destFilterID, destFilterChannel);
+		draggingConnector = new Connector (this, Connection ( 
+			sourceNodeId, sourceNodeChannel,
+			destNodeId, destNodeChannel));
 	}
 
 	// Set inital position of the connector
-	draggingConnector->setInput (sourceFilterID, sourceFilterChannel);
-	draggingConnector->setOutput (destFilterID, destFilterChannel);
+	jassert (draggingConnector != nullptr);
+	draggingConnector->setInput (sourceNodeId, sourceNodeChannel);
+	draggingConnector->setOutput (destNodeId, destNodeChannel);
 
 	addAndMakeVisible (draggingConnector);
 	draggingConnector->toFront (false);
@@ -91,24 +98,24 @@ void GraphComponent::dragConnector (const MouseEvent& e)
 
 	if (pin != nullptr)
 	{
-		auto srcFilter = draggingConnector->getSourceNodeID ();
-		auto srcChannel = draggingConnector->getSourceChannel ();
+		auto sourceNode = draggingConnector->getSourceNodeID ();
+		auto sourceChannel = draggingConnector->getSourceChannel ();
 
-		auto dstFilter = draggingConnector->getDestNodeID ();
-		auto dstChannel = draggingConnector->getDestChannel ();
+		auto destNode = draggingConnector->getDestNodeID ();
+		auto destChannel = draggingConnector->getDestChannel ();
 
-		if (srcFilter == 0 && !pin->IsInput)
+		if (sourceNode == 0 && !pin->IsInput)
 		{
-			srcFilter = pin->FilterID;
-			srcChannel = pin->Index;
+			sourceNode = pin->ParentNodeID;
+			sourceChannel = pin->ChannelIndex;
 		}
-		else if (dstFilter == 0 && pin->IsInput)
+		else if (destNode == 0 && pin->IsInput)
 		{
-			dstFilter = pin->FilterID;
-			dstChannel = pin->Index;
+			destNode = pin->ParentNodeID;
+			destChannel = pin->ChannelIndex;
 		}
 
-		if (graph.canConnect (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+		if (graph.canConnect (Connection (sourceNode, sourceChannel, destNode, destChannel)))
 		{
 			x = pin->getParentComponent ()->getX () +
 				pin->getX () + pin->getWidth () / 2;
@@ -135,53 +142,55 @@ void GraphComponent::endConnector (const MouseEvent& e)
 
 	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-	auto srcFilter = draggingConnector->getSourceNodeID ();
-	auto srcChannel = draggingConnector->getSourceChannel ();
+	auto sourceNode = draggingConnector->getSourceNodeID ();
+	auto sourceChannel = draggingConnector->getSourceChannel ();
 
-	auto dstFilter = draggingConnector->getDestNodeID ();
-	auto dstChannel = draggingConnector->getDestChannel ();
+	auto destNode = draggingConnector->getDestNodeID ();
+	auto destChannel = draggingConnector->getDestChannel ();
 
 	delete draggingConnector;
 	draggingConnector = nullptr;
 
-	auto const pin = findPin (e2.x, e2.y);
+	const auto pin = findPin (e2.x, e2.y);
 
 	if (pin != nullptr)
 	{
-		if (srcFilter == 0)
+		if (sourceNode == 0)
 		{
 			if (pin->IsInput)
 				return;
 
-			srcFilter = pin->FilterID;
-			srcChannel = pin->Index;
+			sourceNode = pin->ParentNodeID;
+			sourceChannel = pin->ChannelIndex;
 		}
 		else
 		{
 			if (!pin->IsInput)
 				return;
 
-			dstFilter = pin->FilterID;
-			dstChannel = pin->Index;
+			destNode = pin->ParentNodeID;
+			destChannel = pin->ChannelIndex;
 		}
 
-		if (graph.addConnection (Connection (srcFilter, srcChannel, dstFilter, dstChannel)))
+		if (graph.addConnection (Connection (sourceNode, sourceChannel, destNode, destChannel)))
 		{
-			DBG ("Connection is successful: " + String (srcFilter) + " to " + String (dstFilter));
-			updateGraph ();
+			DBG ("Connection is successful: " + String (sourceNode) + " to " + String (destNode));
+			// TODO remove explict redraw
+			redrawSubComponents ();
 		}
 		else
 		{
-			DBG ("Connection unsuccessful: " + String (srcFilter) + " to " + String (dstFilter));
+			DBG ("Connection unsuccessful: " + String (sourceNode) + " to " + String (destNode));
 		}
 	}
 }
 
-Pin* GraphComponent::findPin (const int x, const int y) const
+PinComponent* GraphComponent::findPin (const int x, const int y) const
 {
 	for (auto& node : nodes)
 	{
-		auto const pin = dynamic_cast<Pin*> (node->getComponentAt (x - node->getX (), y - node->getY ()));
+		// TODO refactor this
+		auto const pin = dynamic_cast<PinComponent*> (node->getComponentAt (x - node->getX (), y - node->getY ()));
 
 		if (pin != nullptr)
 			return pin;
@@ -190,7 +199,7 @@ Pin* GraphComponent::findPin (const int x, const int y) const
 	return nullptr;
 }
 
-void GraphComponent::updateGraph ()
+void GraphComponent::redrawSubComponents ()
 {
 	for (auto& node : nodes)
 		node->update ();
@@ -200,15 +209,17 @@ void GraphComponent::updateGraph ()
 		if (connector.get() == draggingConnector)
 			continue;
 
-		connector->update ();
+		connector->updateBoundsAndRepaint ();
 	}
 }
 
 void GraphComponent::newNodeAdded (const Node& newNode) 
 {
 	nodes.push_back (std::make_unique<NodeComponent> (this, newNode.getID ()));
+	addAndMakeVisible (nodes.back ().get ());
 
-	updateGraph ();
+	redrawSubComponents ();
+	DBG ("GraphComp: New node added: " << newNode.getID () << " / " << newNode.getName ());
 }
 
 void GraphComponent::nodeRemoved (const Node& removedNode)
@@ -220,15 +231,18 @@ void GraphComponent::nodeRemoved (const Node& removedNode)
 		std::end (nodes)
 	);
 
-	updateGraph ();
+	redrawSubComponents ();
+	DBG ("GraphComp: Node removed: " << removedNode.getID () << " / " << removedNode.getName ());
 }
 
 void GraphComponent::newConnectionAdded (const Connection& newConnection)
 {
-	connectors.push_back (std::make_unique<Connector> (this, newConnection.sourceNode, newConnection.sourceChannel, 
-		newConnection.destNode, newConnection.destChannel));
-
-	updateGraph ();
+	connectors.push_back (std::make_unique<Connector> (this, Connection (
+		newConnection.sourceNode, newConnection.sourceChannel, 
+		newConnection.destNode, newConnection.destChannel)));
+	
+	addAndMakeVisible (connectors.back ().get ());
+	redrawSubComponents ();
 }
 
 void GraphComponent::connectionRemoved (const Connection& removedConnection)
@@ -243,7 +257,7 @@ void GraphComponent::connectionRemoved (const Connection& removedConnection)
 		std::end (connectors)
 	);
 
-	updateGraph ();
+	redrawSubComponents ();
 }
 
 }

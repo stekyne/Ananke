@@ -16,8 +16,6 @@ class Connector : public Component
 public:
 	Connector () = default;
 	Connector (GraphComponent* graphComponent);
-	Connector (GraphComponent* graphComponent, 
-		int srcNodeComponent, int srcChannel, int dstNodeComponent, int dstChannel);
 	Connector (GraphComponent* graphComponent, const Connection& connection);
 	~Connector () = default;
 
@@ -33,8 +31,8 @@ public:
 	void setDestChannel (int index) { destChannel = index; }
 	int getDestChannel () const noexcept { return destChannel; }
 
-	void setInput (const int sourceFilterID, const int sourceFilterChannel);
-	void setOutput (const int destFilterID, const int destFilterChannel);
+	void setInput (const int sourceNodeId, const int sourceNodeChannel);
+	void setOutput (const int destNodeId, const int destNodeChannel);
 
 	void dragStart (int x, int y);
 	void dragEnd (int x, int y);
@@ -52,7 +50,7 @@ public:
 	// (visual part) and begins dragging the connector if so
 	void mouseDown (const MouseEvent& e);
 
-	// Drag one end of the connector and update its position in the filter
+	// Drag one end of the connector and update its position in the graph
 	void mouseDrag (const MouseEvent& e);
 
 	// If dragging previously, check if the position is near a pin, if not,
@@ -60,7 +58,8 @@ public:
 	// and act accordingly
 	void mouseUp (const MouseEvent& e);
 
-	void update ();
+	// 
+	void updateBoundsAndRepaint ();
 
 private:
 	void getDistancesFromEnds (int x, int y, double& distanceFromStart, double& distanceFromEnd) const

@@ -10,7 +10,7 @@ namespace Ananke {
 
 class Connector;
 class NodeComponent;
-class Pin;
+class PinComponent;
 
 class GraphComponent : public Component, public Graph::Listener
 {
@@ -21,16 +21,15 @@ public:
 	void resized ();
 	void paint (Graphics& g);
 
-	NodeComponent* getComponentForFilter (const int filterID) const;
-	Connector* getComponentForConnection (const Connection& connection) const;
+	NodeComponent* getComponentForNode (const int nodeId) const;
 
-	void beginConnector (const int sourceFilterID, const int sourceFilterChannel,
-		const int destFilterID, const int destFilterChannel, const MouseEvent& e);
+	void beginConnector (const int sourceNodeId, const int sourceNodeChannel,
+		const int destNodeId, const int destNodeChannel, const MouseEvent& e);
 	void dragConnector (const MouseEvent& e);
 	void endConnector (const MouseEvent& e);
-	Pin* findPin (const int x, const int y) const;
+	PinComponent* findPin (const int x, const int y) const;
 
-	void updateGraph ();
+	void redrawSubComponents ();
 	Graph* getGraph () noexcept { return &graph; }
 
 private:

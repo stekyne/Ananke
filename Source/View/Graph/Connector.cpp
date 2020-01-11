@@ -11,16 +11,6 @@ Connector::Connector (GraphComponent* graphComponent) :
 {
 }
 
-Connector::Connector (GraphComponent* graphComponent, int srcNodeComponent, int srcChannel,
-	int dstNodeComponent, int dstChannel) :
-	graphComponent (graphComponent),
-	sourceNodeID (srcNodeComponent),
-	sourceChannel (srcChannel),
-	destNodeID (dstNodeComponent),
-	destChannel (dstChannel)
-{
-}
-
 Connector::Connector (GraphComponent* graphComponent, const Connection& connection) :
 	graphComponent (graphComponent),
 	sourceNodeID (connection.sourceNode),
@@ -31,24 +21,24 @@ Connector::Connector (GraphComponent* graphComponent, const Connection& connecti
 
 }
 
-void Connector::setInput (const int sourceFilterID_, const int sourceFilterChannel_)
+void Connector::setInput (const int sourceNodeId_, const int sourceNodeChannel_)
 {
-	if (sourceNodeID != sourceFilterID_ || sourceChannel != sourceFilterChannel_)
-	{
-		sourceNodeID = sourceFilterID_;
-		sourceChannel = sourceFilterChannel_;
-		update ();
-	}
+	if (sourceNodeID == sourceNodeId_ && sourceChannel == sourceNodeChannel_)
+		return;
+	
+	sourceNodeID = sourceNodeId_;
+	sourceChannel = sourceNodeChannel_;
+	updateBoundsAndRepaint ();
 }
 
-void Connector::setOutput (const int destFilterID_, const int destFilterChannel_)
+void Connector::setOutput (const int destNodeId_, const int destNodeChannel_)
 {
-	if (destNodeID != destFilterID_ || destChannel != destFilterChannel_)
-	{
-		destNodeID = destFilterID_;
-		destChannel = destFilterChannel_;
-		update ();
-	}
+	if (destNodeID == destNodeId_ && destChannel == destNodeChannel_)
+		return;
+
+	destNodeID = destNodeId_;
+	destChannel = destNodeChannel_;
+	updateBoundsAndRepaint ();
 }
 
 void Connector::dragStart (int x, int y)
@@ -73,16 +63,14 @@ void Connector::paint (Graphics& g)
 
 bool Connector::hitTest (int x, int y)
 {
-	if (hitPath.contains ((float)x, (float)y))
-	{
-		double distanceFromStart, distanceFromEnd;
-		getDistancesFromEnds (x, y, distanceFromStart, distanceFromEnd);
+	if (!hitPath.contains ((float)x, (float)y))
+		return false;
 
-		// avoid clicking the connector when over a pin
-		return distanceFromStart > 7.0 && distanceFromEnd > 7.0;
-	}
+	double distanceFromStart, distanceFromEnd;
+	getDistancesFromEnds (x, y, distanceFromStart, distanceFromEnd);
 
-	return false;
+	// Avoid clicking the connector when over a pin
+	return distanceFromStart > 7.0 && distanceFromEnd > 7.0;
 }
 
 void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
@@ -93,18 +81,23 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 	y1 = lasty1;
 	x2 = lastx2;
 	y2 = lasty2;
+	
+	const auto sourceNodeComp = graphComponent->getComponentForNode (sourceNodeID);
 
-	if (graphComponent != nullptr)
+	if (sourceNodeComp != nullptr) 
 	{
-		const auto srcFilterComp = graphComponent->getComponentForFilter (sourceNodeID);
+		const auto pinPos = sourceNodeComp->getPinPos (sourceChannel, false);
+		x1 = std::get<0> (pinPos);
+		y1 = std::get<1> (pinPos);
+	}
 
-		if (srcFilterComp != nullptr)
-			srcFilterComp->getPinPos (sourceChannel, false, x1, y1);
+	const auto destNodeComp = graphComponent->getComponentForNode (destNodeID);
 
-		const auto dstFilterComp = graphComponent->getComponentForFilter (destNodeID);
-
-		if (dstFilterComp != nullptr)
-			dstFilterComp->getPinPos (destChannel, true, x2, y2);
+	if (destNodeComp != nullptr)
+	{
+		const auto pinPos = destNodeComp->getPinPos (destChannel, true);
+		x2 = std::get<0> (pinPos);
+		y2 = std::get<1> (pinPos);
 	}
 }
 
@@ -142,22 +135,19 @@ void Connector::resized ()
 	arrow.addTriangle (-arrowL, arrowW, -arrowL, -arrowW, arrowL, 0.0f);
 
 	arrow.applyTransform (AffineTransform::rotation (float_Pi * 0.5f - (float)atan2 (x2 - x1, y2 - y1))
-		.translated ((x1 + x2) * 0.5f, (y1 + y2) * 0.5f));
+		 .translated ((x1 + x2) * 0.5f, (y1 + y2) * 0.5f));
 
 	linePath.addPath (arrow);
 	linePath.setUsingNonZeroWinding (true);
 }
 
-void Connector::update ()
+void Connector::updateBoundsAndRepaint ()
 {
 	float x1, y1, x2, y2;
 	getPoints (x1, y1, x2, y2);
 
-	if (lastx1 != x1 || lasty1 != y1 ||
-		lastx2 != x2 || lasty2 != y2)
-	{
+	if (lastx1 != x1 || lasty1 != y1 || lastx2 != x2 || lasty2 != y2)
 		resizeToFit ();
-	}
 }
 
 void Connector::resizeToFit ()
@@ -187,11 +177,19 @@ void Connector::mouseDrag (const MouseEvent& e)
 {
 	jassert (graphComponent != nullptr);
 
-	if (!dragging && !e.mouseWasClicked ())
+	// First instance of dragging for this connector, find which end of the connector should be 
+	// dragged and inform the parent graph of the new connector
+	if (dragging)
+	{
+		graphComponent->dragConnector (e);
+	}
+	else if (e.mouseWasDraggedSinceMouseDown ())
 	{
 		dragging = true;
 
-		graphComponent->getGraph()->removeConnection (Ananke::Connection (sourceNodeID, sourceChannel,
+		// TODO only remove on a new valid connection or when finished dragging
+		graphComponent->getGraph()->removeConnection (Connection (
+			sourceNodeID, sourceChannel,
 			destNodeID, destChannel));
 
 		double distanceFromStart, distanceFromEnd;
@@ -201,12 +199,7 @@ void Connector::mouseDrag (const MouseEvent& e)
 		graphComponent->beginConnector (isNearerSource ? 0 : sourceNodeID,
 			sourceChannel,
 			isNearerSource ? destNodeID : 0,
-			destChannel,
-			e);
-	}
-	else if (dragging)
-	{
-		graphComponent->dragConnector (e);
+			destChannel, e);
 	}
 }
 
@@ -215,9 +208,7 @@ void Connector::mouseUp (const MouseEvent& e)
 	jassert (graphComponent != nullptr);
 
 	if (dragging)
-	{
 		graphComponent->endConnector (e);
-	}
 }
 
 }

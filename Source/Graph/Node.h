@@ -87,6 +87,10 @@ public:
                     buffersOut[0]->getSize () == numSamples : true);*/
     }
 
+    // TODO implement better
+    float x = 0.5f;
+    float y = 0.5f;
+
 private:
     int id = -1;
 	Graph* graph = nullptr;

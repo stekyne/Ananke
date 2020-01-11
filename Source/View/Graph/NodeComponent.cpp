@@ -1,5 +1,5 @@
 #include "NodeComponent.h"
-#include "Pin.h"
+#include "PinComponent.h"
 #include "GraphComponent.h"
 #include "../Source/Graph/Graph.h"
 
@@ -13,24 +13,25 @@ NodeComponent::NodeComponent (GraphComponent* graphComponent, int id) :
 	setSize (120, 35);
 }
 
-NodeComponent::~NodeComponent ()
+std::tuple<float, float> NodeComponent::getPinPos (const int index, const bool isInput)
 {
-	deleteAllChildren ();
-}
+	const auto findPin = [&](auto& pin) -> bool {
+		return pin->ChannelIndex == index && isInput == pin->IsInput;
+	};
 
-void NodeComponent::getPinPos (const int index, const bool isInput, float& x, float& y)
-{
-	for (int i = 0; i < getNumChildComponents (); ++i)
-	{
-		auto const pin = dynamic_cast<Pin*>(getChildComponent (i));
+	auto findResult = std::find_if (inputs.begin (), inputs.end (), findPin);
 
-		if (pin != nullptr && pin->Index == index && isInput == pin->IsInput)
-		{
-			x = getX () + pin->getX () + pin->getWidth () * 0.5f;
-			y = getY () + pin->getY () + pin->getHeight () * 0.5f;
-			break;
-		}
+	if (findResult == inputs.end ()) {
+		findResult = std::find_if (outputs.begin (), outputs.end (), findPin);
+
+		// Could not find matching pin
+		if (findResult == outputs.end ()) 
+			return std::make_tuple<float, float> (-1.f, -1.f);
 	}
+
+	return std::make_tuple<float, float> (
+		getX () + (*findResult)->getX () + (*findResult)->getWidth () * 0.05f,
+		getY () + (*findResult)->getY () + (*findResult)->getHeight () * 0.05f);
 }
 
 void NodeComponent::paint (Graphics& g)
@@ -41,15 +42,17 @@ void NodeComponent::paint (Graphics& g)
 	g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
 	g.setColour (Colours::darkgrey);
 	g.setFont (Font ("Arial", "Bold", 12.f));
-	g.drawText (node->getName (), 0, 0, getWidth (), getHeight (), Justification::centred, false);
+	
+	if (node != nullptr)
+		g.drawText (node->getName (), 0, 0, getWidth (), getHeight (), Justification::centred, false);
 }
 
 void NodeComponent::resized ()
 {
-	/** Figure out distances between the pins based on the number of them */
+	// Figure out distances between the pins based on the number of them 
 	auto x = getWidth () / (float)(inputs.size () + 1);
 
-	/** put pins in correct location */
+	// Put pins in correct location
 	for (auto i = 0; i < (int)inputs.size (); ++i)
 	{
 		inputs[i]->setBounds ((int)((i + 1 * x) - 5.0f), 0,
@@ -66,14 +69,14 @@ void NodeComponent::resized ()
 			outputs[i]->getHeight ());
 	}
 
-	if (midiIn != nullptr)
+	if (midiIn)
 	{
 		midiIn->setBounds (0, (getHeight () / 2) - (midiIn->getHeight () / 2),
 			midiIn->getWidth (),
 			midiIn->getHeight ());
 	}
 
-	if (midiOut != nullptr)
+	if (midiOut)
 	{
 		midiOut->setBounds (getWidth () - 10,
 			(getHeight () / 2) - (midiOut->getHeight () / 2),
@@ -81,19 +84,16 @@ void NodeComponent::resized ()
 			midiOut->getHeight ());
 	}
 
-	for (int i = 0; i < getNumChildComponents (); ++i)
-	{
-		auto const pin = dynamic_cast<Pin*>(getChildComponent (i));
+	const auto updatePin = [&](auto& pin) {
+		const int total = pin->IsInput ? numIns : numOuts;
+		const int index = (pin->ChannelIndex == PinComponent::MidiNum) ? (total - 1) : pin->ChannelIndex;
 
-		if (pin != nullptr)
-		{
-			const int total = pin->IsInput ? numIns : numOuts;
-			const int index = (pin->Index == Pin::MidiNum) ? (total - 1) : pin->Index;
+		pin->setBounds ((int)(proportionOfWidth ((1 + index) / (total + 1.0f)) - 5 / 2.f),
+			pin->IsInput ? 0 : (getHeight () - 5), 5, 5);
+	};
 
-			pin->setBounds ((int)(proportionOfWidth ((1 + index) / (total + 1.0f)) - 5 / 2.f),
-				pin->IsInput ? 0 : (getHeight () - 5), 5, 5);
-		}
-	}
+	std::for_each (inputs.begin (), inputs.begin (), updatePin);
+	std::for_each (outputs.begin (), outputs.begin (), updatePin);
 }
 
 void NodeComponent::update ()
@@ -101,6 +101,7 @@ void NodeComponent::update ()
 	jassert (graphComp != nullptr);
 
 	const auto node = graphComp->getGraph()->getNodeForID (id);
+	jassert (node != nullptr);
 	numIns = node->getNumInputChannels ();
 
 	if (node->acceptsMidi ())
@@ -123,9 +124,9 @@ void NodeComponent::update ()
 	setSize (w, h);
 	setName (node->getName ());
 
-	/*setCentreRelative (std::get<0> (node->getPosition ()),
-					   std::get<1> (node->getPosition ()));*/
+	setCentreRelative (node->x, node->y);
 
+	// Check for pin changes
 	if (numIns != numInputs || numOuts != numOutputs)
 	{
 		numInputs = numIns;
@@ -135,32 +136,29 @@ void NodeComponent::update ()
 		outputs.clear ();
 		midiIn = nullptr;
 		midiOut = nullptr;
-		deleteAllChildren ();
 
 		for (auto i = 0; i < node->getNumInputChannels (); ++i)
 		{
-			auto const newPin = new Pin (Pin::AudioInput, id, i, graphComp);
-			inputs.push_back (newPin);
-			addAndMakeVisible (newPin);
+			inputs.emplace_back (std::make_unique<PinComponent> (PinComponent::AudioInput, id, i, graphComp));
+			addAndMakeVisible (inputs.back ().get ());
 		}
 
 		for (auto i = 0; i < node->getNumOutputChannels (); ++i)
 		{
-			auto const newPin = new Pin (Pin::AudioOutput, id, i, graphComp);
-			outputs.push_back (newPin);
-			addAndMakeVisible (newPin);
+			outputs.emplace_back (std::make_unique<PinComponent> (PinComponent::AudioOutput, id, i, graphComp));
+			addAndMakeVisible (outputs.back ().get ());
 		}
 
 		if (node->acceptsMidi ())
 		{
-			auto const midiInPin = new Pin (Pin::MidiInput, id, Pin::MidiNum, graphComp);
-			addAndMakeVisible (midiInPin);
+			midiIn = std::make_unique<PinComponent> (PinComponent::MidiInput, id, PinComponent::MidiNum, graphComp);
+			addAndMakeVisible (*midiIn);
 		}
 
 		if (node->producesMidi ())
 		{
-			auto const midiOutPin = new Pin (Pin::MidiOutput, id, Pin::MidiNum, graphComp);
-			addAndMakeVisible (midiOutPin);
+			midiOut = std::make_unique<PinComponent> (PinComponent::MidiOutput, id, PinComponent::MidiNum, graphComp);
+			addAndMakeVisible (*midiOut);
 		}
 
 		resized ();
@@ -180,17 +178,21 @@ void NodeComponent::mouseDrag (const MouseEvent& e)
 	dragger.dragComponent (this, e, nullptr);
 	auto node = graphComp->getGraph()->getNodeForID (id);
 
-	/*node->setPosition (
-		std::make_tuple<float, float> (
-			(getX () + getWidth () / 2.0f) / (float)getParentWidth (),
-			(getY () + getHeight () / 2.0f) / (float)getParentHeight ())
-		);*/
+	node->x = (getX () + getWidth () / 2.0f) / (float)getParentWidth ();
+	node->y = (getY () + getHeight () / 2.0f) / (float)getParentHeight ();
 
-	graphComp->updateGraph ();
+	// Update this nodes connections and connections going into it to ensure they follow
+	// this node while dragging
+	//graphComp->
+
+#ifndef DEBUG
+	graphComp->redrawSubComponents ();
+#endif
 }
 
 void NodeComponent::mouseUp (const MouseEvent& /*e*/)
 {
+	graphComp->redrawSubComponents ();
 }
 
 }

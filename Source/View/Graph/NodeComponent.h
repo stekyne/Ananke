@@ -4,22 +4,23 @@
 #define NODE_H_INCLUDED
 
 #include <memory>
+#include <tuple>
 #include "../JuceLibraryCode/JuceHeader.h"
 
 namespace Ananke {
 
 class Graph;
 class GraphComponent;
-class Pin;
+class PinComponent;
 
 class NodeComponent : public Component
 {
 public:
 	NodeComponent () = default;
 	NodeComponent (GraphComponent* graphComponent, int id);
-	~NodeComponent ();
+	~NodeComponent () = default;
 
-	void getPinPos (const int index, const bool isInput, float& x, float& y);
+	std::tuple<float, float> getPinPos (const int index, const bool isInput);
 
 	void paint (Graphics& g);
 	void resized ();
@@ -37,10 +38,10 @@ private:
 
 private:
 	ComponentDragger dragger;
-	std::vector<Pin*> inputs;
-	std::vector<Pin*> outputs;
-	Pin* midiIn = nullptr;
-	Pin* midiOut = nullptr;
+	std::vector<std::unique_ptr<PinComponent>> inputs;
+	std::vector<std::unique_ptr<PinComponent>> outputs;
+	std::unique_ptr<PinComponent> midiIn;
+	std::unique_ptr<PinComponent> midiOut;
 	int numIns = 0;
 	int numOuts = 0;
 	int numInputs = 0;
