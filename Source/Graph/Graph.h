@@ -182,7 +182,6 @@ private:
 	AudioInputNode audioInNode;
 	AudioOutputNode audioOutNode;
 	int idCount = 1;
-	bool suspendRebuilding = false;
 };
 
 }

@@ -241,7 +241,6 @@ bool Graph::removeAnyConnection (const int nodeId, const int channelIndex)
 
     // Notify listeners of deletion first
     while (foundElems != std::end (connections)) {
-        // TODO add generic graph configuration has changed listener
         for (auto& listener : listeners)
             listener->connectionRemoved (*foundElems);
     }
@@ -348,7 +347,6 @@ bool Graph::isValidNewConnection (const Connection& testConnection) const
         }
     }
 
-    // Source or destination node does not exist
     return !(srcMatched == false || dstMatched == false);
 }
 
@@ -361,12 +359,6 @@ void Graph::clearGraph ()
 
 bool Graph::buildGraph ()
 {
-	if (suspendRebuilding)
-	{
-		dbg ("Suspending rebuild of graph");
-		return false;
-	}
-
     std::vector<Node*> sortedNodes;
     sortedNodes.reserve (nodes.size ());
     graphOps.clear ();
