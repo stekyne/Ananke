@@ -13,9 +13,9 @@ Connector::Connector (GraphComponent* graphComponent) :
 
 Connector::Connector (GraphComponent* graphComponent, const Connection& connection) :
 	graphComponent (graphComponent),
-	sourceNodeID (connection.sourceNode),
+	sourceNodeId (connection.sourceNode),
 	sourceChannel (connection.sourceChannel),
-	destNodeID (connection.destNode),
+	destNodeId (connection.destNode),
 	destChannel (connection.destChannel)
 {
 
@@ -23,20 +23,20 @@ Connector::Connector (GraphComponent* graphComponent, const Connection& connecti
 
 void Connector::setInput (const int sourceNodeId_, const int sourceNodeChannel_)
 {
-	if (sourceNodeID == sourceNodeId_ && sourceChannel == sourceNodeChannel_)
+	if (sourceNodeId == sourceNodeId_ && sourceChannel == sourceNodeChannel_)
 		return;
 	
-	sourceNodeID = sourceNodeId_;
+	sourceNodeId = sourceNodeId_;
 	sourceChannel = sourceNodeChannel_;
 	updateBoundsAndRepaint ();
 }
 
 void Connector::setOutput (const int destNodeId_, const int destNodeChannel_)
 {
-	if (destNodeID == destNodeId_ && destChannel == destNodeChannel_)
+	if (destNodeId == destNodeId_ && destChannel == destNodeChannel_)
 		return;
 
-	destNodeID = destNodeId_;
+	destNodeId = destNodeId_;
 	destChannel = destNodeChannel_;
 	updateBoundsAndRepaint ();
 }
@@ -73,7 +73,7 @@ bool Connector::hitTest (int x, int y)
 	return distanceFromStart > 7.0 && distanceFromEnd > 7.0;
 }
 
-void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
+void Connector::getStartAndEndPoints (float& x1, float& y1, float& x2, float& y2) const
 {
 	jassert (graphComponent != nullptr);
 
@@ -82,7 +82,7 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 	x2 = lastx2;
 	y2 = lasty2;
 	
-	const auto sourceNodeComp = graphComponent->getComponentForNode (sourceNodeID);
+	const auto sourceNodeComp = graphComponent->getComponentForNode (sourceNodeId);
 
 	if (sourceNodeComp != nullptr) 
 	{
@@ -91,7 +91,7 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 		y1 = std::get<1> (pinPos);
 	}
 
-	const auto destNodeComp = graphComponent->getComponentForNode (destNodeID);
+	const auto destNodeComp = graphComponent->getComponentForNode (destNodeId);
 
 	if (destNodeComp != nullptr)
 	{
@@ -104,7 +104,7 @@ void Connector::getPoints (float& x1, float& y1, float& x2, float& y2) const
 void Connector::resized ()
 {
 	float x1, y1, x2, y2;
-	getPoints (x1, y1, x2, y2);
+	getStartAndEndPoints (x1, y1, x2, y2);
 
 	lastx1 = x1;
 	lasty1 = y1;
@@ -144,7 +144,7 @@ void Connector::resized ()
 void Connector::updateBoundsAndRepaint ()
 {
 	float x1, y1, x2, y2;
-	getPoints (x1, y1, x2, y2);
+	getStartAndEndPoints (x1, y1, x2, y2);
 
 	if (lastx1 != x1 || lasty1 != y1 || lastx2 != x2 || lasty2 != y2)
 		resizeToFit ();
@@ -153,7 +153,7 @@ void Connector::updateBoundsAndRepaint ()
 void Connector::resizeToFit ()
 {
 	float x1, y1, x2, y2;
-	getPoints (x1, y1, x2, y2);
+	getStartAndEndPoints (x1, y1, x2, y2);
 
 	const Rectangle<int> newBounds ((int)jmin (x1, x2) - 4,
 		(int)jmin (y1, y2) - 4,
@@ -170,7 +170,7 @@ void Connector::resizeToFit ()
 
 void Connector::mouseDown (const MouseEvent& /*e*/)
 {
-	dragging = false;
+	isDragging = false;
 }
 
 void Connector::mouseDrag (const MouseEvent& e)
@@ -179,13 +179,13 @@ void Connector::mouseDrag (const MouseEvent& e)
 
 	// First instance of dragging for this connector, find which end of the connector should be 
 	// dragged and inform the parent graph of the new connector
-	if (dragging)
+	if (isDragging)
 	{
 		graphComponent->dragConnector (e);
 	}
 	else if (e.mouseWasDraggedSinceMouseDown ())
 	{
-		dragging = true;
+		isDragging = true;
 
 		// TODO only remove on a new valid connection or when finished dragging
 		graphComponent->getGraph()->removeConnection (Connection (
@@ -207,8 +207,16 @@ void Connector::mouseUp (const MouseEvent& e)
 {
 	jassert (graphComponent != nullptr);
 
-	if (dragging)
+	if (isDragging)
 		graphComponent->endConnector (e);
+}
+
+bool Connector::represents (const Connection& connection)
+{
+	return sourceNodeId == connection.sourceNode &&
+		sourceChannel == connection.sourceChannel &&
+		destNodeId == connection.destNode &&
+		destChannel == connection.destChannel;
 }
 
 }

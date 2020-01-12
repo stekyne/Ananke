@@ -43,10 +43,8 @@ void GraphComponent::paint (Graphics& g)
 NodeComponent* GraphComponent::getComponentForNode (const int nodeId) const
 {
 	for (auto& node : nodes)
-	{
 		if (node->id == nodeId)
 			return node.get ();
-	}
 
 	return nullptr;
 }
@@ -98,10 +96,10 @@ void GraphComponent::dragConnector (const MouseEvent& e)
 
 	if (pin != nullptr)
 	{
-		auto sourceNode = draggingConnector->getSourceNodeID ();
+		auto sourceNode = draggingConnector->getSourceNodeId ();
 		auto sourceChannel = draggingConnector->getSourceChannel ();
 
-		auto destNode = draggingConnector->getDestNodeID ();
+		auto destNode = draggingConnector->getDestNodeId ();
 		auto destChannel = draggingConnector->getDestChannel ();
 
 		if (sourceNode == 0 && !pin->IsInput)
@@ -127,7 +125,7 @@ void GraphComponent::dragConnector (const MouseEvent& e)
 		}
 	}
 
-	if (draggingConnector->getSourceNodeID () == 0)
+	if (draggingConnector->getSourceNodeId () == 0)
 		draggingConnector->dragStart (x, y);
 	else
 		draggingConnector->dragEnd (x, y);
@@ -142,10 +140,10 @@ void GraphComponent::endConnector (const MouseEvent& e)
 
 	const MouseEvent e2 (e.getEventRelativeTo (this));
 
-	auto sourceNode = draggingConnector->getSourceNodeID ();
+	auto sourceNode = draggingConnector->getSourceNodeId ();
 	auto sourceChannel = draggingConnector->getSourceChannel ();
 
-	auto destNode = draggingConnector->getDestNodeID ();
+	auto destNode = draggingConnector->getDestNodeId ();
 	auto destChannel = draggingConnector->getDestChannel ();
 
 	delete draggingConnector;
@@ -175,8 +173,6 @@ void GraphComponent::endConnector (const MouseEvent& e)
 		if (graph.addConnection (Connection (sourceNode, sourceChannel, destNode, destChannel)))
 		{
 			DBG ("Connection is successful: " + String (sourceNode) + " to " + String (destNode));
-			// TODO remove explict redraw
-			redrawSubComponents ();
 		}
 		else
 		{
@@ -190,7 +186,8 @@ PinComponent* GraphComponent::findPin (const int x, const int y) const
 	for (auto& node : nodes)
 	{
 		// TODO refactor this
-		auto const pin = dynamic_cast<PinComponent*> (node->getComponentAt (x - node->getX (), y - node->getY ()));
+		auto const pin = dynamic_cast<PinComponent*> (node->getComponentAt (
+			x - node->getX (), y - node->getY ()));
 
 		if (pin != nullptr)
 			return pin;

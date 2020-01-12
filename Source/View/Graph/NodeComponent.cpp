@@ -111,17 +111,18 @@ void NodeComponent::update ()
 	if (node->producesMidi ())
 		++numOuts;
 
-	int w = 100;
-	int h = 40;
+	int width = 100;
+	int height = 40;
 
-	w = jmax (w, (jmax (numIns, numOuts) + 1) * 20);
+	width = jmax (width, (jmax (numIns, numOuts) + 1) * 20);
 
 	const int textWidth = font.getStringWidth (node->getName ());
-	w = jmax (w, 16 + jmin (textWidth, 300));
-	if (textWidth > 300)
-		h = 100;
+	width = jmax (width, 16 + jmin (textWidth, 300));
 
-	setSize (w, h);
+	if (textWidth > 300)
+		height = 100;
+
+	setSize (width, height);
 	setName (node->getName ());
 
 	setCentreRelative (node->x, node->y);
@@ -185,9 +186,7 @@ void NodeComponent::mouseDrag (const MouseEvent& e)
 	// this node while dragging
 	//graphComp->
 
-#ifndef DEBUG
 	graphComp->redrawSubComponents ();
-#endif
 }
 
 void NodeComponent::mouseUp (const MouseEvent& /*e*/)
