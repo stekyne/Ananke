@@ -21,16 +21,15 @@ public:
 	~NodeComponent () = default;
 
 	std::tuple<float, float> getPinPos (const int index, const bool isInput);
+	void updateFromGraphNode ();
 
-	void paint (Graphics& g);
-	void resized ();
-	void update ();
+	void paint (Graphics& g) override;
+	void resized () override;
+	void mouseDown (const MouseEvent& e) override;
+	void mouseDrag (const MouseEvent& e) override;
+	void mouseUp (const MouseEvent& e) override;
 
-	void mouseDown (const MouseEvent& e);
-	void mouseDrag (const MouseEvent& e);
-	void mouseUp (const MouseEvent& e);
-
-	const int id;
+	const int Id;
 
 private:
 	friend class GraphComponent;

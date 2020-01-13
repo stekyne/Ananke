@@ -26,11 +26,10 @@ public:
 	PinComponent (Type type, int nodeId, int index, GraphComponent* graph);
 	~PinComponent () = default;
 
-	void paint (Graphics& g);
-
-	void mouseDown (const MouseEvent& e);
-	void mouseDrag (const MouseEvent& e);
-	void mouseUp (const MouseEvent& e);
+	void paint (Graphics& g) override;
+	void mouseDown (const MouseEvent& e) override;
+	void mouseDrag (const MouseEvent& e) override;
+	void mouseUp (const MouseEvent& e) override;
 
 	const uint32 ParentNodeID;
 	const int ChannelIndex;

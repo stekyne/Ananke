@@ -7,7 +7,7 @@ namespace Ananke {
 
 NodeComponent::NodeComponent (GraphComponent* graphComponent, int id) :
 	graphComp (graphComponent),
-	id (id),
+	Id (id),
 	font (13.0f, Font::bold)
 {
 	setSize (120, 35);
@@ -21,7 +21,8 @@ std::tuple<float, float> NodeComponent::getPinPos (const int index, const bool i
 
 	auto findResult = std::find_if (inputs.begin (), inputs.end (), findPin);
 
-	if (findResult == inputs.end ()) {
+	if (findResult == inputs.end ())
+	{
 		findResult = std::find_if (outputs.begin (), outputs.end (), findPin);
 
 		// Could not find matching pin
@@ -34,9 +35,79 @@ std::tuple<float, float> NodeComponent::getPinPos (const int index, const bool i
 		getY () + (*findResult)->getY () + (*findResult)->getHeight () * 0.05f);
 }
 
+void NodeComponent::updateFromGraphNode ()
+{
+	jassert (graphComp != nullptr);
+
+	const auto node = graphComp->getGraph ()->getNodeForID (Id);
+	jassert (node != nullptr);
+	numIns = node->getNumInputChannels ();
+
+	if (node->acceptsMidi ())
+		++numIns;
+
+	numOuts = node->getNumOutputChannels ();
+	if (node->producesMidi ())
+		++numOuts;
+
+	int width = 100;
+	int height = 40;
+
+	width = jmax (width, (jmax (numIns, numOuts) + 1) * 20);
+
+	const int textWidth = font.getStringWidth (node->getName ());
+	width = jmax (width, 16 + jmin (textWidth, 300));
+
+	if (textWidth > 300)
+		height = 100;
+
+	setSize (width, height);
+	setName (node->getName ());
+
+	setCentreRelative (node->x, node->y);
+
+	// Check for pin changes
+	if (numIns != numInputs || numOuts != numOutputs)
+	{
+		numInputs = numIns;
+		numOutputs = numOuts;
+
+		inputs.clear ();
+		outputs.clear ();
+		midiIn = nullptr;
+		midiOut = nullptr;
+
+		for (auto i = 0; i < node->getNumInputChannels (); ++i)
+		{
+			inputs.emplace_back (std::make_unique<PinComponent> (PinComponent::AudioInput, Id, i, graphComp));
+			addAndMakeVisible (inputs.back ().get ());
+		}
+
+		for (auto i = 0; i < node->getNumOutputChannels (); ++i)
+		{
+			outputs.emplace_back (std::make_unique<PinComponent> (PinComponent::AudioOutput, Id, i, graphComp));
+			addAndMakeVisible (outputs.back ().get ());
+		}
+
+		if (node->acceptsMidi ())
+		{
+			midiIn = std::make_unique<PinComponent> (PinComponent::MidiInput, Id, PinComponent::MidiNum, graphComp);
+			addAndMakeVisible (*midiIn);
+		}
+
+		if (node->producesMidi ())
+		{
+			midiOut = std::make_unique<PinComponent> (PinComponent::MidiOutput, Id, PinComponent::MidiNum, graphComp);
+			addAndMakeVisible (*midiOut);
+		}
+
+		resized ();
+	}
+}
+
 void NodeComponent::paint (Graphics& g)
 {
-	const auto node = graphComp->getGraph()->getNodeForID (id);
+	const auto node = graphComp->getGraph()->getNodeForID (Id);
 
 	g.setColour (Colours::lightgrey);
 	g.fillRoundedRectangle (5.f, 5.f, getWidth () - 10.f, getHeight () - 10.f, 5.f);
@@ -96,76 +167,6 @@ void NodeComponent::resized ()
 	std::for_each (outputs.begin (), outputs.begin (), updatePin);
 }
 
-void NodeComponent::update ()
-{
-	jassert (graphComp != nullptr);
-
-	const auto node = graphComp->getGraph()->getNodeForID (id);
-	jassert (node != nullptr);
-	numIns = node->getNumInputChannels ();
-
-	if (node->acceptsMidi ())
-		++numIns;
-
-	numOuts = node->getNumOutputChannels ();
-	if (node->producesMidi ())
-		++numOuts;
-
-	int width = 100;
-	int height = 40;
-
-	width = jmax (width, (jmax (numIns, numOuts) + 1) * 20);
-
-	const int textWidth = font.getStringWidth (node->getName ());
-	width = jmax (width, 16 + jmin (textWidth, 300));
-
-	if (textWidth > 300)
-		height = 100;
-
-	setSize (width, height);
-	setName (node->getName ());
-
-	setCentreRelative (node->x, node->y);
-
-	// Check for pin changes
-	if (numIns != numInputs || numOuts != numOutputs)
-	{
-		numInputs = numIns;
-		numOutputs = numOuts;
-
-		inputs.clear ();
-		outputs.clear ();
-		midiIn = nullptr;
-		midiOut = nullptr;
-
-		for (auto i = 0; i < node->getNumInputChannels (); ++i)
-		{
-			inputs.emplace_back (std::make_unique<PinComponent> (PinComponent::AudioInput, id, i, graphComp));
-			addAndMakeVisible (inputs.back ().get ());
-		}
-
-		for (auto i = 0; i < node->getNumOutputChannels (); ++i)
-		{
-			outputs.emplace_back (std::make_unique<PinComponent> (PinComponent::AudioOutput, id, i, graphComp));
-			addAndMakeVisible (outputs.back ().get ());
-		}
-
-		if (node->acceptsMidi ())
-		{
-			midiIn = std::make_unique<PinComponent> (PinComponent::MidiInput, id, PinComponent::MidiNum, graphComp);
-			addAndMakeVisible (*midiIn);
-		}
-
-		if (node->producesMidi ())
-		{
-			midiOut = std::make_unique<PinComponent> (PinComponent::MidiOutput, id, PinComponent::MidiNum, graphComp);
-			addAndMakeVisible (*midiOut);
-		}
-
-		resized ();
-	}
-}
-
 void NodeComponent::mouseDown (const MouseEvent& e)
 {
 	toFront (true);
@@ -177,7 +178,7 @@ void NodeComponent::mouseDrag (const MouseEvent& e)
 	jassert (graphComp != nullptr);
 
 	dragger.dragComponent (this, e, nullptr);
-	auto node = graphComp->getGraph()->getNodeForID (id);
+	auto node = graphComp->getGraph()->getNodeForID (Id);
 
 	node->x = (getX () + getWidth () / 2.0f) / (float)getParentWidth ();
 	node->y = (getY () + getHeight () / 2.0f) / (float)getParentHeight ();

@@ -43,7 +43,7 @@ void GraphComponent::paint (Graphics& g)
 NodeComponent* GraphComponent::getComponentForNode (const int nodeId) const
 {
 	for (auto& node : nodes)
-		if (node->id == nodeId)
+		if (node->Id == nodeId)
 			return node.get ();
 
 	return nullptr;
@@ -151,33 +151,33 @@ void GraphComponent::endConnector (const MouseEvent& e)
 
 	const auto pin = findPin (e2.x, e2.y);
 
-	if (pin != nullptr)
+	if (pin == nullptr)
+		return;
+
+	if (sourceNode == 0)
 	{
-		if (sourceNode == 0)
-		{
-			if (pin->IsInput)
-				return;
+		if (pin->IsInput)
+			return;
 
-			sourceNode = pin->ParentNodeID;
-			sourceChannel = pin->ChannelIndex;
-		}
-		else
-		{
-			if (!pin->IsInput)
-				return;
+		sourceNode = pin->ParentNodeID;
+		sourceChannel = pin->ChannelIndex;
+	}
+	else
+	{
+		if (!pin->IsInput)
+			return;
 
-			destNode = pin->ParentNodeID;
-			destChannel = pin->ChannelIndex;
-		}
+		destNode = pin->ParentNodeID;
+		destChannel = pin->ChannelIndex;
+	}
 
-		if (graph.addConnection (Connection (sourceNode, sourceChannel, destNode, destChannel)))
-		{
-			DBG ("Connection is successful: " + String (sourceNode) + " to " + String (destNode));
-		}
-		else
-		{
-			DBG ("Connection unsuccessful: " + String (sourceNode) + " to " + String (destNode));
-		}
+	if (graph.addConnection (Connection (sourceNode, sourceChannel, destNode, destChannel)))
+	{
+		DBG ("Connection is successful: " + String (sourceNode) + " to " + String (destNode));
+	}
+	else
+	{
+		DBG ("Connection unsuccessful: " + String (sourceNode) + " to " + String (destNode));
 	}
 }
 
@@ -186,8 +186,8 @@ PinComponent* GraphComponent::findPin (const int x, const int y) const
 	for (auto& node : nodes)
 	{
 		// TODO refactor this
-		auto const pin = dynamic_cast<PinComponent*> (node->getComponentAt (
-			x - node->getX (), y - node->getY ()));
+		const auto componentAt = node->getComponentAt (x - node->getX (), y - node->getY ());
+		auto const pin = dynamic_cast<PinComponent*> (componentAt);
 
 		if (pin != nullptr)
 			return pin;
@@ -199,7 +199,7 @@ PinComponent* GraphComponent::findPin (const int x, const int y) const
 void GraphComponent::redrawSubComponents ()
 {
 	for (auto& node : nodes)
-		node->update ();
+		node->updateFromGraphNode ();
 
 	for (auto& connector : connectors)
 	{
@@ -223,7 +223,7 @@ void GraphComponent::nodeRemoved (const Node& removedNode)
 {
 	nodes.erase (
 		std::remove_if (std::begin (nodes), std::end (nodes), [&](const auto& item) { 
-			return item->id == removedNode.getID ();
+			return item->Id == removedNode.getID ();
 		}),
 		std::end (nodes)
 	);
@@ -234,7 +234,7 @@ void GraphComponent::nodeRemoved (const Node& removedNode)
 
 void GraphComponent::newConnectionAdded (const Connection& newConnection)
 {
-	connectors.push_back (std::make_unique<Connector> (this, Connection (
+	connectors.push_back (std::make_unique<ConnectionComponent> (this, Connection (
 		newConnection.sourceNode, newConnection.sourceChannel, 
 		newConnection.destNode, newConnection.destChannel)));
 	

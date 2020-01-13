@@ -18,8 +18,8 @@ public:
 	GraphComponent (Graph& graph);
 	~GraphComponent ();
 
-	void resized ();
-	void paint (Graphics& g);
+	void resized () override;
+	void paint (Graphics& g) override;
 
 	NodeComponent* getComponentForNode (const int nodeId) const;
 
