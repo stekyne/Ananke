@@ -11,15 +11,15 @@ class GraphComponent;
 class Graph;
 struct Connection;
 
-class Connector : public Component
+class ConnectionComponent : public Component
 {
 public:
-	Connector () = default;
-	Connector (GraphComponent* graphComponent);
-	Connector (GraphComponent* graphComponent, const Connection& connection);
-	~Connector () = default;
+	ConnectionComponent () = default;
+	ConnectionComponent (GraphComponent* graphComponent);
+	ConnectionComponent (GraphComponent* graphComponent, const Connection& connection);
+	~ConnectionComponent () = default;
 
-	friend bool operator== (const Connector& left, const Connector& right)
+	friend bool operator== (const ConnectionComponent& left, const ConnectionComponent& right)
 	{
 		return left.getSourceNodeId () == right.getSourceNodeId () &&
 			left.getSourceChannel () == right.getSourceChannel () &&
@@ -103,7 +103,7 @@ private:
 	GraphComponent* graphComponent = nullptr;
 	bool isDragging = false;
 
-	JUCE_LEAK_DETECTOR (Connector);
+	JUCE_LEAK_DETECTOR (ConnectionComponent);
 };
 
 

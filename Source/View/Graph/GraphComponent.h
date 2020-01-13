@@ -8,7 +8,7 @@
 
 namespace Ananke {
 
-class Connector;
+class ConnectionComponent;
 class NodeComponent;
 class PinComponent;
 
@@ -41,8 +41,8 @@ private:
 private:
 	Graph& graph;
 	std::vector<std::unique_ptr<NodeComponent>> nodes;
-	std::vector<std::unique_ptr<Connector>> connectors;
-	Connector* draggingConnector = nullptr;
+	std::vector<std::unique_ptr<ConnectionComponent>> connectors;
+	ConnectionComponent* draggingConnector = nullptr;
 	 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GraphComponent);
 };

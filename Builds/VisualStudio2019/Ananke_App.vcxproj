@@ -134,7 +134,7 @@
     <ClCompile Include="..\..\Source\Graph\AudioBufferManager.cpp" />
     <ClCompile Include="..\..\Source\Graph\Graph.cpp" />
     <ClCompile Include="..\..\Source\View\WidgetWrapper.cpp" />
-    <ClCompile Include="..\..\Source\View\Graph\Connector.cpp" />
+    <ClCompile Include="..\..\Source\View\Graph\ConnectionComponent.cpp" />
     <ClCompile Include="..\..\Source\View\Graph\GraphComponent.cpp" />
     <ClCompile Include="..\..\Source\View\Graph\NodeComponent.cpp" />
     <ClCompile Include="..\..\Source\View\Graph\PinComponent.cpp" />
@@ -1969,7 +1969,7 @@
     <ClInclude Include="..\..\Source\CommandIDs.h" />
     <ClInclude Include="..\..\Source\LookAndFeel.h" />
     <ClInclude Include="..\..\Source\View\WidgetWrapper.h" />
-    <ClInclude Include="..\..\Source\View\Graph\Connector.h" />
+    <ClInclude Include="..\..\Source\View\Graph\ConnectionComponent.h" />
     <ClInclude Include="..\..\Source\View\Graph\GraphComponent.h" />
     <ClInclude Include="..\..\Source\View\Graph\NodeComponent.h" />
     <ClInclude Include="..\..\Source\View\Graph\PinComponent.h" />

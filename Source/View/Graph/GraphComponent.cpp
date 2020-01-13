@@ -1,6 +1,6 @@
 #include "GraphComponent.h"
 #include "NodeComponent.h"
-#include "Connector.h"
+#include "ConnectionComponent.h"
 #include "PinComponent.h"
 #include "../Source/Graph/Connection.h"
 
@@ -11,7 +11,7 @@ GraphComponent::GraphComponent (Graph& graph) :
 {
 	for (const auto& connection : graph.getConnections ())
 	{
-		connectors.push_back (std::make_unique<Connector> (this, connection));
+		connectors.push_back (std::make_unique<ConnectionComponent> (this, connection));
 		addAndMakeVisible (connectors.back ().get ());
 	}
 
@@ -60,12 +60,12 @@ void GraphComponent::beginConnector (const int sourceNodeId, const int sourceNod
 		draggingConnector = nullptr;
 	}
 
-	draggingConnector = dynamic_cast<Connector*> (e.originalComponent);
+	draggingConnector = dynamic_cast<ConnectionComponent*> (e.originalComponent);
 
 	// User didnt click on a connector so create a new one
 	if (draggingConnector == nullptr)
 	{
-		draggingConnector = new Connector (this, Connection ( 
+		draggingConnector = new ConnectionComponent (this, Connection ( 
 			sourceNodeId, sourceNodeChannel,
 			destNodeId, destNodeChannel));
 	}

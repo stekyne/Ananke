@@ -447,9 +447,6 @@
     <ClCompile Include="..\..\Source\View\WidgetWrapper.cpp">
       <Filter>Ananke\Source\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\View\Graph\Connector.cpp">
-      <Filter>Ananke\Source\View\Graph</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\View\Graph\GraphComponent.cpp">
       <Filter>Ananke\Source\View\Graph</Filter>
     </ClCompile>
@@ -2301,6 +2298,9 @@
     <ClCompile Include="..\..\Source\View\Graph\PinComponent.cpp">
       <Filter>Ananke\Source\View\Graph</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\Graph\ConnectionComponent.cpp">
+      <Filter>Ananke\Source\View\Graph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Graph\NodeTypes\AudioInputNode.h">
@@ -2359,9 +2359,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\WidgetWrapper.h">
       <Filter>Ananke\Source\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\View\Graph\Connector.h">
-      <Filter>Ananke\Source\View\Graph</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\Graph\GraphComponent.h">
       <Filter>Ananke\Source\View\Graph</Filter>
@@ -4518,6 +4515,9 @@
       <Filter>JUCE Library Code</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\Graph\PinComponent.h">
+      <Filter>Ananke\Source\View\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\Graph\ConnectionComponent.h">
       <Filter>Ananke\Source\View\Graph</Filter>
     </ClInclude>
   </ItemGroup>

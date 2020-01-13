@@ -1,4 +1,4 @@
-#include "Connector.h"
+#include "ConnectionComponent.h"
 #include "NodeComponent.h"
 #include "GraphComponent.h"
 #include "../Source/Graph/Graph.h"
@@ -6,12 +6,12 @@
 
 namespace Ananke {
 
-Connector::Connector (GraphComponent* graphComponent) :
+ConnectionComponent::ConnectionComponent (GraphComponent* graphComponent) :
 	graphComponent (graphComponent)
 {
 }
 
-Connector::Connector (GraphComponent* graphComponent, const Connection& connection) :
+ConnectionComponent::ConnectionComponent (GraphComponent* graphComponent, const Connection& connection) :
 	graphComponent (graphComponent),
 	sourceNodeId (connection.sourceNode),
 	sourceChannel (connection.sourceChannel),
@@ -21,7 +21,7 @@ Connector::Connector (GraphComponent* graphComponent, const Connection& connecti
 
 }
 
-void Connector::setInput (const int sourceNodeId_, const int sourceNodeChannel_)
+void ConnectionComponent::setInput (const int sourceNodeId_, const int sourceNodeChannel_)
 {
 	if (sourceNodeId == sourceNodeId_ && sourceChannel == sourceNodeChannel_)
 		return;
@@ -31,7 +31,7 @@ void Connector::setInput (const int sourceNodeId_, const int sourceNodeChannel_)
 	updateBoundsAndRepaint ();
 }
 
-void Connector::setOutput (const int destNodeId_, const int destNodeChannel_)
+void ConnectionComponent::setOutput (const int destNodeId_, const int destNodeChannel_)
 {
 	if (destNodeId == destNodeId_ && destChannel == destNodeChannel_)
 		return;
@@ -41,27 +41,27 @@ void Connector::setOutput (const int destNodeId_, const int destNodeChannel_)
 	updateBoundsAndRepaint ();
 }
 
-void Connector::dragStart (int x, int y)
+void ConnectionComponent::dragStart (int x, int y)
 {
 	lastx1 = (float)x;
 	lasty1 = (float)y;
 	resizeToFit ();
 }
 
-void Connector::dragEnd (int x, int y)
+void ConnectionComponent::dragEnd (int x, int y)
 {
 	lastx2 = (float)x;
 	lasty2 = (float)y;
 	resizeToFit ();
 }
 
-void Connector::paint (Graphics& g)
+void ConnectionComponent::paint (Graphics& g)
 {
 	g.setColour (Colours::whitesmoke);
 	g.fillPath (linePath);
 }
 
-bool Connector::hitTest (int x, int y)
+bool ConnectionComponent::hitTest (int x, int y)
 {
 	if (!hitPath.contains ((float)x, (float)y))
 		return false;
@@ -73,7 +73,7 @@ bool Connector::hitTest (int x, int y)
 	return distanceFromStart > 7.0 && distanceFromEnd > 7.0;
 }
 
-void Connector::getStartAndEndPoints (float& x1, float& y1, float& x2, float& y2) const
+void ConnectionComponent::getStartAndEndPoints (float& x1, float& y1, float& x2, float& y2) const
 {
 	jassert (graphComponent != nullptr);
 
@@ -101,7 +101,7 @@ void Connector::getStartAndEndPoints (float& x1, float& y1, float& x2, float& y2
 	}
 }
 
-void Connector::resized ()
+void ConnectionComponent::resized ()
 {
 	float x1, y1, x2, y2;
 	getStartAndEndPoints (x1, y1, x2, y2);
@@ -141,7 +141,7 @@ void Connector::resized ()
 	linePath.setUsingNonZeroWinding (true);
 }
 
-void Connector::updateBoundsAndRepaint ()
+void ConnectionComponent::updateBoundsAndRepaint ()
 {
 	float x1, y1, x2, y2;
 	getStartAndEndPoints (x1, y1, x2, y2);
@@ -150,7 +150,7 @@ void Connector::updateBoundsAndRepaint ()
 		resizeToFit ();
 }
 
-void Connector::resizeToFit ()
+void ConnectionComponent::resizeToFit ()
 {
 	float x1, y1, x2, y2;
 	getStartAndEndPoints (x1, y1, x2, y2);
@@ -168,12 +168,12 @@ void Connector::resizeToFit ()
 	repaint ();
 }
 
-void Connector::mouseDown (const MouseEvent& /*e*/)
+void ConnectionComponent::mouseDown (const MouseEvent& /*e*/)
 {
 	isDragging = false;
 }
 
-void Connector::mouseDrag (const MouseEvent& e)
+void ConnectionComponent::mouseDrag (const MouseEvent& e)
 {
 	jassert (graphComponent != nullptr);
 
@@ -187,23 +187,19 @@ void Connector::mouseDrag (const MouseEvent& e)
 	{
 		isDragging = true;
 
-		// TODO only remove on a new valid connection or when finished dragging
 		graphComponent->getGraph()->removeConnection (Connection (
-			sourceNodeID, sourceChannel,
-			destNodeID, destChannel));
+			sourceNodeId, sourceChannel, destNodeId, destChannel));
 
 		double distanceFromStart, distanceFromEnd;
 		getDistancesFromEnds (e.x, e.y, distanceFromStart, distanceFromEnd);
-		const bool isNearerSource = (distanceFromStart < distanceFromEnd);
+		const bool isNearerSource = distanceFromStart < distanceFromEnd;
 
-		graphComponent->beginConnector (isNearerSource ? 0 : sourceNodeID,
-			sourceChannel,
-			isNearerSource ? destNodeID : 0,
-			destChannel, e);
+		graphComponent->beginConnector (isNearerSource ? 0 : sourceNodeId, sourceChannel,
+			isNearerSource ? destNodeId : 0, destChannel, e);
 	}
 }
 
-void Connector::mouseUp (const MouseEvent& e)
+void ConnectionComponent::mouseUp (const MouseEvent& e)
 {
 	jassert (graphComponent != nullptr);
 
@@ -211,7 +207,7 @@ void Connector::mouseUp (const MouseEvent& e)
 		graphComponent->endConnector (e);
 }
 
-bool Connector::represents (const Connection& connection)
+bool ConnectionComponent::represents (const Connection& connection)
 {
 	return sourceNodeId == connection.sourceNode &&
 		sourceChannel == connection.sourceChannel &&
